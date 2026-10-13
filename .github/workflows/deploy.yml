@@ -91,3 +91,6 @@ jobs:
           cmp journey.js /tmp/published-journey.js
           curl --fail --silent --show-error https://store.view-mind.com/enrollment.js -o /tmp/published-enrollment.js
           cmp enrollment.js /tmp/published-enrollment.js
+          curl --fail --silent --show-error --location https://store.view-mind.com/kora-gym-dashboard.html -o /tmp/academy-legacy-dashboard.html
+          grep -q 'journey.js?v=' /tmp/academy-legacy-dashboard.html
+          grep -q 'كل الرياضات في مكان واحد' /tmp/academy-root.html

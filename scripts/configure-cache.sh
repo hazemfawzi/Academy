@@ -14,6 +14,13 @@ fi
 cat >> "$new_config" <<'CONFIG'
 
 # BEGIN ACADEMY CACHE
+<IfModule mod_dir.c>
+  DirectoryIndex disabled
+  DirectoryIndex index.html
+</IfModule>
+<IfModule mod_alias.c>
+  RedirectMatch 302 ^/kora-gym-dashboard\.html$ /dashboard.html
+</IfModule>
 <IfModule mod_headers.c>
   <FilesMatch "\.(html|htm)$">
     Header always set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
