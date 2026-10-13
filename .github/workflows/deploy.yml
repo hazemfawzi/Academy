@@ -88,15 +88,19 @@ jobs:
           grep -q 'journey.js?v=' /tmp/academy-dashboard.html
           curl --fail --silent --show-error https://store.view-mind.com/ -o /tmp/academy-root.html
           grep -q 'journey.js?v=\|landing.html' /tmp/academy-root.html
-          curl --fail --silent --show-error https://store.view-mind.com/journey.js -o /tmp/published-journey.js
+          curl --fail --silent --show-error "https://store.view-mind.com/journey.js?v=$(sha256sum journey.js | cut -c1-12)" -o /tmp/published-journey.js
           cmp journey.js /tmp/published-journey.js
-          curl --fail --silent --show-error https://store.view-mind.com/enrollment.js -o /tmp/published-enrollment.js
+          curl --fail --silent --show-error "https://store.view-mind.com/enrollment.js?v=$(sha256sum enrollment.js | cut -c1-12)" -o /tmp/published-enrollment.js
           cmp enrollment.js /tmp/published-enrollment.js
-          curl --fail --silent --show-error https://store.view-mind.com/academy-ui.js -o /tmp/published-academy-ui.js
+          curl --fail --silent --show-error "https://store.view-mind.com/academy-ui.js?v=$(sha256sum academy-ui.js | cut -c1-12)" -o /tmp/published-academy-ui.js
           cmp academy-ui.js /tmp/published-academy-ui.js
-          curl --fail --silent --show-error https://store.view-mind.com/portal.css -o /tmp/published-portal.css
+          expected_ui_hash=$(sha256sum academy-ui.js | cut -c1-12)
+          grep -q "academy-ui.js?v=$expected_ui_hash" /tmp/academy-dashboard.html
+          curl --fail --silent --show-error "https://store.view-mind.com/academy-ui.css?v=$(sha256sum academy-ui.css | cut -c1-12)" -o /tmp/published-academy-ui.css
+          cmp academy-ui.css /tmp/published-academy-ui.css
+          curl --fail --silent --show-error "https://store.view-mind.com/portal.css?v=$(sha256sum portal.css | cut -c1-12)" -o /tmp/published-portal.css
           cmp portal.css /tmp/published-portal.css
-          curl --fail --silent --show-error https://store.view-mind.com/app-entry.js -o /tmp/published-app-entry.js
+          curl --fail --silent --show-error "https://store.view-mind.com/app-entry.js?v=$(sha256sum app-entry.js | cut -c1-12)" -o /tmp/published-app-entry.js
           cmp app-entry.js /tmp/published-app-entry.js
           curl --fail --silent --show-error --location https://store.view-mind.com/kora-gym-dashboard.html -o /tmp/academy-legacy-dashboard.html
           grep -q 'journey.js?v=' /tmp/academy-legacy-dashboard.html
