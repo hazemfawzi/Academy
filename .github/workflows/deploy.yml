@@ -74,6 +74,9 @@ jobs:
           backup_path="${DEPLOY_PATH%/}.deploy-backups/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           rsync -az --protect-args --delay-updates --backup --backup-dir="$backup_path" \
             -e "$remote_shell" /tmp/academy-site/ "$DEPLOY_USER@$DEPLOY_HOST:${DEPLOY_PATH%/}/"
+          ssh -p "$DEPLOY_PORT" -i "$key_dir/key" -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$key_dir/known_hosts" "$DEPLOY_USER@$DEPLOY_HOST" \
+            bash -s -- "$DEPLOY_PATH" < scripts/configure-cache.sh
       - name: Check published pages
         run: |
           set -euo pipefail
