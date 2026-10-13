@@ -26,10 +26,10 @@ jobs:
           cp -R assets /tmp/academy-site/
       - name: Deploy over SSH
         env:
-          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ vars.DEPLOY_USER }}
-          DEPLOY_PORT: ${{ vars.DEPLOY_PORT }}
-          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST || 'server1.view-mind.com' }}
+          DEPLOY_USER: ${{ vars.DEPLOY_USER || 'viewmind' }}
+          DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/home/viewmind/public_html/Kora-Gym' }}
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           EXPECTED_HOST_FINGERPRINT: SHA256:qHouKFK2hEu62cJ3zpVzoga5JMkeW5UhHnxeC6gtrD0
         shell: bash
@@ -62,3 +62,12 @@ jobs:
           backup_path="${DEPLOY_PATH%/}.deploy-backups/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           rsync -az --protect-args --delay-updates --backup --backup-dir="$backup_path" \
             -e "$remote_shell" /tmp/academy-site/ "$DEPLOY_USER@$DEPLOY_HOST:${DEPLOY_PATH%/}/"
+      - name: Check published pages
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 3 https://store.view-mind.com/index.html -o /tmp/published-index.html
+          grep -q 'أكاديمية النخبة' /tmp/published-index.html
+          curl --fail --silent --show-error https://store.view-mind.com/journey.js -o /tmp/published-journey.js
+          cmp journey.js /tmp/published-journey.js
+          curl --fail --silent --show-error https://store.view-mind.com/enrollment.js -o /tmp/published-enrollment.js
+          cmp enrollment.js /tmp/published-enrollment.js
