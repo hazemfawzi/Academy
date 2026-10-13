@@ -1,0 +1,14 @@
+name: Review public market sources
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/research.yml', 'scripts/research-market.py']
+permissions:
+  contents: read
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read official product pages
+        run: python3 scripts/research-market.py
