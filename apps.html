@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>أكاديمية النخبة — تطبيقات الموبايل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--bg:#f4f1f1;--card:#fff;--ink:#17110f;--ink2:#4b4140;--mut:#8b7f7d;--line:#efe9e8;--red:#e01f26;--red2:#a3121a;--redbg:#fdecec;--blk:#0f0f10;--g:#12804a;--gbg:#e4f6ec;--o:#c2650c;--obg:#fff1e0;--b:#2463d6;--bbg:#e7effd;--sh:0 1px 2px rgba(30,0,0,.04),0 8px 24px rgba(40,0,0,.06)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:#e9e4e3}
+body{font-family:'Cairo',sans-serif;color:var(--ink);font-size:14px;min-height:100vh}
+button{font-family:inherit;cursor:pointer;color:var(--ink);background:none;border:0}
+input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)!important;background:#f7f4f4!important;border:1.5px solid transparent;border-radius:14px;padding:12px 14px;width:100%;outline:none}
+input:focus,textarea:focus{border-color:var(--red);background:#fff!important}
+option{color:var(--ink);background:#fff}
+svg{flex-shrink:0;display:block}
+.top{display:flex;align-items:center;gap:12px;padding:12px 22px;background:var(--blk);color:#fff;flex-wrap:wrap}
+.top img{width:38px;height:38px;border-radius:11px}.top b{font-size:17px;font-weight:800}.top b span{color:#ff4d4d}
+.sw{display:flex;gap:6px;margin-inline-start:auto;background:#1d1d1f;border-radius:16px;padding:4px}
+.sw button{color:#bbb;border-radius:12px;padding:8px 14px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px}
+.sw button.on{background:var(--red);color:#fff}
+.stage{display:flex;gap:34px;justify-content:center;align-items:flex-start;padding:28px 20px 44px}
+.guide{width:300px;background:#fff;border-radius:22px;padding:20px;box-shadow:var(--sh);position:sticky;top:20px}
+.guide h2{font-size:19px;font-weight:800}.guide .who{color:var(--mut);font-size:12.5px;margin-bottom:8px}
+.guide p{font-size:13px;color:var(--ink2);line-height:1.75}
+.guide .sl{margin-top:14px;display:flex;flex-direction:column;gap:3px}
+.guide .sl button{text-align:right;padding:9px 12px;border-radius:12px;font-weight:600;font-size:13px}
+.guide .sl button:hover{background:#f7f3f3}.guide .sl button.on{background:var(--redbg);color:var(--red2)}
+.phone{width:392px;height:820px;border-radius:54px;background:#0b0b0c;padding:11px;box-shadow:0 0 0 2px #2a2a2c,0 40px 80px rgba(0,0,0,.28);flex-shrink:0}
+.scr{position:relative;width:100%;height:100%;border-radius:44px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column}
+.status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;font-size:13px;font-weight:800;flex-shrink:0;position:relative;z-index:4}
+.status.dk{background:var(--blk);color:#fff}
+.island{position:absolute;left:50%;top:9px;transform:translateX(-50%);width:112px;height:30px;background:#000;border-radius:20px}
+.view{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:20px}
+.view::-webkit-scrollbar{width:0}
+.tab{display:flex;background:rgba(255,255,255,.96);box-shadow:0 -1px 0 var(--line);padding:8px 6px 22px;flex-shrink:0}
+.tab button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:700;color:#a49a98;position:relative}
+.tab button i{display:grid;place-items:center;width:52px;height:30px;border-radius:15px;transition:.15s}
+.tab button.on{color:var(--red)}.tab button.on i{background:var(--redbg)}
+.tab .bd{position:absolute;top:-2px;left:calc(50% - 22px);background:var(--red);color:#fff;font-size:10px;font-style:normal;border-radius:10px;padding:0 5px;min-width:17px;line-height:17px;border:2px solid #fff}
+.hero{background:radial-gradient(130% 100% at 100% 0%,#c0161e 0%,#4a0b0e 42%,#0f0f10 78%);color:#fff;padding:6px 18px 22px;border-radius:0 0 30px 30px}
+.hero .t1{font-size:12.5px;opacity:.7}.hero .t2{font-size:22px;font-weight:900;letter-spacing:-.3px}
+.hb{width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.12);display:grid;place-items:center;color:#fff;position:relative}
+.hb .dot{position:absolute;top:8px;right:9px;width:9px;height:9px;border-radius:50%;background:var(--red);border:2px solid #2a0b0c}
+.glass{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:14px;margin-top:16px}
+.hd{position:sticky;top:0;z-index:3;background:rgba(244,241,241,.95);padding:6px 18px 10px}
+.hdr{display:flex;align-items:center;gap:10px;min-height:44px}
+.hd h1{font-size:24px;font-weight:900;letter-spacing:-.4px}
+.ib{width:40px;height:40px;border-radius:14px;background:#fff;box-shadow:var(--sh);display:grid;place-items:center;position:relative}
+.pad{padding:12px 16px 0}
+.card{background:var(--card);border-radius:22px;padding:16px;margin-bottom:12px;box-shadow:var(--sh)}
+.card.tap{cursor:pointer}
+.row{display:flex;align-items:center;gap:10px}.f1{flex:1;min-width:0}.mt{margin-top:12px}.mt6{margin-top:6px}
+.mut{color:var(--mut);font-size:12.5px}.sm{font-size:11.5px}
+.ttl{font-size:16px;font-weight:800}
+.sec{font-weight:800;margin:14px 4px 10px;font-size:15px;display:flex;align-items:center;gap:8px}
+.sec a{margin-inline-start:auto;color:var(--red);font-size:12.5px;font-weight:700;cursor:pointer}
+.btn{background:var(--red);color:#fff;border-radius:15px;height:48px;padding:0 16px;font-weight:800;font-size:14.5px;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 16px rgba(224,31,38,.25)}
+.btn.ghost{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.soft{background:var(--redbg);color:var(--red2);box-shadow:none}
+.btn.dark{background:var(--blk);color:#fff;box-shadow:none}
+.btn.wa{background:#1fbf5b;color:#fff;box-shadow:none}
+.btn.wh{background:#fff;color:var(--blk);box-shadow:none}
+.btn.gl{background:rgba(255,255,255,.14);color:#fff;box-shadow:none}
+.btn.sm{height:36px;padding:0 13px;font-size:13px;border-radius:12px}
+.btn.full{width:100%}.btn[disabled]{opacity:.4}
+.seg{display:flex;background:#ebe5e4;border-radius:14px;padding:4px;gap:2px}
+.seg button{flex:1;padding:8px 6px;border-radius:11px;font-weight:700;font-size:12.5px;color:var(--ink2)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{background:#fff;color:var(--ink);border-radius:20px;padding:7px 13px;font-weight:700;font-size:12.5px;box-shadow:inset 0 0 0 1.5px var(--line)}
+.chip.on{background:var(--blk);color:#fff;box-shadow:none}
+.chip.red.on{background:var(--red)}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:20px;font-size:11.5px;font-weight:800;white-space:nowrap}
+.p-g{background:var(--gbg);color:var(--g)}.p-r{background:var(--redbg);color:var(--red2)}.p-o{background:var(--obg);color:var(--o)}.p-b{background:var(--bbg);color:var(--b)}.p-x{background:#f1ecec;color:var(--mut)}.p-w{background:rgba(255,255,255,.16);color:#fff}
+.lst .it{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.lst .it:last-child{border:0;padding-bottom:2px}.lst .it:first-child{padding-top:2px}
+.lst .it.tap{cursor:pointer}
+.ico{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;flex-shrink:0}
+.i-r{background:var(--redbg);color:var(--red)}.i-g{background:var(--gbg);color:var(--g)}.i-o{background:var(--obg);color:var(--o)}.i-b{background:var(--bbg);color:var(--b)}.i-k{background:#f1ecec;color:var(--ink2)}.i-y{background:#fff6d8;color:#a77a00}
+.av{border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;flex-shrink:0}
+.chev{color:#c9bfbd}
+.pbar{height:8px;background:#f1eaea;border-radius:6px;overflow:hidden}.pbar i{display:block;height:100%;background:var(--red);border-radius:6px}
+.pbar.w{background:rgba(255,255,255,.18)}.pbar.w i{background:#fff}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.stat4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.st{background:#fff;border-radius:18px;padding:12px 6px;text-align:center;box-shadow:var(--sh)}
+.st b{display:block;font-size:20px;font-weight:900}.st small{color:var(--mut);font-size:11px;font-weight:600}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stars{color:#e8a20f;letter-spacing:-1px}.stars i{color:#e3dad8;font-style:normal}
+.ring{width:96px;height:96px;border-radius:50%;background:conic-gradient(var(--c,var(--red)) calc(var(--p)*1%),var(--rb,#f1eaea) 0);display:grid;place-items:center;flex-shrink:0}
+.ring span{width:76px;height:76px;border-radius:50%;background:var(--ri,#fff);display:grid;place-items:center;text-align:center;font-weight:900;font-size:20px;line-height:1.05}
+.ring small{display:block;font-size:10.5px;opacity:.7;font-weight:700}
+.crit{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}.crit .bar{flex:1;height:7px;background:#f1eaea;border-radius:5px;overflow:hidden}.crit .bar i{display:block;height:100%;background:var(--blk);border-radius:5px}
+.note{border-radius:14px;padding:10px 12px;font-size:12.5px;margin-top:10px;display:flex;gap:8px;align-items:flex-start}
+.n-r{background:var(--redbg);color:var(--red2)}.n-g{background:var(--gbg);color:var(--g)}.n-o{background:var(--obg);color:var(--o)}.n-b{background:var(--bbg);color:var(--b)}
+.prompt{background:linear-gradient(120deg,#fff3cf,#fffaf0);cursor:pointer}
+.chk{width:28px;height:28px;border-radius:10px;border:2px solid #dcd2d0;display:grid;place-items:center;flex-shrink:0;background:#fff;color:#fff}
+.chk.on{background:var(--red);border-color:var(--red)}
+.waterg{display:flex;gap:5px;flex-wrap:wrap}.waterg button{width:22px;height:30px;border-radius:5px 5px 9px 9px;border:2px solid #9cc4f0;background:#fff}
+.waterg button.on{background:linear-gradient(#bcd9f8,#7fb2ea)}
+.tm{border-radius:20px;overflow:hidden;background:#fff;margin-bottom:12px;box-shadow:var(--sh)}
+.tm .th{padding:11px 14px;font-weight:900;display:flex;align-items:center;gap:8px}
+.tm .pl{display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--line)}
+.tm .pl.sel{background:var(--redbg);box-shadow:inset 3px 0 0 var(--red)}
+.pos{font-size:10.5px;font-weight:800;border-radius:7px;padding:1px 7px;background:#f1ecec;color:var(--mut)}.pos.gk{background:#fff4cc;color:#8a6a00}
+.score{display:flex;align-items:center;justify-content:center;gap:20px;padding:18px;background:radial-gradient(120% 120% at 50% 0%,#3a0b0d,#0f0f10);color:#fff;border-radius:24px;margin-bottom:12px}
+.score .s{font-size:44px;font-weight:900;min-width:40px;text-align:center}.score .t{text-align:center;font-weight:800;font-size:13px;opacity:.85}
+.chat{padding:12px 14px 120px;display:flex;flex-direction:column;gap:6px}
+.bub{max-width:78%;padding:9px 13px;border-radius:18px;font-size:13.5px;line-height:1.6}
+.bub.me{align-self:flex-start;background:var(--red);color:#fff;border-bottom-right-radius:6px}
+.bub.them{align-self:flex-end;background:#fff;box-shadow:var(--sh);border-bottom-left-radius:6px}
+.bub small{display:block;font-size:10px;opacity:.65;margin-top:2px}
+.daysep{align-self:center;font-size:11px;color:var(--mut);background:#ebe5e4;border-radius:10px;padding:2px 10px;margin:6px 0}
+.cbar{position:absolute;left:0;right:0;bottom:0;background:#fff;padding:10px 12px 26px;display:flex;gap:8px;align-items:center;box-shadow:0 -1px 0 var(--line);z-index:5}
+.cbar input{border-radius:22px;padding:11px 16px}
+.sendb{width:44px;height:44px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;flex-shrink:0}
+.qrep{display:flex;gap:6px;overflow-x:auto;padding:0 12px 8px;position:absolute;left:0;right:0;bottom:82px;z-index:5}
+.qrep button{background:#fff;border-radius:16px;padding:6px 12px;font-size:12px;font-weight:700;white-space:nowrap;box-shadow:var(--sh)}
+.scan{position:relative;width:230px;height:230px;margin:10px auto;border-radius:26px;background:radial-gradient(#3b3b3e,#111);overflow:hidden}
+.scan .cn{position:absolute;width:44px;height:44px;border:4px solid #fff}
+.scan .c1{top:16px;right:16px;border-left:0;border-bottom:0;border-radius:0 14px 0 0}.scan .c2{top:16px;left:16px;border-right:0;border-bottom:0;border-radius:14px 0 0 0}
+.scan .c3{bottom:16px;right:16px;border-left:0;border-top:0;border-radius:0 0 14px 0}.scan .c4{bottom:16px;left:16px;border-right:0;border-top:0;border-radius:0 0 0 14px}
+.scan .ln{position:absolute;left:24px;right:24px;height:3px;background:var(--red);box-shadow:0 0 14px var(--red);animation:sc 2s ease-in-out infinite}
+@keyframes sc{0%,100%{top:30px}50%{top:196px}}
+.okc{width:84px;height:84px;border-radius:50%;background:var(--gbg);color:var(--g);display:grid;place-items:center;margin:8px auto}
+.thumb{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;font-size:26px;flex-shrink:0}
+.sov{position:absolute;inset:0;background:rgba(10,0,0,.42);opacity:0;pointer-events:none;transition:.22s;z-index:10}
+.sov.show{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:30px 30px 0 0;padding:10px 18px 30px;transform:translateY(105%);transition:.28s cubic-bezier(.2,.8,.2,1);z-index:11;max-height:88%;overflow-y:auto}
+.sheet.show{transform:none}
+.grab{width:42px;height:5px;border-radius:4px;background:#e2dad8;margin:0 auto 14px}
+.sheet h3{font-size:19px;font-weight:900;margin-bottom:2px}
+.fld{margin-bottom:14px}.fld label{display:block;font-size:12.5px;font-weight:800;color:var(--ink2);margin-bottom:7px}
+.starin{display:flex;gap:4px;direction:ltr;justify-content:flex-end}
+.starin button{font-size:26px;color:#e3dad8;line-height:1}.starin button.on{color:#f0a90e}
+.toast{position:absolute;bottom:104px;left:50%;transform:translate(-50%,10px);background:var(--blk);color:#fff;padding:10px 18px;border-radius:16px;font-weight:700;font-size:13px;opacity:0;transition:.25s;z-index:20;pointer-events:none;width:max-content;max-width:86%;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.ph2{background:#efe9fb;color:#6b46c1;font-size:10.5px;padding:1px 7px;border-radius:7px;font-weight:800}
+.tg{width:46px;height:28px;border-radius:20px;background:#ddd3d1;position:relative;flex-shrink:0}
+.tg.on{background:var(--red)}
+.tg::after{content:"";position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tg.on::after{right:21px}
+.srch{display:flex;align-items:center;gap:8px;background:#fff;border-radius:16px;padding:0 14px;box-shadow:var(--sh);color:var(--mut)}
+.srch input{background:transparent!important;padding:12px 0}
+.bars{display:flex;align-items:flex-end;gap:8px;height:130px;padding-top:12px}
+.bars div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;font-size:11px;color:var(--mut)}
+.bars i{display:block;width:100%;background:linear-gradient(var(--red),#f0575c);border-radius:8px 8px 3px 3px}
+.dots{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px}
+.dots span{aspect-ratio:1;border-radius:9px;display:grid;place-items:center;font-size:11px;font-weight:700;background:#f4efee;color:var(--mut)}
+.dots .y{background:var(--red);color:#fff}.dots .n{background:#fff;box-shadow:inset 0 0 0 1.5px #f0b5b7;color:var(--red2)}.dots .f{background:#fff;box-shadow:inset 0 0 0 1.5px var(--line)}
+@media (max-width:780px){.guide{display:none}.stage{padding:0}}
+@media (max-width:520px){
+ .top{padding:10px 12px}.top .tt{display:none}.sw{margin:0 auto}.sw button{padding:7px 10px;font-size:12px}
+ .phone{width:100%;height:calc(100dvh - 62px);border-radius:0;padding:0;box-shadow:none}
+ .scr{border-radius:0}.status{display:none}
+}
+.grip{color:#bdb1af;touch-action:none;cursor:grab;padding:6px 3px;display:grid;place-items:center;flex-shrink:0;margin-inline-start:-6px}
+.grip:active{cursor:grabbing;color:#e01f26}
+.drag-ghost{position:fixed;z-index:9999;pointer-events:none;background:#fff;box-shadow:0 18px 40px rgba(0,0,0,.28);border-radius:14px;transform:rotate(-2deg) scale(1.04);display:flex;align-items:center;gap:8px;padding:10px 14px;font-family:Cairo,sans-serif;font-size:14px}
+.drag-src{opacity:.3}
+.drop-on{outline:3px dashed #e01f26;outline-offset:3px;transform:scale(1.015);transition:transform .12s}
+body.dragging{user-select:none;-webkit-user-select:none;cursor:grabbing}
+</style>
+<link rel="stylesheet" href="v2.css"><link rel="stylesheet" href="finance.css"><link rel="stylesheet" href="app-theme.css"><script src="avatars.js"></script><script src="core.js"></script><script src="demo-data.js"></script><link rel="stylesheet" href="refinements.css"><link rel="stylesheet" href="mobile-suite.css"><link rel="stylesheet" href="prototype-flow.css"><link rel="stylesheet" href="avatars.css"><link rel="stylesheet" href="community.css"><script src="community-core.js"></script><link rel="stylesheet" href="fixes.css"><link rel="stylesheet" href="ms.css"><link rel="stylesheet" href="journey.css">
+<link rel="stylesheet" href="team-cards.css">
+</head>
+<body>
+<div class="top"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgcng9IjU2IiBmaWxsPSIjMTExIi8+PHBhdGggZD0iTTEyOCAzNGw3OCAyOHY2MmMwIDUwLTMzIDg2LTc4IDEwMC00NS0xNC03OC01MC03OC0xMDBWNjJ6IiBmaWxsPSIjZTAxZjI2Ii8+PHBhdGggZD0iTTEyOCA1OGw1NiAyMHY0NmMwIDM2LTIzIDYyLTU2IDc0LTMzLTEyLTU2LTM4LTU2LTc0Vjc4eiIgZmlsbD0iIzExMSIvPjxwYXRoIGQ9Ik05OCA5Nmg2MHYxNmgtNDJ2MTZoMzZ2MTZoLTM2djE2aDQ0djE2SDk4eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPgo=" alt=""><b class="tt">ELITE <span>SPORTS</span> · تطبيقات الموبايل</b><div class="sw" id="sw"></div></div>
+<div class="stage">
+ <aside class="guide" id="guide"></aside>
+ <div class="phone"><div class="scr">
+  <div class="status" id="stbar"><span>9:41</span><div class="island"></div><span>●●● 🔋</span></div>
+  <div class="view" id="view"></div>
+  <div id="over"></div>
+  <nav class="tab" id="tab"></nav>
+  <div class="sov" id="sov" onclick="closeSheet()"></div>
+  <div class="sheet" id="sheet"></div>
+  <div class="toast" id="toast"></div>
+ </div></div>
+</div>
+<script>
+const LOGO="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgcng9IjU2IiBmaWxsPSIjMTExIi8+PHBhdGggZD0iTTEyOCAzNGw3OCAyOHY2MmMwIDUwLTMzIDg2LTc4IDEwMC00NS0xNC03OC01MC03OC0xMDBWNjJ6IiBmaWxsPSIjZTAxZjI2Ii8+PHBhdGggZD0iTTEyOCA1OGw1NiAyMHY0NmMwIDM2LTIzIDYyLTU2IDc0LTMzLTEyLTU2LTM4LTU2LTc0Vjc4eiIgZmlsbD0iIzExMSIvPjxwYXRoIGQ9Ik05OCA5Nmg2MHYxNmgtNDJ2MTZoMzZ2MTZoLTM2djE2aDQ0djE2SDk4eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPgo=";
+const $=id=>document.getElementById(id);
+const IC={home:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',cal:'<rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/>',ball:'<circle cx="12" cy="12" r="9"/><path d="m12 7.5 3.8 2.8-1.4 4.4H9.6L8.2 10.3z"/><path d="M12 3v4.5M20.5 9.6l-4.7.7M17.2 19.4l-2.8-4.7M6.8 19.4l2.8-4.7M3.5 9.6l4.7.7"/>',food:'<path d="M12 7.5c-1.2-2-3.4-2.7-5.3-1.7-3 1.6-3 6.3-.9 10.2 1.6 3 3.7 4.3 6.2 3.3 2.5 1 4.6-.3 6.2-3.3 2.1-3.9 2.1-8.6-.9-10.2-1.9-1-4.1-.3-5.3 1.7z"/><path d="M12 7.5c0-2.2 1-3.8 3-4.8"/>',more:'<rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/>',chat:'<path d="M20.5 11.5a8.5 8.5 0 0 1-12.3 7.6L3.5 20.5l1.4-4.4A8.5 8.5 0 1 1 20.5 11.5z"/><path d="M8.5 10h7M8.5 13.5h4.5"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.8c2 .7 3.2 2.5 3.6 5.2"/>',check:'<circle cx="12" cy="12" r="9"/><path d="m8 12.4 2.7 2.7L16.2 9.6"/>',bolt:'<path d="M13 2.5 4.5 13.5h7l-1 8 8.5-11h-7z"/>',wallet:'<rect x="3" y="6" width="18" height="14" rx="3.5"/><path d="M3 10h18M15.5 15h2"/><path d="M6 6V5a2 2 0 0 1 2.4-2l9 1.9"/>',inbox:'<path d="M3 13.5h5l2 3h4l2-3h5"/><path d="M5.5 5h13l2.5 8.5V19a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 19v-5.5z"/>',star:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/>',qr:'<rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1.5"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1.5"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1.5"/><path d="M14 14h2.5v2.5H14zM18 18h2.5v2.5H18zM14 19.5h1M20.5 14v1.5"/>',bell:'<path d="M6 9a6 6 0 1 1 12 0c0 6.5 2.5 8 2.5 8h-17S6 15.5 6 9z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',camera:'<path d="M4 7.5h3l2-3h6l2 3h3A1.5 1.5 0 0 1 21.5 9v9.5A1.5 1.5 0 0 1 20 20H4a1.5 1.5 0 0 1-1.5-1.5V9A1.5 1.5 0 0 1 4 7.5z"/><circle cx="12" cy="13.5" r="3.8"/>',send:'<path d="M21 3 10.5 13.5M21 3l-6.5 18-4-7.5L3 9.5z"/>',back:'<path d="m9 5 7 7-7 7"/>',chev:'<path d="m15 6-6 6 6 6"/>',plus:'<path d="M12 5v14M5 12h14"/>',box:'<path d="M3.5 7.5 12 3.5l8.5 4v9L12 20.5l-8.5-4z"/><path d="m3.5 7.5 8.5 4 8.5-4M12 11.5v9"/>',trophy:'<path d="M8 21h8M12 17v4M7 3.5h10V9a5 5 0 0 1-10 0z"/><path d="M7 5.5H4.5A3 3 0 0 0 7 10M17 5.5h2.5A3 3 0 0 1 17 10"/>',chart:'<path d="M4 20V11M10 20V5M16 20v-6M2.5 20.5h19"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',list:'<path d="M9 4.5h6v3H9z"/><path d="M7 5.5H5.5v15h13v-15H17M9 12h6M9 16h4"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>',pin:'<path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>',out:'<path d="M15 4h3.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H15M10 8l-4 4 4 4M6 12h10"/>',cart:'<path d="M3 4h2.2l2.3 10.5h10.8L21 7H6"/><circle cx="9.5" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>',swap:'<path d="M7 4 3.5 7.5 7 11M3.5 7.5h13M17 13l3.5 3.5L17 20M20.5 16.5h-13"/>',snow:'<path d="M12 2.5v19M4 7l16 10M20 7 4 17M9.5 4 12 6.5 14.5 4M9.5 20l2.5-2.5 2.5 2.5"/>',refresh:'<path d="M20 11a8 8 0 0 0-14.3-4.6L3.5 9M3.5 4v5h5M4 13a8 8 0 0 0 14.3 4.6L20.5 15M20.5 20v-5h-5"/>',note:'<path d="M5 3.5h10l4 4v13H5z"/><path d="M14.5 3.5V8H19M8.5 12.5h7M8.5 16h5"/>',whistle:'<circle cx="8.5" cy="14.5" r="5"/><path d="M12 11h9.5v4H13M6 9.5V6"/>',ok:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',door:'<path d="M5 21V4.5A1.5 1.5 0 0 1 6.5 3h11A1.5 1.5 0 0 1 19 4.5V21M3 21h18M15 12h.01"/>'};
+function ic(n,s){s=s||22;return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${IC[n]||''}</svg>`}
+const S={app:"member",scr:{member:"home",coach:"home",manager:"home"},chat:null};
+const AVC=["#e01f26","#111","#2463d6","#12804a","#c2650c","#7c3aed","#0e7490","#be185d"];
+function avc(n){let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%997;return AVC[h%AVC.length]}
+function ini(n){return n.replace(/^(كابتن|د\.|أ\.|إدارة)\s*/,'')[0]}
+function av(n,s){return KoraAvatars.render(n,'av',s||40)}
+function stars(n){return `<span class="stars">${"★".repeat(n)}<i>${"★".repeat(5-n)}</i></span>`}
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),2300)}
+function sheet(h){$("sheet").innerHTML='<div class="grab"></div>'+h;$("sheet").classList.add("show");$("sov").classList.add("show");$("sheet").scrollTop=0}
+function closeSheet(){$("sheet").classList.remove("show");$("sov").classList.remove("show")}
+function hd(t,back,right){return `<div class="hd"><div class="hdr">${back?`<button class="ib" onclick="go('${back}')">${ic('back',20)}</button>`:''}<h1 class="f1">${t}</h1>${right||''}</div></div>`}
+function seg(opts,cur,fn){return `<div class="seg">${opts.map(([k,l])=>`<button class="${k===cur?'on':''}" onclick="${fn}('${k}')">${l}</button>`).join("")}</div>`}
+function pick(el){el.parentNode.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on')}
+function tgl(el){el.classList.toggle('on')}
+function setStar(b,v){const p=b.parentNode;p.dataset.v=v;p.querySelectorAll('button').forEach((x,i)=>x.classList.toggle('on',i<v))}
+function starIn(v){return `<div class="starin" data-v="${v||0}">${[1,2,3,4,5].map(i=>`<button class="${i<=(v||0)?'on':''}" onclick="setStar(this,${i})">★</button>`).join("")}</div>`}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function qrSvg(sz){sz=sz||180;let s=`<svg width="${sz}" height="${sz}" viewBox="0 0 25 25" shape-rendering="crispEdges">`;const f=(x,y)=>((x<7&&y<7)||(x>17&&y<7)||(x<7&&y>17));for(let y=0;y<25;y++)for(let x=0;x<25;x++){let on;if(f(x,y)){const lx=x>17?x-18:x,ly=y>17?y-18:y;on=lx===0||lx===6||ly===0||ly===6||(lx>1&&lx<5&&ly>1&&ly<5)}else on=((x*7+y*13+x*y)%5)<2;if(on)s+=`<rect x="${x}" y="${y}" width="1" height="1" fill="#111"/>`}return s+'</svg>'}
+function rowL(icn,cls,t,sub,right,on){return `<div class="it ${on?'tap':''}" ${on?`onclick="${on}"`:''}><div class="ico ${cls}">${ic(icn,20)}</div><div class="f1"><b>${t}</b>${sub?`<div class="mut sm">${sub}</div>`:''}</div>${right||''}${on?`<span class="chev">${ic('chev',18)}</span>`:''}</div>`}
+const BIBS=[["أحمر","#e01f26","#fff"],["أسود","#111","#fff"],["أبيض","#fff","#111"],["أصفر","#f5c518","#111"]];
+function nowT(){const d=new Date();let h=d.getHours(),m=String(d.getMinutes()).padStart(2,'0');const p=h<12?'ص':'م';h=h%12||12;return h+':'+m+' '+p}
+
+/* ---------- shared data ---------- */
+const TH={
+ "ahmed|mahmoud":{a:"أحمد سامي",b:"كابتن محمود",rb:"المدرب الرئيسي",ub:1,ua:1,m:[["b","صباح الخير يا أحمد، التقسيمة النهارده هتبقى 3 فرق، تعالى بدري 10 دقايق عشان التسخين","امبارح 9:10 م"],["a","تمام يا كابتن، هكون موجود 6:50","امبارح 9:22 م"],["b","برافو عليك في ماتش النهارده 👏 ركّز بس على الرجوع للدفاع في الشوط التاني","النهارده 8:30 ص"]]},
+ "ahmed|hossam":{a:"أحمد سامي",b:"كابتن حسام",rb:"مدرب اللياقة",ub:0,ua:0,m:[["a","يا كابتن ركبتي بتوجعني شوية بعد الجري","الأربعاء 8:05 م"],["b","خفف الجري الأسبوع ده واعمل تمارين التقوية اللي بعتهالك، ولو الوجع استمر نوصّلك بد. مصطفى","الأربعاء 8:40 م"]]},
+ "ahmed|reem":{a:"أحمد سامي",b:"د. ريم",rb:"أخصائية التغذية",ub:0,ua:0,m:[["b","بعتلك برنامج تنشيف، لو في أكلة مش بتحبها قولي أبدلهالك","28-سبتمبر 4:00 م"],["a","مش بحب السمك خالص","28-سبتمبر 6:10 م"],["b","تمام، شلته وحطيت فراخ وتونة مكانه ✅","29-سبتمبر 10:00 ص"]]},
+ "ahmed|admin":{a:"أحمد سامي",b:"إدارة فرع الشيخ زايد",rb:"أ. رامي والاستقبال",ub:0,ua:0,m:[["b","اشتراكك اتجدد بنجاح، والإيصال في حسابك. شكراً يا أحمد","1-أكتوبر 9:15 ص"]]},
+ "karim|mahmoud":{a:"كريم عادل",b:"كابتن محمود",rb:"المدرب الرئيسي",ub:1,ua:0,m:[["a","يا كابتن ينفع أحضر مع جروب الليل الإثنين بدل السبت؟","النهارده 10:02 ص"]]},
+ "youssef|mahmoud":{a:"يوسف رضا",b:"كابتن محمود",rb:"المدرب الرئيسي",ub:0,ua:0,m:[["b","عاش يا يوسف هاتريك امبارح 🔥","امبارح 9:00 م"],["a","الله يخليك يا كابتن","امبارح 9:15 م"]]},
+ "omar|admin":{a:"عمر خالد",b:"إدارة فرع الشيخ زايد",rb:"أ. رامي والاستقبال",ub:1,ua:0,m:[["a","عملت طلب تجميد 14 يوم، ممكن تأكدولي؟","النهارده 11:20 ص"]]}};
+const PG={"أحمد سامي":"عضو · جروب الصبح A","كريم عادل":"عضو · جروب الصبح A","يوسف رضا":"عضو · جروب الصبح A","عمر خالد":"عضو · جروب الليل B"};
+const LOST={found:[{id:1,ic:"🎧",cat:"سماعة",d:"سماعة إيربودز بيضا في علبتها",w:"غرفة التغيير",dt:"النهارده 8:15 ص",st:"open",by:null},{id:2,ic:"🔑",cat:"مفاتيح",d:"ميدالية مفاتيح عربية عليها حلقة حمرا",w:"ملعب 1 · جنب الدكة",dt:"امبارح",st:"open",by:null},{id:3,ic:"🧥",cat:"هدوم",d:"جاكت رياضي أسود مقاس L",w:"الاستقبال",dt:"28 سبتمبر",st:"claimed",by:"باسم حمدي"},{id:4,ic:"⌚",cat:"ساعة",d:"ساعة سمارت سودا",w:"ملعب 2",dt:"25 سبتمبر",st:"done",by:"علي ماهر"}],
+ reports:[{id:11,by:"أحمد سامي",ic:"🧴",cat:"أخرى",d:"زجاجة مية ستانلس حمرا عليها استيكر النادي",w:"ملعب 1",dt:"30 سبتمبر",st:"search"},{id:12,by:"زياد نبيل",ic:"👟",cat:"جزمة",d:"جزمة كورة سودا مقاس 43",w:"غرفة التغيير",dt:"امبارح",st:"search"}]};
+const REQS=[{t:"تجميد",n:"عمر خالد",d:"14 يوم من 4 أكتوبر · سفر",st:null},{t:"خصم",n:"سارة (كاشير)",d:"10% لكريم عادل على تجديد 3 شهور",st:null},{t:"نقل جروب",n:"تامر ماهر",d:"من الصبح A إلى المغرب A (كامل، 4 في الانتظار)",st:null}];
+const LOSTCAT=[["📱","موبايل"],["🔑","مفاتيح"],["👛","محفظة"],["🎧","سماعة"],["⌚","ساعة"],["👟","جزمة"],["🧥","هدوم"],["🧴","أخرى"]];
+const PLACES=["ملعب 1","ملعب 2","غرفة التغيير","الاستقبال","الجيم","الباركينج"];
+
+/* ---------- chat ---------- */
+function meName(){return {member:"أحمد سامي",coach:"كابتن محمود",manager:"إدارة فرع الشيخ زايد"}[S.app]}
+function threadsFor(me){return Object.entries(TH).filter(([k,t])=>t.a===me||t.b===me)}
+function unreadFor(me){return threadsFor(me).reduce((s,[k,t])=>s+(t.a===me?t.ua:t.ub),0)}
+function chatList(me,back,top){const L=threadsFor(me);
+ return hd("الرسائل",back)+`<div class="pad">${top||''}<div class="card lst" style="padding:6px 16px">${L.map(([k,t])=>{const isA=t.a===me,other=isA?t.b:t.a,role=isA?t.rb:(PG[t.a]||"عضو"),un=isA?t.ua:t.ub,last=t.m[t.m.length-1];return `<div class="it tap" onclick="openChat('${k}')">${av(other,46)}<div class="f1"><div class="row"><b class="f1">${other}</b><span class="mut sm">${last?last[2].split(' ')[0].replace('-',' '):''}</span></div><div class="mut sm">${role}</div><div class="mut" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${un?'color:var(--ink);font-weight:700':''}">${last?((last[0]===(isA?'a':'b'))?'انت: ':'')+last[1]:'ابدأ المحادثة'}</div></div>${un?`<span class="pill" style="background:var(--red);color:#fff">${un}</span>`:''}</div>`}).join("")}</div>
+ <div class="note n-b">${ic('clock',16)}<div class="f1">المدربين والإدارة بيردوا في مواعيد الشغل. المحادثة جوه التطبيق، من غير ما حد يحتاج رقم التاني.</div></div></div>`}
+function openChat(k){if(!k)return;S.chat=k;const me=meName(),t=TH[k];if(t.a===me)t.ua=0;else t.ub=0;go(S.app==="member"?"chat":S.app==="coach"?"cchat":"gchat")}
+function chatView(back){const t=TH[S.chat],me=meName(),mine=t.a===me?'a':'b',other=t.a===me?t.b:t.a,role=t.a===me?t.rb:(PG[t.a]||"عضو");
+ return `<div class="hd"><div class="hdr"><button class="ib" onclick="go('${back}')">${ic('back',20)}</button>${av(other,40)}<div class="f1"><b style="font-size:15px">${other}</b><div class="mut sm">${role}</div></div></div></div>
+ <div class="chat" id="chatBox">${t.m.map((m,i)=>{const d=m[2].split(' ')[0],sep=i===0||d!==t.m[i-1][2].split(' ')[0];return `${sep?`<div class="daysep">${d.replace('-',' ')}</div>`:''}<div class="bub ${m[0]===mine?'me':'them'}">${m[1]}<small>${m[2].split(' ').slice(1).join(' ')}</small></div>`}).join("")}</div>`}
+function chatOver(){return `<div class="qrep">${(S.app==="member"?["تمام يا كابتن 👍","مش هقدر آجي النهارده","عندي سؤال"]:["تمام 👍","نتقابل في الحصة","كلّم الاستقبال"]).map(q=>`<button onclick="sendMsg('${q}')">${q}</button>`).join("")}</div><div class="cbar"><button class="ib" style="box-shadow:none;background:#f4efee" onclick="toast('إرفاق صورة')">${ic('camera',20)}</button><input id="msgIn" placeholder="اكتب رسالة..." onkeydown="if(event.key==='Enter')sendMsg()"><button class="sendb" onclick="sendMsg()">${ic('send',20)}</button></div>`}
+function sendMsg(txt){const v=txt||($("msgIn")&&$("msgIn").value.trim());if(!v)return;const k=S.chat,t=TH[k],mine=t.a===meName()?'a':'b';t.m.push([mine,v,"النهارده "+nowT()]);if(mine==='a')t.ub++;else t.ua++;draw();
+ if(S.app==="member"){setTimeout(()=>{TH[k].m.push(['b',k.endsWith('reem')?'تمام، هبصلها وأرد عليك النهارده':k.endsWith('admin')?'وصلت، هنرد عليك خلال ساعة':'تمام يا بطل 💪 نتكلم في الحصة','النهارده '+nowT()]);if(S.app==="member"&&S.scr.member==="chat"&&S.chat===k)draw();else TH[k].ua++},1600)}}
+
+/* ================= MEMBER ================= */
+const ME={n:"أحمد سامي",g:"جروب الصبح A",br:"الشيخ زايد",plan:"شهري",end:"28 أكتوبر",days:26,used:3,total:12,streak:9,goals:14,ast:6,mvp:3,rank:1,lvl:4};
+const SESS=[["السبت","3 أكتوبر","7:00 ص"],["الإثنين","5 أكتوبر","7:00 ص"],["الأربعاء","7 أكتوبر","7:00 ص"],["السبت","10 أكتوبر","7:00 ص"],["الإثنين","12 أكتوبر","7:00 ص"]];
+const M={rsv:{0:"ok"},checked:false,votePending:true,vote:[],water:5,freeze:false,makeup:null,weight:84,fseg:"stats",lseg:"found",fbseg:"all",shop:{},
+ meals:[{n:"الفطار",t:"9:00 ص",items:"3 بيض مسلوق + رغيف عيش سن + نص علبة جبنة قريش",kcal:494,done:true,alt:["فول مدمس + بيضتين","شوفان بلبن + موزة"]},{n:"سناك",t:"12:00 م",items:"زبادي يوناني + حفنة مكسرات",kcal:272,done:true,alt:["تفاحة + زبدة فول سوداني"]},{n:"الغدا",t:"3:00 م",items:"150 جم صدور فراخ + رز + سلطة",kcal:478,done:false,alt:["تونة + مكرونة","لحمة مشوية + بطاطس"]},{n:"قبل التمرين",t:"5:00 م",items:"موزة + معلقة زبدة فول سوداني",kcal:200,done:false,alt:["تفاحة + عسل"]},{n:"بعد التمرين",t:"8:30 م",items:"سكوب واي بروتين + لبن خالي الدسم",kcal:205,done:false,alt:["علبة تونة + عيش سن"]},{n:"العشا",t:"10:00 م",items:"علبة تونة + خضار سوتيه",kcal:220,done:false,alt:["جبنة قريش + سلطة","2 بيض + خضار"]}]};
+const RT=[{k:"mahmoud",n:"كابتن محمود",r:"المدرب الرئيسي",c:["الالتزام بالمواعيد","الشرح والتدريب","التحفيز","التعامل والاحترام","تنظيم الحصة والتقسيمة"],done:false},{k:"hossam",n:"كابتن حسام",r:"مدرب اللياقة",c:["جودة التمارين","التدرج والأمان","التحفيز","الالتزام بالمواعيد"],done:false},{k:"reem",n:"د. ريم",r:"أخصائية التغذية",c:["وضوح البرنامج","مناسبته ليك","سرعة الرد","المتابعة"],done:true},{k:"rami",n:"أ. رامي",r:"مدير الفرع",c:["حل المشاكل","سرعة الاستجابة","التعامل"],done:false},{k:"desk",n:"الاستقبال والإدارة",r:"سارة وفريق الاستقبال",c:["سرعة الخدمة","الدقة في الحسابات","التعامل"],done:false},{k:"place",n:"الملعب والخدمات",r:"فرع الشيخ زايد",c:["حالة الملعب","النضافة","غرف التغيير","الالتزام بالمواعيد"],done:false},{k:"app",n:"التطبيق",r:"تجربتك مع التطبيق",c:["سهولة الاستخدام","فايدته ليك"],done:false}];
+const FB=[{who:"كابتن محمود",r:"المدرب الرئيسي",dt:"1 أكتوبر",type:"تقييم شهري",crit:[["اللياقة",3],["التحكم والمهارة",4],["التمرير",4],["التسديد والإنهاء",5],["الدفاع والتمركز",3]],note:"التسديد عندك ممتاز ومستواك اتحسن جداً الشهر ده. محتاج تشتغل على اللياقة في الشوط التاني والرجوع للدفاع."},
+ {who:"كابتن حسام",r:"مدرب اللياقة",dt:"29 سبتمبر",type:"ملاحظة",crit:[["التحمل",3],["السرعة",4]],note:"التحمل محتاج يتحسن. عملتلك برنامج جري خفيف 3 مرات في الأسبوع، وخفف لحد ما الركبة ترتاح."},
+ {who:"د. ريم",r:"أخصائية التغذية",dt:"17 سبتمبر",type:"متابعة",crit:[["الالتزام بالبرنامج",4]],note:"نزلت 1.8 كجم في أسبوعين، ممتاز. زوّد المية لـ 3 لتر وقلل الرز بالليل."},
+ {who:"كابتن محمود",r:"المدرب الرئيسي",dt:"20 سبتمبر",type:"بعد الماتش",crit:[],note:"قرارك في التمرير الأخير كان ممتاز النهارده. كمّل كده."},
+ {who:"الزملاء",r:"تصويت سري",dt:"سبتمبر",type:"تصويت أحسن 3",crit:[],note:"اتختارت في أحسن 3 لاعيبة 6 مرات الشهر ده، وده أعلى رقم في جروبك 🔥"}];
+const TEAMMATES=["كريم عادل","إسلام وليد","يوسف رضا","حمزة سعيد","مروان البنا","زياد نبيل","شريف يسري","هشام جمال","علي ماهر"];
+const BOARD=[["أحمد سامي",45],["يوسف رضا",41],["كريم عادل",37],["زياد نبيل",33],["هشام جمال",29],["علي ماهر",26],["شريف يسري",24],["إسلام وليد",21]];
+const SHOP=[["البروتين",[["صدور فراخ","1.5 كجم","3 غدا × 150 جم + احتياطي"],["بيض","2 كرتونة (30)","3 بيضات فطار يومياً"],["تونة","5 علب","عشا 4 أيام + بديل"],["واي بروتين","4 سكوب","بعد التمرين 4 أيام"]]],["الألبان",[["زبادي يوناني","7 علب","سناك يومي"],["جبنة قريش","1 كجم","نص علبة فطار يومياً"],["لبن خالي الدسم","1 لتر","بعد التمرين"]]],["النشويات",[["عيش بلدي سن","7 أرغفة","رغيف فطار يومياً"],["رز","1 كجم","مع الغدا"]]],["فاكهة وخضار",[["موز","1 كجم","قبل التمرين"],["خيار وطماطم وخس","حسب الحاجة","السلطة"],["خضار سوتيه مجمد","2 كيس","العشا"]]],["تاني",[["مكسرات","250 جم","سناك"],["زبدة فول سوداني","برطمان صغير","قبل التمرين"]]]];
+function m_home(){const done=M.meals.filter(x=>x.done),kc=done.reduce((s,x)=>s+x.kcal,0),r=M.rsv[0],un=unreadFor(ME.n),pend=RT.filter(x=>!x.done).length;
+ return `<div class="hero"><div class="row"><img src="${LOGO}" style="width:44px;height:44px;border-radius:14px" alt=""><div class="f1"><div class="t1">أكاديمية النخبة · ${ME.br}</div><div class="t2">أهلاً يا أحمد 👋</div></div><button class="hb" onclick="go('msgs')">${ic('chat',21)}${un?'<i class="dot"></i>':''}</button><button class="hb" onclick="sheet(m_notif())">${ic('bell',21)}<i class="dot"></i></button></div>
+ <div class="glass"><div class="row"><div class="f1"><div class="t1">حصتك الجاية</div><div style="font-size:20px;font-weight:900">${SESS[0][0]} ${SESS[0][1]}</div><div class="t1" style="opacity:.85">${SESS[0][2]} · ملعب 1 · ${ME.g}</div></div><div style="text-align:center"><div style="font-size:30px;font-weight:900;line-height:1">16</div><div class="t1">ساعة</div></div></div>
+  <div class="row mt" style="gap:6px"><div style="display:flex">${["كابتن محمود","كابتن حسام"].map((c,i)=>`<div style="margin-inline-start:${i?-10:0}px;border:2px solid #3a0b0d;border-radius:50%">${av(c,30)}</div>`).join("")}</div><span class="t1">كابتن محمود + حسام</span><span class="f1"></span>${M.checked?'<span class="pill p-g">✓ حضورك اتسجل</span>':r==="ok"?'<span class="pill p-w">✓ مؤكد</span>':r==="no"?'<span class="pill p-r">معتذر</span>':''}</div>
+  <div class="g2 mt">${M.checked?`<button class="btn wh" style="grid-column:span 2" onclick="sheet(m_qrS())">${ic('qr',19)} كودي</button>`:`<button class="btn wh" onclick="sheet(m_scanS())">${ic('qr',19)} سجّل وصولك</button>${r==="no"?`<button class="btn gl" onclick="m_rsv(0,'ok')">${ic('refresh',18)} هحضر</button>`:`<button class="btn gl" onclick="m_rsv(0,'no')">${ic('x',18)} اعتذار</button>`}`}</div></div></div>
+ <div class="pad">
+ ${M.votePending?`<div class="card prompt row" onclick="go('vote')"><div class="ico i-y">${ic('trophy',20)}</div><div class="f1"><b>صوّت لأحسن 3 في ماتش امبارح</b><div class="mut sm">سري · بيقفل الساعة 12 بالليل</div></div><span class="chev">${ic('chev',18)}</span></div>`:''}
+ ${pend?`<div class="card tap row" onclick="go('rate')"><div class="ico i-r">${ic('star',20)}</div><div class="f1"><b>قيّم تجربتك في سبتمبر</b><div class="mut sm">${pend} تقييمات مستنياك · سرية</div></div><span class="chev">${ic('chev',18)}</span></div>`:''}
+ <div class="stat3"><div class="st" onclick="go('account')" style="cursor:pointer"><div class="ring" style="--p:${ME.days/30*100};width:58px;height:58px;margin:0 auto 4px"><span style="width:44px;height:44px;font-size:15px">${ME.days}</span></div><small>يوم في اشتراكك</small></div><div class="st"><b style="font-size:26px;margin-top:8px">🔥${ME.streak}</b><small>حصص ورا بعض</small></div><div class="st" onclick="go('football')" style="cursor:pointer"><b style="font-size:26px;margin-top:8px">#${ME.rank}</b><small>ترتيبك في الجروب</small></div></div>
+ <div class="sec">الشهر ده<a onclick="go('football')">الإحصائيات</a></div>
+ <div class="stat4">${[["⚽",ME.goals,"أهداف"],["🅰️",ME.ast,"أسيست"],["⭐",ME.mvp,"MVP"],["🎮",24,"ماتش"]].map(x=>`<div class="st"><div style="font-size:16px">${x[0]}</div><b>${x[1]}</b><small>${x[2]}</small></div>`).join("")}</div>
+ <div class="card tap" onclick="go('food')"><div class="row"><div class="ico i-g">${ic('food',20)}</div><div class="f1"><b>أكلك النهارده</b><div class="mut sm">${done.length} من ${M.meals.length} وجبات · 💧 ${M.water}/12</div></div><b>${kc}<span class="mut sm"> / 2000</span></b></div><div class="pbar mt"><i style="width:${kc/20}%"></i></div></div>
+ <div class="card tap" onclick="go('feedback')"><div class="row">${av("كابتن محمود",40)}<div class="f1"><b>آخر ملاحظة من كابتن محمود</b><div class="mut sm">1 أكتوبر · تقييم شهري</div></div><span class="chev">${ic('chev',18)}</span></div><div class="mt" style="color:var(--ink2);font-size:13px">«${FB[0].note}»</div></div>
+ </div>`}
+function m_rsv(i,v){M.rsv[i]=v;draw();toast(v==="ok"?'تمام، الكابتن عارف إنك جاي':'اتبلّغ الكابتن، ومش هتدخل التقسيمة')}
+function m_scanS(){return `<h3>سجّل وصولك</h3><div class="mut">وجّه الكاميرا على كود الحضور المتعلّق عند مدخل الملعب</div><div class="scan"><i class="cn c1"></i><i class="cn c2"></i><i class="cn c3"></i><i class="cn c4"></i><i class="ln"></i></div>
+ <button class="btn full" onclick="m_checked()">محاكاة المسح</button>
+ <button class="btn ghost full mt" onclick="sheet(m_qrS())">الكاميرا أو النت مش شغالين؟ اعرض كودك</button>`}
+function m_checked(){M.checked=true;M.rsv[0]="ok";sheet(`<div class="okc">${ic('ok',44)}</div><h3 style="text-align:center">حضورك اتسجل</h3><div class="mut" style="text-align:center">${nowT()} · ملعب 1 · ${ME.g}</div><div class="note n-g">${ic('users',16)}<div class="f1">ظهرت للكابتن في الحاضرين وهتدخل التقسيمة.</div></div><button class="btn full mt" onclick="closeSheet();draw()">تمام</button>`)}
+function m_qrS(){return `<h3>كودك الشخصي</h3><div class="mut">اعرضه للكابتن أو للاستقبال يمسحوه من تطبيقهم</div><div style="display:grid;place-items:center;padding:16px"><div style="padding:14px;border-radius:24px;box-shadow:var(--sh)">${qrSvg(190)}</div></div><div style="text-align:center"><b>${ME.n}</b><div class="mut">${ME.g} · صالح لحد ${ME.end}</div></div><button class="btn full mt" onclick="closeSheet()">تمام</button>`}
+function m_notif(){return `<h3>الإشعارات</h3><div class="lst mt">${[["trophy","i-y","صوّت لأحسن 3 في ماتش امبارح","من ساعة"],["chat","i-r","رسالة جديدة من كابتن محمود","النهارده 8:30 ص"],["box","i-o","الفرع لقى سماعة في غرفة التغيير، لو بتاعتك قولّنا","النهارده"],["ball","i-k","ماتش امبارح: الأحمر 4-3 الأسود. جبت جونين!","امبارح"],["food","i-g","د. ريم عدّلت برنامجك","من يومين"]].map(n=>`<div class="it"><div class="ico ${n[1]}">${ic(n[0],19)}</div><div class="f1"><b style="font-size:13px">${n[2]}</b><div class="mut sm">${n[3]}</div></div></div>`).join("")}</div>`}
+function m_sessions(){const days=[["y",1],["y",3],["n",5],["y",8],["y",10],["y",12],["y",15],["y",17],["n",19],["y",22],["y",24],["y",26],["y",29],["f",3],["f",5],["f",7]];
+ return hd("حصصي")+`<div class="pad">
+ <div class="card"><div class="row"><div class="ico i-r">${ic('users',20)}</div><div class="f1"><b>${ME.g}</b><div class="mut sm">${ME.br} · السبت، الإثنين، الأربعاء · 7:00 ص</div></div></div><div class="row mt" style="gap:6px;flex-wrap:wrap">${[["كابتن محمود","رئيسي"],["كابتن حسام","لياقة"],["د. ريم","تغذية"]].map(c=>`<span class="pill p-x" style="padding:3px 10px 3px 4px">${av(c[0],20)} ${c[0]} · ${c[1]}</span>`).join("")}</div></div>
+ <div class="sec">الحصص الجاية</div>
+ ${SESS.map((s,i)=>{const r=M.rsv[i];return `<div class="card"><div class="row"><div style="width:54px;text-align:center;background:#f6f1f0;border-radius:14px;padding:6px 0"><div class="mut sm">${s[0]}</div><b style="font-size:18px">${s[1].split(' ')[0]}</b></div><div class="f1"><b>${s[2]}</b><div class="mut sm">ملعب ${i%2?'2':'1'} · ${s[1]}</div></div>${r==="ok"?'<span class="pill p-g">✓ مؤكد</span>':r==="no"?'<span class="pill p-r">معتذر</span>':'<span class="pill p-x">لسه</span>'}</div>
+  <div class="seg mt">${[["ok","✓ تأكيد الحضور"],["no","✕ اعتذار"]].map(([k,l])=>`<button class="${r===k?'on':''}" onclick="m_rsv(${i},'${k}')">${l}</button>`).join("")}</div></div>`}).join("")}
+ ${M.makeup?`<div class="card row"><div class="ico i-o">${ic('refresh',20)}</div><div class="f1"><b>حصة تعويضية</b><div class="mut sm">${M.makeup}</div></div><span class="pill p-o">مستني موافقة</span></div>`:''}
+ <div class="g2" style="margin-bottom:12px"><button class="btn dark" onclick="sheet(m_makeupS())">${ic('refresh',18)} حصة تعويضية</button><button class="btn ghost" onclick="sheet(m_freezeS())">${ic('snow',18)} طلب تجميد</button></div>
+ <div class="card"><div class="row"><b class="f1">حضورك في سبتمبر</b><span class="pill p-g">13 من 15</span></div><div class="dots">${days.map(d=>`<span class="${d[0]}">${d[1]}</span>`).join("")}</div><div class="row mt mut sm" style="gap:14px"><span>🟥 حضرت</span><span>⬜ غبت</span></div></div></div>`}
+function m_makeupS(){return `<h3>حصة تعويضية</h3><div class="mut" style="margin-bottom:14px">احضر مع جروب تاني بدل حصة فاتتك، وهتدخل التقسيمة كزائر.</div>
+ <div class="fld"><label>الحصة اللي فاتتك</label><div class="chips">${["الأربعاء 30 سبتمبر","الإثنين 28 سبتمبر"].map((x,i)=>`<button class="chip ${i?'':'on'}" onclick="pick(this)">${x}</button>`).join("")}</div></div>
+ <div class="fld"><label>الحصة البديلة</label><div class="chips" id="mk">${["جروب الليل B · الإثنين 9 م · زايد","جروب المغرب · الأحد 7 م · أكتوبر","جروب الليل · الثلاثاء 9 م · المهندسين"].map((x,i)=>`<button class="chip red ${i?'':'on'}" onclick="pick(this)">${x}</button>`).join("")}</div><div class="mut sm mt6">الجروبات الكاملة مش ظاهرة</div></div>
+ <button class="btn full" onclick="M.makeup=document.querySelector('#mk .on').textContent;REQS.unshift({t:'حصة تعويضية',n:ME.n,d:M.makeup,st:null});closeSheet();draw();toast('الطلب اتبعت لمدير الفرع')">ابعت الطلب</button>`}
+function m_freezeS(){return `<h3>طلب تجميد</h3><div class="mut" style="margin-bottom:14px">باقتك فيها لحد 10 أيام تجميد بتتضاف لآخر اشتراكك.</div>
+ <div class="fld"><label>المدة</label><div class="chips">${["3 أيام","7 أيام","10 أيام"].map((x,i)=>`<button class="chip ${i===1?'on':''}" onclick="pick(this)">${x}</button>`).join("")}</div></div>
+ <div class="fld"><label>من يوم</label><input type="date" value="2026-10-05"></div><div class="fld"><label>السبب (اختياري)</label><input placeholder="سفر، شغل..."></div>
+ <button class="btn full" onclick="M.freeze=true;REQS.unshift({t:'تجميد',n:ME.n,d:'7 أيام من 5 أكتوبر',st:null});closeSheet();draw();toast('طلب التجميد اتبعت')">ابعت الطلب</button>`}
+function m_football(){const s=M.fseg;let b="";
+ if(s==="stats") b=`<div class="card"><div class="row"><div class="ring" style="--p:78"><span>78<small>من 100</small></span></div><div class="f1"><div class="mut">مستواك</div><div style="font-size:24px">${stars(ME.lvl)}</div><div class="mut sm">تقييم الكابتن + أداءك + الزملاء</div><span class="pill p-g mt6">▲ 4 عن الشهر اللي فات</span></div></div></div>
+  <div class="stat4">${[["🎮",24,"ماتش"],["✅","62%","فوز"],["⚽",ME.goals,"أهداف"],["🅰️",ME.ast,"أسيست"]].map(x=>`<div class="st"><div>${x[0]}</div><b>${x[1]}</b><small>${x[2]}</small></div>`).join("")}</div>
+  <div class="card tap row" onclick="go('feedback')"><div class="ico i-r">${ic('note',20)}</div><div class="f1"><b>تقييمي وملاحظات المدربين</b><div class="mut sm">${FB.length} تقييمات وملاحظات</div></div><span class="chev">${ic('chev',18)}</span></div>
+  <div class="sec">الشارات</div><div class="stat4">${[["🔥","9 حصص"],["⚽","هاتريك"],["⭐","3 MVP"],["🎯","10 أسيست"]].map(x=>`<div class="st"><b>${x[0]}</b><small>${x[1]}</small></div>`).join("")}</div>`;
+ if(s==="board") b=`<div class="card"><div class="row"><b class="f1">ترتيب ${ME.g}</b><span class="pill p-x">أكتوبر</span></div><div class="lst mt">${BOARD.map((x,i)=>`<div class="it" style="${x[0]===ME.n?'background:var(--redbg);margin:0 -10px;padding:12px 10px;border-radius:14px':''}"><b style="width:26px;text-align:center">${i<3?['🥇','🥈','🥉'][i]:i+1}</b>${av(x[0],34)}<span class="f1"><b>${x[0]}</b>${x[0]===ME.n?' <span class="mut sm">(انت)</span>':''}</span><b>${x[1]}</b></div>`).join("")}</div><div class="mut sm mt">الهدف ×2 + الأسيست + MVP ×3</div></div>`;
+ if(s==="matches") b=[["امبارح","الأحمر","4 - 3","الأسود","⚽⚽ 🅰️","فوز"],["الأربعاء","الأحمر","2 - 2","الأبيض","🅰️","تعادل"],["الإثنين","الأسود","1 - 3","الأحمر","⚽ ⭐","فوز"],["السبت","الأبيض","3 - 1","الأحمر","—","خسارة"]].map(r=>`<div class="card"><div class="row"><span class="mut sm f1">${r[0]}</span><span class="pill ${r[5]==='فوز'?'p-g':r[5]==='خسارة'?'p-r':'p-x'}">${r[5]}</span></div><div class="row mt" style="justify-content:center;gap:16px"><b>🎽 ${r[1]}</b><b style="font-size:22px">${r[2]}</b><b>${r[3]} 🎽</b></div><div class="mut sm" style="text-align:center;margin-top:4px">انت: ${r[4]}</div></div>`).join("");
+ return hd("الكورة")+`<div class="pad">${M.votePending?`<div class="card prompt row" onclick="go('vote')"><div class="ico i-y">${ic('trophy',20)}</div><b class="f1">صوّت لأحسن 3 في ماتش امبارح</b><span class="chev">${ic('chev',18)}</span></div>`:''}${seg([["stats","إحصائياتي"],["board","الترتيب"],["matches","ماتشاتي"]],s,"m_fs")}<div class="mt">${b}</div></div>`}
+function m_fs(k){M.fseg=k;draw()}
+function m_vote(){return hd("التصويت","football")+`<div class="pad">
+ <div class="card"><b>ماتش امبارح · ${ME.g}</b><div class="mut sm">اختار أحسن 3 لعبوا معاك. التصويت سري، ومش هتقدر تختار نفسك.</div><div class="pbar mt"><i style="width:${M.vote.length/3*100}%"></i></div><div class="mut sm mt6">اخترت ${M.vote.length} من 3</div></div>
+ <div class="card lst" style="padding:6px 16px">${TEAMMATES.map(n=>{const k=M.vote.indexOf(n);return `<div class="it tap" onclick="m_v('${n}')">${av(n,38)}<b class="f1">${n}</b><span class="chk ${k>=0?'on':''}">${k>=0?k+1:''}</span></div>`}).join("")}</div>
+ <button class="btn full" ${M.vote.length===3?'':'disabled'} onclick="M.votePending=false;go('football');toast('صوتك اتسجل. شكراً!')">تأكيد التصويت</button></div>`}
+function m_v(n){const k=M.vote.indexOf(n);if(k>=0)M.vote.splice(k,1);else if(M.vote.length<3)M.vote.push(n);else toast('3 بس');draw()}
+function fbThread(w){return {"كابتن محمود":"ahmed|mahmoud","كابتن حسام":"ahmed|hossam","د. ريم":"ahmed|reem"}[w]}
+function m_feedback(){const s=M.fbseg,L=FB.filter(f=>s==="all"||(s==="coach"&&f.who.startsWith("كابتن"))||(s==="food"&&f.who.startsWith("د."))||(s==="peers"&&f.who==="الزملاء"));
+ return hd("تقييمي والملاحظات","more")+`<div class="pad">
+ <div class="card"><div class="row"><div class="ring" style="--p:78;width:84px;height:84px"><span style="width:66px;height:66px;font-size:19px">78<small>/100</small></span></div><div class="f1"><b class="ttl">مستواك ${stars(4)}</b><div class="crit"><span style="width:62px">الكابتن</span><div class="bar"><i style="width:76%"></i></div><b>3.8</b></div><div class="crit"><span style="width:62px">الأداء</span><div class="bar"><i style="width:81%"></i></div><b>81</b></div><div class="crit"><span style="width:62px">الزملاء</span><div class="bar"><i style="width:74%"></i></div><b>74</b></div></div></div><div class="mut sm mt">ده تقييمك انت بس، ومحدش من زمايلك بيشوفه.</div></div>
+ ${seg([["all","الكل"],["coach","المدربين"],["food","التغذية"],["peers","الزملاء"]],s,"m_fbs")}
+ <div class="mt">${L.map(f=>`<div class="card"><div class="row">${f.who==="الزملاء"?`<div class="ico i-y">${ic('users',20)}</div>`:av(f.who,42)}<div class="f1"><b>${f.who}</b><div class="mut sm">${f.r} · ${f.dt}</div></div><span class="pill p-x">${f.type}</span></div>
+  ${f.crit.length?`<div class="mt">${f.crit.map(c=>`<div class="crit"><span style="width:118px">${c[0]}</span><div class="bar"><i style="width:${c[1]*20}%"></i></div><b>${c[1]}</b></div>`).join("")}</div>`:''}
+  <div class="note ${f.who==="الزملاء"?'n-o':'n-b'}">${ic('note',16)}<div class="f1">${f.note}</div></div>
+  ${fbThread(f.who)?`<button class="btn sm soft mt" onclick="openChat('${fbThread(f.who)}')">${ic('chat',16)} رد على ${f.who}</button>`:''}</div>`).join("")}</div></div>`}
+function m_fbs(k){M.fbseg=k;draw()}
+function m_rate(){const d=RT.filter(r=>r.done).length;return hd("قيّم تجربتك","more")+`<div class="pad">
+ <div class="card"><div class="row"><div class="ico i-r">${ic('star',20)}</div><div class="f1"><b>تقييم شهر سبتمبر</b><div class="mut sm">سري، ومحدش بيعرف مين قيّم. بيساعد النادي يطوّر الخدمة.</div></div></div><div class="pbar mt"><i style="width:${d/RT.length*100}%"></i></div><div class="mut sm mt6">${d} من ${RT.length} اتقيّموا</div></div>
+ <div class="sec">المدربين والأخصائيين</div><div class="card lst" style="padding:6px 16px">${RT.slice(0,3).map(rtRow).join("")}</div>
+ <div class="sec">الإدارة والفرع</div><div class="card lst" style="padding:6px 16px">${RT.slice(3).map(rtRow).join("")}</div></div>`}
+function rtRow(r){const isP=/^(كابتن|د\.|أ\.)/.test(r.n);return `<div class="it ${r.done?'':'tap'}" ${r.done?'':`onclick="sheet(m_rateS('${r.k}'))"`}>${isP?av(r.n,40):`<div class="ico i-k">${ic(r.k==='place'?'door':r.k==='app'?'more':'users',20)}</div>`}<div class="f1"><b>${r.n}</b><div class="mut sm">${r.r}</div></div>${r.done?'<span class="pill p-g">✓ اتقيّم</span>':'<span class="pill p-r">قيّم</span>'}</div>`}
+function m_rateS(k){const r=RT.find(x=>x.k===k);return `<div class="row" style="margin-bottom:14px">${/^(كابتن|د\.|أ\.)/.test(r.n)?av(r.n,48):`<div class="ico i-k" style="width:48px;height:48px">${ic('users',22)}</div>`}<div class="f1"><h3>${r.n}</h3><div class="mut">${r.r} · سبتمبر</div></div></div>
+ ${r.c.map((c,i)=>`<div class="row" style="padding:9px 0;border-bottom:1px solid var(--line)"><b class="f1" style="font-size:13.5px">${c}</b><div id="rs${i}">${starIn(0)}</div></div>`).join("")}
+ <div class="fld mt"><label>رأيك (اختياري)</label><textarea rows="3" placeholder="إيه اللي عاجبك؟ وإيه اللي محتاج يتحسن؟"></textarea></div>
+ <div class="note n-b">${ic('user',16)}<div class="f1">${['mahmoud','hossam','reem'].includes(k)?'المدرب بيشوف المتوسط والتعليقات من غير أسماء.':'الإدارة بتشوفه من غير اسمك.'}</div></div>
+ <button class="btn full mt" onclick="m_rateSave('${k}',${r.c.length})">إرسال التقييم</button>`}
+function m_rateSave(k,n){for(let i=0;i<n;i++)if(+document.querySelector('#rs'+i+' .starin').dataset.v===0){toast('قيّم كل البنود');return}RT.find(x=>x.k===k).done=true;closeSheet();draw();toast('شكراً! تقييمك اتسجل')}
+function m_food(){const done=M.meals.filter(x=>x.done),kc=done.reduce((s,x)=>s+x.kcal,0);
+ return hd("التغذية","",`<button class="ib" onclick="openChat('ahmed|reem')">${ic('chat',20)}</button>`)+`<div class="pad">
+ <div class="card"><div class="row" style="gap:16px"><div class="ring" style="--p:${Math.min(100,kc/20)}"><span>${kc}<small>من 2000 سعر</small></span></div><div class="f1"><b class="ttl">تنشيف · 2000 سعر</b><div class="mut sm">من د. ريم · برنامج الجروب</div><span class="pill p-r mt6">🏃 يوم تمرين</span><div class="crit mt6"><span style="width:52px">بروتين</span><div class="bar"><i style="width:64%;background:var(--red)"></i></div><b class="sm">112/175</b></div></div></div></div>
+ <div class="card"><div class="row"><b class="f1">💧 المية</b><span class="mut">${M.water} / 12 كوباية</span></div><div class="waterg mt">${[...Array(12)].map((_,i)=>`<button class="${i<M.water?'on':''}" onclick="M.water=${i<M.water?i:i+1};draw()"></button>`).join("")}</div></div>
+ <div class="sec">وجبات النهارده</div>
+ ${M.meals.map((x,i)=>`<div class="card" style="${x.done?'opacity:.7':''}"><div class="row" style="align-items:flex-start"><button class="chk ${x.done?'on':''}" onclick="M.meals[${i}].done=!M.meals[${i}].done;draw()">${x.done?ic('ok',16):''}</button><div class="f1"><div class="row"><b class="f1">${x.n}</b><span class="mut sm">${x.t} · ${x.kcal} سعر</span></div><div style="color:var(--ink2);font-size:13px">${x.items}</div><div class="row mt" style="gap:8px"><button class="btn sm ghost" onclick="sheet(m_swapS(${i}))">${ic('swap',16)} بدّل</button><button class="btn sm ghost" onclick="toast('الكاميرا اتفتحت')">${ic('camera',16)} صوّر</button></div></div></div></div>`).join("")}
+ <div class="card tap row" onclick="go('shop')"><div class="ico i-o">${ic('cart',20)}</div><div class="f1"><b>قايمة مشتريات الأسبوع</b><div class="mut sm">بتتحسب تلقائي من وجبات برنامجك</div></div><span class="chev">${ic('chev',18)}</span></div>
+ <div class="card"><div class="row"><b class="f1">⚖️ وزنك</b><span class="pill p-g">▼ 6 كجم من يونيو</span></div><div class="row mt"><input type="number" step="0.1" value="${M.weight}" id="wt" style="width:110px"><button class="btn sm f1" style="height:46px" onclick="M.weight=+$('wt').value;toast('الوزن اتسجل ووصل لد. ريم')">سجّل الوزن</button></div><div class="mut sm mt">المتابعة الجاية مع د. ريم: 16 أكتوبر</div></div></div>`}
+function m_swapS(i){const x=M.meals[i],opts=[x.items].concat(x.alt);return `<h3>بدّل ${x.n}</h3><div class="mut" style="margin-bottom:12px">بدائل بنفس السعرات تقريباً من د. ريم</div>
+ <div class="lst">${opts.map((a,j)=>`<div class="it tap" onclick="m_swap(${i},${j})"><span class="chk ${j?'':'on'}">${j?'':ic('ok',16)}</span><span class="f1">${a}</span></div>`).join("")}</div><div class="note n-o">${ic('cart',16)}<div class="f1">قايمة المشتريات بتتحدث لوحدها لو بدّلت.</div></div>`}
+function m_swap(i,j){if(!j){closeSheet();return}const x=M.meals[i],opts=[x.items].concat(x.alt),n=opts[j];x.alt=opts.filter(o=>o!==n);x.items=n;closeSheet();draw();toast('اتبدلت')}
+function m_shop(){return hd("قايمة المشتريات","food")+`<div class="pad">
+ <div class="note n-b" style="margin:0 0 12px">${ic('list',16)}<div class="f1">القايمة دي <b>بتتحسب تلقائي من برنامجك</b>: كل صنف في وجباتك مضروب في أيام الأسبوع (4 أيام تمرين و3 راحة). لو بدّلت وجبة أو د. ريم عدّلت البرنامج، القايمة بتتحدث.</div></div>
+ ${SHOP.map(([c,items])=>`<div class="sec">${c}</div><div class="card lst" style="padding:6px 16px">${items.map(it=>{const k=c+it[0],on=M.shop[k];return `<div class="it tap" onclick="M.shop['${k}']=!M.shop['${k}'];draw()"><span class="chk ${on?'on':''}">${on?ic('ok',16):''}</span><div class="f1" style="${on?'opacity:.5;text-decoration:line-through':''}"><b>${it[0]}</b><div class="mut sm">${it[2]}</div></div><b class="sm">${it[1]}</b></div>`}).join("")}</div>`).join("")}
+ <button class="btn ghost full" onclick="toast('القايمة اتبعتت')">${ic('send',18)} ابعتها لحد في البيت</button></div>`}
+function m_more(){const un=unreadFor(ME.n),rp=RT.filter(r=>!r.done).length,lf=LOST.found.filter(f=>f.st==="open").length;
+ return hd("المزيد")+`<div class="pad">
+ <div class="card row" onclick="go('account')" style="cursor:pointer">${av(ME.n,56)}<div class="f1"><b class="ttl">${ME.n}</b><div class="mut sm">0101 234 5678 · ${ME.g}</div><span class="pill p-g mt6">اشتراك نشط · ${ME.days} يوم</span></div><span class="chev">${ic('chev',18)}</span></div>
+ <div class="card lst" style="padding:6px 16px">
+  ${rowL('chat','i-r','الرسائل','كابتن محمود، كابتن حسام، د. ريم، الإدارة',un?`<span class="pill" style="background:var(--red);color:#fff">${un}</span>`:'',"go('msgs')")}
+  ${rowL('note','i-b','تقييمي والملاحظات','اللي كتبهولك المدربين والأخصائية','',"go('feedback')")}
+  ${rowL('star','i-y','قيّم تجربتك','المدربين والإدارة والفرع',rp?`<span class="pill p-r">${rp}</span>`:'',"go('rate')")}
+  ${rowL('box','i-o','المفقودات','بلّغ عن حاجة ضاعت أو شوف اللي اتلقى',lf?`<span class="pill p-o">${lf} جديد</span>`:'',"go('lost')")}</div>
+ <div class="card lst" style="padding:6px 16px">
+  ${rowL('wallet','i-g','الاشتراك والدفع','التجديد والإيصالات','',"go('account')")}
+  ${rowL('cal','i-k','حصصي والطلبات','تعويض وتجميد','',"go('sessions')")}
+  ${rowL('bell','i-k','الإشعارات','','',"sheet(m_notifSet())")}
+  ${rowL('out','i-k','تسجيل الخروج','','',"toast('خروج')")}</div></div>`}
+function m_notifSet(){return `<h3>الإشعارات</h3><div class="lst mt">${["تذكير قبل الحصة بساعتين","مواعيد الوجبات","ملخص الماتش","تذكير التجديد","المفقودات في الفرع"].map((x,i)=>`<div class="it"><span class="f1">${x}</span><button class="tg ${i===1?'':'on'}" onclick="tgl(this)"></button></div>`).join("")}</div>`}
+function m_account(){return hd("الاشتراك والدفع","more")+`<div class="pad">
+ <div class="card" style="background:radial-gradient(120% 120% at 100% 0%,#c0161e,#3a0b0d 55%,#0f0f10);color:#fff"><div class="row"><div class="f1"><div style="opacity:.7;font-size:12.5px">باقتك</div><div style="font-size:22px;font-weight:900">${ME.plan} · 900 ج</div><div style="opacity:.75;font-size:12.5px">من 28 سبتمبر لحد ${ME.end}</div></div><div class="ring" style="--p:${ME.days/30*100};--c:#fff;--rb:rgba(255,255,255,.2);--ri:#2a0b0d;width:76px;height:76px"><span style="width:60px;height:60px;font-size:18px">${ME.days}<small>يوم</small></span></div></div>
+  <div class="g2 mt"><div><div style="opacity:.7;font-size:12px">الحصص</div><b>${ME.used} من ${ME.total}</b></div><div><div style="opacity:.7;font-size:12px">التجميد المتاح</div><b>10 أيام</b></div></div></div>
+ <button class="btn full" onclick="sheet(m_payS())">جدّد الاشتراك</button>
+ <div class="sec">الإيصالات</div><div class="card lst" style="padding:6px 16px">${[["1 أكتوبر","تجديد شهري · إنستاباي","900"],["1 سبتمبر","تجديد شهري · كاش","900"],["1 أغسطس","تجديد شهري · فودافون كاش","900"]].map(r=>`<div class="it"><div class="ico i-g">${ic('wallet',19)}</div><div class="f1"><b style="font-size:13px">${r[1]}</b><div class="mut sm">${r[0]}</div></div><b>${r[2]} ج</b><button class="btn sm ghost" onclick="toast('PDF')">PDF</button></div>`).join("")}</div></div>`}
+function m_payS(){return `<h3>تجديد الاشتراك</h3>
+ <div class="fld mt"><label>الباقة</label><div class="chips">${["شهري · 900 ج","3 شهور · 2,400 ج","6 شهور · 4,500 ج"].map((x,i)=>`<button class="chip ${i?'':'on'}" onclick="pick(this)">${x}</button>`).join("")}</div></div>
+ <div class="fld"><label>طريقة الدفع</label><div class="lst" id="pmL">${[["📱","إنستاباي","حوّل على elite.sports@instapay وابعت رقم العملية"],["📞","فودافون كاش","0100 000 0000"],["💳","كارت / فوري","دفع أونلاين مباشر",1],["💵","كاش في الفرع","ادفع عند الاستقبال"]].map((m,i)=>`<div class="it tap" onclick="document.querySelectorAll('#pmL .chk').forEach(c=>{c.classList.remove('on');c.innerHTML=''});this.querySelector('.chk').classList.add('on');this.querySelector('.chk').innerHTML=ic('ok',16)"><span class="chk ${i?'':'on'}">${i?'':ic('ok',16)}</span><div class="f1"><b>${m[0]} ${m[1]}</b> ${m[3]?'<span class="ph2">المرحلة 2</span>':''}<div class="mut sm">${m[2]}</div></div></div>`).join("")}</div></div>
+ <div class="fld"><label>رقم العملية</label><input placeholder="مثال: 482910"></div>
+ <button class="btn full" onclick="closeSheet();REQS.unshift({t:'تأكيد دفع',n:ME.n,d:'تجديد شهري · إنستاباي · 900 ج',st:null});toast('اتبعت للفرع يأكد الدفع')">تأكيد</button>`}
+function lostCard(f,act,mgr){const st={open:['p-o','مستني صاحبه'],claimed:['p-b','حد طلبه'],search:['p-o','بندوّر'],found:['p-g','لقيناها ✓'],done:['p-g','اتسلّم']}[f.st];
+ return `<div class="card"><div class="row" style="align-items:flex-start"><div class="thumb" style="background:${f.st==='done'?'#f1ecec':'#fff3e3'}">${f.ic}</div><div class="f1"><div class="row"><b class="f1">${f.cat}</b><span class="pill ${st[0]}">${st[1]}</span></div><div style="color:var(--ink2);font-size:13px">${f.d}</div><div class="mut sm mt6">📍 ${f.w} · ${f.dt}${mgr&&f.by?' · '+(f.st==='done'?'اتسلّم لـ ':'طلبه ')+f.by:''}${mgr&&f.rep?' · بلاغ من '+f.rep:''}</div></div></div>${act?`<div class="mt">${act}</div>`:''}</div>`}
+function m_lost(){const s=M.lseg,mine=LOST.reports.filter(r=>r.by===ME.n);let b="";
+ if(s==="found") b=`<div class="note n-o" style="margin:0 0 12px">${ic('box',16)}<div class="f1">حاجات الفرع لقاها ومش عارف صاحبها. لو حاجة منهم بتاعتك اضغط «أنا صاحبها» واستلمها من الاستقبال ببطاقتك.</div></div>`+LOST.found.filter(f=>f.st!=="done").map(f=>lostCard(f,f.st==="open"?`<button class="btn sm full soft" onclick="m_claim(${f.id})">🙋 أنا صاحبها</button>`:f.by===ME.n?`<div class="note n-b" style="margin:0">${ic('user',16)}<div class="f1">الفرع عرف إنك صاحبها. استلمها من الاستقبال ببطاقتك.</div></div>`:'')).join("");
+ else b=mine.length?mine.map(f=>lostCard(f,f.st==="found"?`<div class="note n-g" style="margin:0">${ic('ok',16)}<div class="f1">الفرع لقاها، استلمها من الاستقبال</div></div>`:'')).join(""):`<div class="card mut" style="text-align:center">مفيش بلاغات</div>`;
+ return hd("المفقودات","more")+`<div class="pad">${seg([["found","اتلقت في الفرع"],["mine","بلاغاتي"]],s,"m_ls")}<div class="mt">${b}</div><button class="btn full" onclick="sheet(lostS('member'))">${ic('plus',18)} بلّغ عن حاجة ضاعت منك</button></div>`}
+function m_claim(id){const f=LOST.found.find(x=>x.id===id);f.st="claimed";f.by=ME.n;draw();toast('الفرع عرف إنك صاحبها. استلمها من الاستقبال')}
+function m_ls(k){M.lseg=k;draw()}
+function lostS(who){const mem=who==="member";return `<h3>${mem?'بلّغ عن حاجة ضاعت':'لقيت حاجة'}</h3><div class="mut" style="margin-bottom:14px">${mem?'هتوصل للفرع، ولو حد لقاها هيبلّغك.':'هتظهر لأعضاء الفرع عشان صاحبها يطلبها.'}</div>
+ <div class="fld"><label>إيه هي؟</label><div class="chips" id="lc">${LOSTCAT.map((c,i)=>`<button class="chip ${i?'':'on'}" data-i="${c[0]}" data-c="${c[1]}" onclick="pick(this)">${c[0]} ${c[1]}</button>`).join("")}</div></div>
+ <div class="fld"><label>وصفها</label><input id="ld" placeholder="${mem?'مثال: محفظة جلد بني فيها البطاقة':'وصف عام من غير تفاصيل تكشف صاحبها'}"></div>
+ <div class="fld"><label>${mem?'ضاعت فين؟':'اتلقت فين؟'}</label><div class="chips" id="lw">${PLACES.map((p,i)=>`<button class="chip ${i?'':'on'}" onclick="pick(this)">${p}</button>`).join("")}</div></div>
+ <div class="fld"><label>صورة ${mem?'(لو عندك)':''}</label><button class="btn ghost full" onclick="toast('الكاميرا اتفتحت')">${ic('camera',18)} صوّر أو ارفع صورة</button></div>
+ ${mem?'':'<div class="row" style="margin-bottom:14px"><span class="f1">ابعت إشعار لأعضاء الفرع</span><button class="tg on" onclick="tgl(this)"></button></div>'}
+ <button class="btn full" onclick="lostSave('${who}')">${mem?'ابعت البلاغ':'إضافة'}</button>`}
+function lostSave(who){const c=document.querySelector('#lc .on'),cat=c.dataset.c,d=$("ld").value.trim()||cat,w=document.querySelector('#lw .on').textContent;
+ if(who==="member"){LOST.reports.unshift({id:Date.now(),by:ME.n,ic:c.dataset.i,cat,d,w,dt:"النهارده",st:"search"});M.lseg="mine";toast('البلاغ اتبعت للفرع')}
+ else{LOST.found.unshift({id:Date.now(),ic:c.dataset.i,cat,d,w,dt:"النهارده "+nowT(),st:"open",by:null});MG.lseg="found";toast('اتضافت واتبعت إشعار للأعضاء')}
+ closeSheet();draw()}
+
+
+/* ---------- drag & drop between teams ---------- */
+const GRIP='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.7"/><circle cx="15" cy="6" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="18" r="1.7"/><circle cx="15" cy="18" r="1.7"/></svg>';
+let DR=null;
+function dragStart(e,ti,pi,fn){e.preventDefault();e.stopPropagation();const row=e.target.closest('.pl');DR={ti,pi,fn,row,x0:e.clientX,y0:e.clientY,x:e.clientX,y:e.clientY,go:false,g:null,tgt:null,raf:0};
+ window.addEventListener('pointermove',dragMove);window.addEventListener('pointerup',dragEnd);window.addEventListener('pointercancel',dragEnd)}
+function dragHit(){document.querySelectorAll('.drop-on').forEach(x=>x.classList.remove('drop-on'));DR.tgt=null;const el=document.elementFromPoint(DR.x,DR.y),t=el&&el.closest('[data-ti]');if(t&&+t.dataset.ti!==DR.ti){t.classList.add('drop-on');DR.tgt=+t.dataset.ti}}
+function dragMove(e){if(!DR)return;DR.x=e.clientX;DR.y=e.clientY;
+ if(!DR.go){if(Math.hypot(DR.x-DR.x0,DR.y-DR.y0)<5)return;DR.go=true;const r=DR.row.getBoundingClientRect(),g=DR.row.cloneNode(true);g.className='drag-ghost';g.style.width=r.width+'px';document.body.appendChild(g);DR.g=g;DR.dx=DR.x-r.left;DR.dy=DR.y-r.top;DR.row.classList.add('drag-src');document.body.classList.add('dragging');dragScroll()}
+ DR.g.style.left=(DR.x-DR.dx)+'px';DR.g.style.top=(DR.y-DR.dy)+'px';dragHit()}
+function dragScroll(){if(!DR||!DR.go)return;const v=DRAG_SC();let top=0,bot=innerHeight;if(v!==window){const r=v.getBoundingClientRect();top=r.top;bot=r.bottom}
+ const sp=DR.y<top+80?-12:DR.y>bot-80?12:0;if(sp){v===window?window.scrollBy(0,sp):(v.scrollTop+=sp);dragHit()}DR.raf=requestAnimationFrame(dragScroll)}
+function dragEnd(){window.removeEventListener('pointermove',dragMove);window.removeEventListener('pointerup',dragEnd);window.removeEventListener('pointercancel',dragEnd);if(!DR)return;cancelAnimationFrame(DR.raf);const d=DR;DR=null;
+ document.body.classList.remove('dragging');document.querySelectorAll('.drop-on').forEach(x=>x.classList.remove('drop-on'));if(d.g)d.g.remove();if(d.row)d.row.classList.remove('drag-src');
+ if(d.go&&d.tgt!=null)window[d.fn](d.ti,d.pi,d.tgt);else if(d.go)toast('سيبه على فريق تاني عشان يتنقل')}
+const DRAG_SC=()=>$('view');
+/* ================= COACH ================= */
+const mk=a=>a.map(([n,lvl,pos,gk,exp])=>({n,lvl,pos,gk:gk||0,exp:!!exp}));
+const CR={A:mk([["أحمد سامي",4,"هجوم"],["كريم عادل",4,"وسط"],["إسلام وليد",3,"دفاع"],["حمزة سعيد",3,"حارس",4],["يوسف رضا",5,"هجوم"],["مروان البنا",3,"دفاع"],["تامر ماهر",2,"وسط"],["زياد نبيل",4,"دفاع"],["شريف يسري",4,"دفاع",2],["هشام جمال",3,"هجوم"],["محمد منير",2,"وسط"],["أيمن وليد",3,"حارس",3],["طارق جمال",4,"هجوم",0,1],["باسم حمدي",2,"دفاع"],["نادر سعيد",3,"وسط"],["علي ماهر",4,"دفاع"],["فارس جلال",3,"وسط"],["سيف كمال",2,"هجوم"]]),
+ B:mk([["عمر خالد",2,"حارس",3],["خالد منير",3,"دفاع"],["رامي فتحي",3,"دفاع"],["وليد سمير",4,"وسط"],["أمير شوقي",3,"هجوم"],["شادي كمال",5,"هجوم"],["مروان عزت",2,"وسط"],["حسن عاطف",2,"دفاع"],["كريم الشاذلي",2,"هجوم"],["محمود ناجي",4,"حارس",4],["عمرو حلمي",3,"وسط"],["أنس زكي",3,"دفاع"],["معاذ صبري",4,"وسط"],["جمال رأفت",2,"هجوم"],["سليم مجدي",3,"دفاع"]])};
+const CG={A:{name:"جروب الصبح A",time:"7:00 ص",with:"كابتن حسام (لياقة)"},B:{name:"جروب الليل B",time:"9:00 م",with:"لوحدك"}};
+const EXCUSED={A:["نادر سعيد","فارس جلال","سيف كمال"],B:["حسن عاطف","جمال رأفت"]};
+const SELF={A:{"أحمد سامي":"6:58","يوسف رضا":"6:51","زياد نبيل":"6:55","حمزة سعيد":"6:49","كريم عادل":"7:02","علي ماهر":"6:57"},B:{}};
+const C={g:"A",present:{},teams:null,sel:null,rec:null,saved:{},arrived:null,pseg:"list"};
+["A","B"].forEach(g=>C.present[g]=new Set(CR[g].filter(p=>!EXCUSED[g].includes(p.n)).map(p=>p.n)));
+function cRoster(){return CR[C.g]}
+function c_home(){const un=unreadFor("كابتن محمود");
+ return `<div class="hero"><div class="row">${av("كابتن محمود",46)}<div class="f1"><div class="t1">تطبيق المدرب · الشيخ زايد</div><div class="t2">صباح الخير كابتن محمود</div></div><button class="hb" onclick="go('cmsgs')">${ic('chat',21)}${un?'<i class="dot"></i>':''}</button></div>
+ <div class="glass row">${C.arrived?`<div class="ico" style="background:rgba(255,255,255,.15);color:#7ef0a8">${ic('check',22)}</div><div class="f1"><b>وصلت ${C.arrived}</b><div class="t1">في الميعاد · ملعب 1</div></div>`:`<div class="ico" style="background:rgba(255,255,255,.15);color:#fff">${ic('pin',22)}</div><div class="f1"><b>سجّل وصولك</b><div class="t1">حصتك الجاية 7:00 ص · ملعب 1</div></div><button class="btn sm wh" onclick="C.arrived=nowT();draw();toast('اتسجل وصولك بالموقع')">وصلت</button>`}</div></div>
+ <div class="pad">
+ ${["A","B"].map(g=>{const G=CG[g],tot=CR[g].length,ex=EXCUSED[g].length,sc=Object.keys(SELF[g]).length;return `<div class="card"><div class="row"><div class="ico ${g==='A'?'i-r':'i-k'}">${ic('users',20)}</div><div class="f1"><b class="ttl">${G.name}</b><div class="mut sm">${G.time} · معاك ${G.with}</div></div><span class="pill ${g==='A'?'p-r':'p-x'}">${g==='A'?'الجاية':'بالليل'}</span></div>
+  <div class="stat3 mt" style="margin-bottom:10px">${[[tot-ex,"مؤكدين","var(--g)"],[ex,"معتذرين","var(--red)"],[sc,"سجّلوا وصولهم","var(--b)"]].map(x=>`<div style="background:#f7f3f3;border-radius:14px;padding:8px;text-align:center"><b style="font-size:19px;color:${x[2]}">${x[0]}</b><div class="mut sm">${x[1]}</div></div>`).join("")}</div>
+  <div class="g2" style="grid-template-columns:1fr 1fr 1fr;gap:8px"><button class="btn sm dark" onclick="C.g='${g}';go('attend')">${ic('check',16)} الحضور</button><button class="btn sm" onclick="C.g='${g}';go('teams')">${ic('bolt',16)} التقسيمة</button><button class="btn sm ghost" onclick="C.g='${g}';go('record')">${ic('ball',16)} الماتش</button></div>${g==='A'?`<div class="note n-r">${ic('wallet',16)}<div class="f1">طارق جمال اشتراكه منتهي</div></div>`:''}</div>`}).join("")}
+ <div class="sec">محتاج منك</div>
+ <div class="card lst" style="padding:6px 16px">${rowL('star','i-y','5 لاعيبة محتاجين تقييم شهري','آخر تقييم من أكتر من 3 أسابيع','',"C.pseg='rate';go('players')")}${un?rowL('chat','i-r',un+' رسايل جديدة','كريم عادل: ينفع أحضر مع جروب الليل؟','',"go('cmsgs')"):''}${rowL('users','i-o','3 غابوا آخر أسبوعين','محمد منير، باسم حمدي، تامر ماهر','',"C.pseg='list';go('players')")}</div>
+ <div class="g2"><div class="st"><b>86%</b><small>حضور جروباتك</small></div><div class="st"><b>4.6 ★</b><small>تقييم الأعضاء ليك</small></div></div></div>`}
+function gSw(){return `<div style="padding:0 16px 4px">${seg([["A",CG.A.name],["B",CG.B.name]],C.g,"c_gs")}</div>`}
+function c_gs(g){C.g=g;C.teams=null;draw()}
+function c_attend(){const R=cRoster(),P=C.present[C.g],sc=SELF[C.g];return hd("الحضور","",`<button class="ib" onclick="sheet(c_scanS())">${ic('qr',20)}</button>`)+gSw()+`<div class="pad">
+ <div class="card"><div class="row"><div class="f1"><b class="ttl">${P.size} حاضر من ${R.length}</b><div class="mut sm">${Object.keys(sc).length} سجّلوا وصولهم بنفسهم بكود الملعب</div></div><button class="btn sm ghost" onclick="sheet(c_guestS())">${ic('plus',16)} ضيف</button></div><div class="pbar mt"><i style="width:${P.size/R.length*100}%"></i></div></div>
+ <div class="card lst" style="padding:6px 16px">${R.map(p=>{const on=P.has(p.n),ex=EXCUSED[C.g].includes(p.n),s=sc[p.n];return `<div class="it tap" onclick="c_tg('${p.n}')"><span class="chk ${on?'on':''}">${on?ic('ok',16):''}</span>${av(p.n,34)}<div class="f1"><b>${p.n}</b>${p.exp?'<div style="color:var(--red);font-size:12px;font-weight:700">الاشتراك منتهي · حوّله للاستقبال</div>':''}</div>${s?`<span class="pill p-b">وصل ${s}</span>`:ex&&!on?'<span class="pill p-r">معتذر</span>':p.visit?'<span class="pill p-o">زائر</span>':''}</div>`}).join("")}</div>
+ <button class="btn full" onclick="toast('الحضور اتحفظ');go('teams')">حفظ وروح للتقسيمة</button></div>`}
+function c_tg(n){const P=C.present[C.g];P.has(n)?P.delete(n):P.add(n);C.teams=null;draw()}
+function c_scanS(){return `<h3>امسح كود العضو</h3><div class="mut">للي معاهوش نت أو مسجّلش وصوله بنفسه</div><div class="scan"><i class="cn c1"></i><i class="cn c2"></i><i class="cn c3"></i><i class="cn c4"></i><i class="ln"></i></div><button class="btn full" onclick="SELF[C.g]['إسلام وليد']=nowT().split(' ')[0];C.present[C.g].add('إسلام وليد');closeSheet();draw();toast('إسلام وليد اتسجل')">محاكاة المسح</button>`}
+function c_guestS(){return `<h3>إضافة لاعب للحصة</h3><div style="margin:12px 0" id="gseg">${seg([["a","من جروب تاني"],["b","ضيف / تجربة"]],"a","c_gt")}</div>
+ <div id="gA"><div class="mut" style="margin-bottom:8px">طلبات تعويض اتوافق عليها للنهارده:</div><div class="lst">${["أحمد ممدوح · جروب المغرب","سامح علاء · جروب الليل B"].map(x=>`<div class="it">${av(x,34)}<span class="f1">${x}</span><button class="btn sm" onclick="c_addG('${x.split(' · ')[0]}',3)">ضيف</button></div>`).join("")}</div></div>
+ <div id="gB" style="display:none"><div class="fld"><label>الاسم</label><input id="gN"></div><div class="fld"><label>تقدير مستواه</label><div class="chips" id="gL">${[1,2,3,4,5].map(v=>`<button class="chip ${v===3?'on':''}" onclick="pick(this)">${"★".repeat(v)}</button>`).join("")}</div></div><button class="btn full" onclick="const n=$('gN').value.trim();if(n)c_addG(n,document.querySelector('#gL .on').textContent.length)">إضافة كضيف</button></div>`}
+function c_gt(k){document.querySelectorAll('#gseg button').forEach((b,i)=>b.classList.toggle('on',(i===0)===(k==='a')));$('gA').style.display=k==='a'?'':'none';$('gB').style.display=k==='b'?'':'none'}
+function c_addG(n,l){if(!cRoster().some(p=>p.n===n))CR[C.g].push({n,lvl:l,pos:"وسط",gk:0,exp:false,visit:1});C.present[C.g].add(n);C.teams=null;closeSheet();draw();toast(n+' اتضاف للحصة')}
+function c_split(){const ps=shuffle(cRoster().filter(p=>C.present[C.g].has(p.n))),n=ps.length;if(n<4){C.teams=null;return}
+ const k=n<=14?2:n<=21?3:4,T=[...Array(k)].map((_,i)=>({bib:BIBS[i],pl:[],gk:null})),str=t=>t.pl.reduce((s,p)=>s+p.lvl,0);
+ const gks=ps.filter(p=>p.gk).sort((a,b)=>b.gk-a.gk).slice(0,k);gks.forEach((g,i)=>{T[k-1-i].pl.push(g);T[k-1-i].gk=g.n});
+ ps.filter(p=>!gks.includes(p)).sort((a,b)=>b.lvl-a.lvl).forEach(p=>{const mn=Math.min(...T.map(t=>t.pl.length));let best,bs=1e9;T.forEach(t=>{if(t.pl.length!==mn)return;const s=str(t)+t.pl.filter(x=>x.pos===p.pos).length*1.5+Math.random()*.4;if(s<bs){bs=s;best=t}});best.pl.push(p)});
+ C.teams=T;C.sel=null;C.rec={a:0,b:1,ev:[],mvp:null,pend:null,done:[],q:[...Array(k).keys()].slice(2)}}
+function teamHd(t,right){return `<div class="th" style="background:${t.bib[1]};color:${t.bib[2]};${t.bib[1]==='#fff'?'box-shadow:inset 0 -1px 0 var(--line)':''}">🎽 ${t.bib[0]}<span class="f1"></span>${right}</div>`}
+function c_teams(){return teamsView("")}
+function teamsView(back,mgr){if(!C.teams)c_split();const T=C.teams,P=C.present[C.g];
+ if(!T)return hd("التقسيمة",back)+gSw()+`<div class="pad"><div class="card mut">محتاج 4 لاعيبة على الأقل.</div></div>`;
+ const str=t=>t.pl.reduce((s,p)=>s+p.lvl,0),ss=T.map(str),diff=Math.max(...ss)-Math.min(...ss);
+ return hd(mgr?"تقسيمة "+CG[C.g].name:"التقسيمة",back,`<button class="ib" onclick="c_split();draw();toast('اتقسموا من جديد')">${ic('refresh',20)}</button>`)+(mgr?'':gSw())+`<div class="pad">
+ ${mgr?`<div class="note n-b" style="margin:0 0 12px">${ic('users',16)}<div class="f1">بتعدّل على نفس تقسيمة كابتن محمود، وأي تغيير بيظهر عنده على طول.</div></div>`:''}
+ <div class="card row"><div class="ico i-r">${ic('bolt',20)}</div><div class="f1"><b>${P.size} لاعب ← ${T.length} فرق</b><div class="mut sm">${T.map(t=>t.pl.length).join(" - ")} · القوة ${ss.join(" - ")}</div></div><span class="pill ${diff<=1?'p-g':diff<=3?'p-o':'p-r'}">${diff<=1?'متوازن':diff<=3?'مقبول':'مش متوازن'}</span></div>
+ <div class="note n-o" style="margin:0 0 12px">${ic('swap',16)}<div class="f1"><b>اسحب اللاعب من ⠿</b> وسيبه على الفريق اللي فوق أو تحت. أو اضغط على اسمه عشان تبدّله أو تخليه حارس.</div></div>
+ ${T.map((t,ti)=>`<div class="tm" data-ti="${ti}">${teamHd(t,`<span style="font-size:12px;opacity:.85">قوة ${ss[ti]} · ${t.pl.length}</span>`)}${t.pl.map((p,pi)=>`<div class="pl" onclick="sheet(c_moveS(${ti},${pi}))" style="cursor:pointer"><span class="grip" onpointerdown="dragStart(event,${ti},${pi},'c_move')" onclick="event.stopPropagation()">${GRIP}</span>${av(p.n,30)}<b class="f1">${p.n}</b><span class="pos ${t.gk===p.n?'gk':''}">${t.gk===p.n?'🧤 حارس':p.pos}</span>${stars(p.lvl)}<span class="chev">${ic('chev',16)}</span></div>`).join("")}</div>`).join("")}
+ ${T.length>2?`<div class="note n-o" style="margin:0 0 12px">${ic('trophy',16)}<div class="f1">نظام الملك: ${T[0].bib[0]} × ${T[1].bib[0]} الأول، والكسبان يكمل. كل ماتش 8 دقايق أو جونين.</div></div>`:''}
+ ${mgr?`<button class="btn full" onclick="toast('التعديلات اتحفظت ووصلت للكابتن واللاعيبة');go('${back}')">حفظ التعديلات</button>`:`<div class="g2"><button class="btn dark" onclick="toast('التقسيمة اتشاركت مع لاعيبة الجروب في التطبيق')">${ic('users',18)} شارك التقسيمة</button><button class="btn" onclick="go('record')">${ic('ball',18)} ابدأ الماتش</button></div>`}</div>`}
+function c_moveS(ti,pi){const T=C.teams,t=T[ti],p=t.pl[pi],str=x=>x.pl.reduce((s,q)=>s+q.lvl,0);
+ return `<div class="row" style="margin-bottom:14px">${av(p.n,48)}<div class="f1"><h3>${p.n}</h3><div class="mut">${p.pos} · ${stars(p.lvl)} · في فريق ${t.bib[0]}</div></div></div>
+ <div class="fld"><label>انقله لفريق</label><div class="g2" style="grid-template-columns:repeat(${Math.min(3,T.length-1)},1fr)">${T.map((x,i)=>i===ti?'':`<button class="btn" style="background:${x.bib[1]};color:${x.bib[2]};${x.bib[1]==='#fff'?'box-shadow:inset 0 0 0 1.5px var(--line)':''}" onclick="c_move(${ti},${pi},${i})">🎽 ${x.bib[0]}<span style="opacity:.75;font-size:12px">(${x.pl.length}·${str(x)})</span></button>`).join("")}</div></div>
+ <div class="fld"><label>أو بدّله مع لاعب</label><div class="lst">${T.map((x,i)=>i===ti?'':x.pl.map((q,qi)=>`<div class="it tap" onclick="c_swap(${ti},${pi},${i},${qi})"><span class="pill" style="background:${x.bib[1]};color:${x.bib[2]};box-shadow:inset 0 0 0 1px #ddd">${x.bib[0]}</span><b class="f1">${q.n}</b>${stars(q.lvl)}</div>`).join("")).join("")}</div></div>
+ <div class="g2">${t.gk===p.n?`<button class="btn ghost" onclick="C.teams[${ti}].gk=null;closeSheet();draw()">مش حارس</button>`:`<button class="btn ghost" onclick="C.teams[${ti}].gk='${p.n}';closeSheet();draw();toast('${p.n} بقى حارس ${t.bib[0]}')">🧤 خليه الحارس</button>`}<button class="btn soft" onclick="c_out(${ti},${pi})">طلّعه من التقسيمة</button></div>`}
+function c_move(ti,pi,to){const A=C.teams[ti],p=A.pl.splice(pi,1)[0];if(A.gk===p.n)A.gk=null;C.teams[to].pl.push(p);closeSheet();draw();toast(p.n+' اتنقل للـ'+C.teams[to].bib[0])}
+function c_swap(a,b,c,d){const A=C.teams[a],B=C.teams[c],pa=A.pl[b],pb=B.pl[d];A.pl[b]=pb;B.pl[d]=pa;if(A.gk===pa.n)A.gk=pb.n;if(B.gk===pb.n)B.gk=pa.n;closeSheet();draw();toast('اتبدلوا')}
+function c_out(ti,pi){const A=C.teams[ti],p=A.pl.splice(pi,1)[0];if(A.gk===p.n)A.gk=null;C.present[C.g].delete(p.n);closeSheet();draw();toast(p.n+' طلع من التقسيمة')}
+function c_record(){if(!C.teams)c_split();if(!C.teams)return hd("الماتش","teams")+`<div class="pad"><div class="card mut">قسّم الفرق الأول.</div></div>`;
+ const T=C.teams,R=C.rec,side=[R.a,R.b],sc=[0,1].map(s=>R.ev.filter(e=>e.s===s).length);
+ const team=s=>{const t=T[side[s]];return `<div class="tm">${teamHd(t,`<b style="font-size:20px">${sc[s]}</b>`)}${t.pl.map(p=>{const g=R.ev.filter(e=>e.n===p.n).length,a=R.ev.filter(e=>e.a===p.n).length;return `<div class="pl"><span class="f1"><b>${p.n}</b> ${g?`<span class="pill p-g">⚽${g}</span>`:''} ${a?`<span class="pill p-b">🅰️${a}</span>`:''}</span><button class="btn sm" style="height:34px" onclick="C.rec.pend={s:${s},n:'${p.n}'};sheet(c_astS())">⚽ جون</button><button class="btn sm ghost" style="height:34px;width:38px;padding:0;${R.mvp===p.n?'background:#ffe9a8':''}" onclick="C.rec.mvp=C.rec.mvp==='${p.n}'?null:'${p.n}';draw()">⭐</button></div>`}).join("")}</div>`};
+ return hd(`ماتش ${R.done.length+1}`,"teams")+`<div class="pad">
+ <div class="score"><div class="t">🎽<br>${T[R.a].bib[0]}</div><div class="s">${sc[0]}</div><div class="s" style="opacity:.4">:</div><div class="s">${sc[1]}</div><div class="t">🎽<br>${T[R.b].bib[0]}</div></div>
+ <div class="note n-g" style="margin:0 0 12px">${ic('ball',16)}<div class="f1">«⚽ جون» جنب اللي جابه، وبعدين اختار الأسيست. النتيجة بتتحسب لوحدها.</div></div>
+ ${team(0)}${team(1)}
+ ${R.ev.length?`<div class="card"><b>الأحداث</b><div class="lst mt">${R.ev.map((e,i)=>`<div class="it"><span class="f1">⚽ <b>${e.n}</b> ${e.a?`<span class="mut sm">(🅰️ ${e.a})</span>`:''}</span><button class="btn sm ghost" onclick="C.rec.ev.splice(${i},1);draw()">${ic('refresh',15)} تراجع</button></div>`).join("")}</div></div>`:''}
+ <div class="mut" style="text-align:center;margin-bottom:10px">${R.mvp?'⭐ لاعب الماتش: <b>'+R.mvp+'</b>':'⭐ اختار لاعب الماتش (اختياري)'}</div>
+ <button class="btn full" onclick="c_save()">${ic('ok',18)} إنهاء الماتش</button>
+ ${R.done.length?`<div class="card mt"><b>ماتشات النهارده</b><div class="lst mt">${R.done.map((m,i)=>`<div class="it"><b class="f1">${i+1}. ${m}</b></div>`).join("")}</div></div>`:''}</div>`}
+function c_astS(){const R=C.rec,t=C.teams[[R.a,R.b][R.pend.s]];return `<h3>⚽ جون ${R.pend.n}</h3><div class="mut" style="margin-bottom:14px">مين عمل الأسيست؟</div>
+ <div class="lst">${t.pl.filter(p=>p.n!==R.pend.n).map(p=>`<div class="it tap" onclick="c_goal('${p.n}')">${av(p.n,34)}<b class="f1">${p.n}</b><span class="pill p-b">🅰️</span></div>`).join("")}</div>
+ <button class="btn dark full mt" onclick="c_goal(null)">بدون أسيست</button><button class="btn ghost full mt" onclick="C.rec.pend=null;closeSheet()">إلغاء</button>`}
+function c_goal(a){const R=C.rec;R.ev.push({s:R.pend.s,n:R.pend.n,a});R.pend=null;closeSheet();draw()}
+function c_save(){const T=C.teams,R=C.rec,sa=R.ev.filter(e=>e.s===0).length,sb=R.ev.filter(e=>e.s===1).length;R.done.push(`${T[R.a].bib[0]} ${sa} - ${sb} ${T[R.b].bib[0]}${R.mvp?' · ⭐ '+R.mvp:''}`);let msg='الماتش اتسجل والإحصائيات اتحدثت';
+ if(T.length>2&&R.q.length){const w=sa>=sb?R.a:R.b,l=w===R.a?R.b:R.a,nt=R.q.shift();R.q.push(l);R.a=w;R.b=nt;msg=`الجاي: ${T[w].bib[0]} × ${T[nt].bib[0]}`}
+ R.ev=[];R.mvp=null;draw();toast(msg)}
+const CRIT=["اللياقة","التحكم والمهارة","التمرير","التسديد والإنهاء","الدفاع والتمركز"];
+function c_players(){const R=cRoster().filter(p=>!p.visit),s=C.pseg;
+ return hd("اللاعيبة")+gSw()+`<div class="pad">${seg([["list","اللاعيبة"],["rate","التقييم الشهري"]],s,"c_ps")}<div class="mt">
+ ${s==="rate"?`<div class="note n-o" style="margin:0 0 12px">${ic('star',16)}<div class="f1">بتقيّم مرة أول ما يشترك ومرة كل شهر. المستوى كمان بيتحدث من الماتشات وتصويت الزملاء.</div></div>`:''}
+ <div class="card lst" style="padding:6px 16px">${R.map((p,i)=>{const att=[96,92,88,90,97,85,52,90,82,79,48,86,77,55,81,89,73,70][i]||80,due=!C.saved[p.n]&&i%4===0;return `<div class="it tap" onclick="sheet(${s==='rate'?`c_rateS('${p.n}')`:`c_playerS('${p.n}',${att})`})">${av(p.n,38)}<div class="f1"><b>${p.n}</b> <span class="pos ${p.gk?'gk':''}">${p.gk?'🧤 ':''}${p.pos}</span><div>${stars(p.lvl)}</div></div>${s==='rate'?(due?'<span class="pill p-o">محتاج تقييم</span>':C.saved[p.n]?'<span class="pill p-g">✓ اتقيّم</span>':'<span class="mut sm">من أسبوع</span>'):`<span class="pill ${att<60?'p-r':'p-x'}">${att}%</span>`}</div>`}).join("")}</div></div></div>`}
+function c_ps(k){C.pseg=k;draw()}
+function c_rateS(n){const p=cRoster().find(x=>x.n===n),ch=(cur,id)=>`<div class="chips" id="${id}">${[1,2,3,4,5].map(v=>`<button class="chip red ${v===cur?'on':''}" style="padding:6px 13px" onclick="pick(this)">${v}</button>`).join("")}</div>`;
+ return `<div class="row" style="margin-bottom:12px">${av(n,46)}<div class="f1"><h3>تقييم ${n}</h3><div class="mut">${CG[C.g].name} · من 1 لـ 5</div></div></div>
+ ${CRIT.map((c,i)=>`<div class="fld"><label>${c}${i===0?' <span class="mut">(كابتن حسام)</span>':''}</label>${ch(Math.max(1,Math.min(5,p.lvl+(i===4?-1:0))),'cr'+i)}</div>`).join("")}
+ <div class="card" style="box-shadow:inset 0 0 0 1.5px #f0e3c4;background:#fffcf4"><div class="row"><b class="f1">🧤 حراسة المرمى <span class="mut sm">(اختياري)</span></b><button class="tg ${p.gk?'on':''}" id="gkT" onclick="tgl(this);$('gkC').style.display=this.classList.contains('on')?'':'none'"></button></div><div id="gkC" class="mt" style="display:${p.gk?'':'none'}">${ch(p.gk||3,'gkR')}</div></div>
+ <div class="fld"><label>ملاحظة للاعب (بتظهر له في «تقييمي والملاحظات»)</label><textarea rows="2" placeholder="مثال: ركّز على التمركز الدفاعي"></textarea></div>
+ <button class="btn full" onclick="c_saveRate('${n}')">حفظ التقييم</button>`}
+function c_saveRate(n){const p=cRoster().find(x=>x.n===n);let s=0;for(let i=0;i<5;i++)s+=+document.querySelector('#cr'+i+' .on').textContent;p.lvl=Math.max(1,Math.min(5,Math.round(s/5)));p.gk=$('gkT').classList.contains('on')?+document.querySelector('#gkR .on').textContent:0;C.saved[n]=1;C.teams=null;closeSheet();draw();toast('التقييم اتحفظ ووصل للاعب')}
+function c_playerS(n,att){const p=cRoster().find(x=>x.n===n),k=Object.keys(TH).find(x=>TH[x].a===n&&TH[x].b==="كابتن محمود");return `<div class="row">${av(n,56)}<div class="f1"><h3>${n}</h3><div class="mut">${p.pos} · ${stars(p.lvl)}</div></div></div>
+ <div class="stat4 mt">${[["حضور",att+"%"],["ماتشات",18],["⚽",9],["🅰️",5]].map(x=>`<div class="st"><b style="font-size:17px">${x[1]}</b><small>${x[0]}</small></div>`).join("")}</div>
+ ${p.exp?`<div class="note n-r">${ic('wallet',16)}<div class="f1">الاشتراك منتهي</div></div>`:''}
+ <div class="fld mt"><label>ملاحظة جديدة (بتظهر له في تطبيقه)</label><textarea rows="2"></textarea></div>
+ <div class="g2"><button class="btn" onclick="closeSheet();toast('الملاحظة وصلت للاعب')">حفظ</button><button class="btn ghost" onclick="sheet(c_rateS('${n}'))">${ic('star',17)} قيّمه</button></div>
+ <button class="btn soft full mt" onclick="c_chatWith('${n}','${k||''}')">${ic('chat',18)} رسالة</button>`}
+function c_chatWith(n,k){if(!k){k=n+'|mahmoud';TH[k]={a:n,b:"كابتن محمود",rb:"المدرب الرئيسي",ua:0,ub:0,m:[]};PG[n]="عضو · "+CG[C.g].name}closeSheet();openChat(k)}
+function c_bcS(){return `<h3>رسالة لكل الجروب</h3><div style="margin:12px 0" id="bseg">${seg([["A",CG.A.name],["B",CG.B.name]],C.g,"c_gs2")}</div><div class="fld"><textarea rows="4">يا شباب، حصة بكرة هتبدأ 7:15 بدل 7:00</textarea></div><button class="btn full" onclick="closeSheet();toast('اتبعتت لكل أعضاء الجروب في التطبيق')">إرسال</button>`}
+function c_gs2(g){C.g=g;document.querySelectorAll('#bseg button').forEach((b,i)=>b.classList.toggle('on',(i===0)===(g==='A')))}
+
+/* ================= MANAGER ================= */
+const MG={collected:5400,lseg:"found",filter:"الكل",q:"",sess:{},
+ mem:[{n:"محمد طارق",g:"جروب المغرب A",st:"متأخر",amt:900,days:7,att:48},{n:"زياد ممدوح",g:"جروب المغرب",st:"متأخر",amt:900,days:5,att:55},{n:"هشام جمال",g:"جروب الصبح A",st:"متأخر",amt:900,days:3,att:66},{n:"طارق جمال",g:"جروب الصبح A",st:"متأخر",amt:900,days:1,att:77},{n:"كريم عادل",g:"جروب الصبح A",st:"بيخلص",amt:0,days:2,att:85},{n:"يوسف حسن",g:"جروب المغرب A",st:"نشط",amt:0,days:44,att:96},{n:"أحمد سامي",g:"جروب الصبح A",st:"نشط",amt:0,days:26,att:92},{n:"إسلام وليد",g:"جروب الصبح A",st:"نشط",amt:0,days:16,att:79},{n:"عمر خالد",g:"جروب الليل B",st:"مجمد",amt:0,days:0,att:30},{n:"حمزة سعيد",g:"جروب المغرب A",st:"بيخلص",amt:0,days:4,att:59}],
+ tx:[["أحمد سامي","تجديد شهري","إنستاباي",900,"9:12 ص"],["هشام فؤاد","3 شهور","كاش",2400,"10:40 ص"],["إسلام وليد","تجديد شهري","كاش",810,"11:05 ص"],["ضيف","حصة واحدة","كاش",120,"12:30 م"]]};
+const stC=s=>({"نشط":"p-g","بيخلص":"p-o","متأخر":"p-r","مجمد":"p-b"}[s]);
+function pend(){return REQS.filter(r=>!r.st).length}
+function lostPend(){return LOST.found.filter(f=>f.st==="claimed").length+LOST.reports.filter(r=>r.st==="search").length}
+const GS=[["جروب الصبح A","7:00 ص","كابتن محمود + كابتن حسام","خلصت","p-x",88,"15 من 18"],["جروب المغرب A","7:00 م","كابتن شريف + 2","الجاية","p-r",0,""],["جروب الليل B","9:00 م","كابتن محمود","بالليل","p-x",0,""]];
+function g_home(){const late=MG.mem.filter(m=>m.st==="متأخر");return `<div class="hero"><div class="row">${av("أ. رامي",46)}<div class="f1"><div class="t1">مدير فرع الشيخ زايد</div><div class="t2">أهلاً أ. رامي</div></div><button class="hb" onclick="go('requests')">${ic('bell',21)}${pend()?'<i class="dot"></i>':''}</button></div>
+ <div class="glass"><div class="row"><div class="f1"><div class="t1">تحصيل النهارده</div><div style="font-size:28px;font-weight:900">${MG.collected.toLocaleString('en-US')} ج</div></div><div style="text-align:left"><div class="t1">المتأخرين</div><b style="font-size:18px;color:#ff9a9d">${late.length} · ${late.reduce((s,m)=>s+m.amt,0).toLocaleString('en-US')} ج</b></div></div><div class="pbar w mt"><i style="width:72%"></i></div><div class="t1 mt6">72% من المتوقع النهارده</div></div></div>
+ <div class="pad">
+ <div class="stat4">${[["wallet","تحصيل","collect","i-g"],["plus","عضو جديد","newm","i-r"],["box","مفقودات","glost","i-o"],["send","رسالة","msg","i-b"]].map(x=>`<div class="st" style="cursor:pointer;padding:12px 4px" onclick="${x[2]==='msg'?"sheet(g_msgS())":`go('${x[2]}')`}"><div class="ico ${x[3]}" style="margin:0 auto 6px">${ic(x[0],20)}</div><small style="color:var(--ink);font-weight:700">${x[1]}</small></div>`).join("")}</div>
+ ${pend()?`<div class="card prompt row" onclick="go('requests')"><div class="ico i-y">${ic('inbox',20)}</div><div class="f1"><b>${pend()} طلبات مستنية موافقتك</b><div class="mut sm">تجميد، تعويض، خصومات، دفع</div></div><span class="chev">${ic('chev',18)}</span></div>`:''}
+ <div class="sec">المدربين النهارده</div><div class="card lst" style="padding:6px 16px">${[["كابتن محمود","وصل 6:48 ص","p-g"],["كابتن حسام","وصل 6:55 ص","p-g"],["كابتن شريف","حصته 7:00 م","p-x"]].map(c=>`<div class="it">${av(c[0],34)}<b class="f1">${c[0]}</b><span class="pill ${c[2]}">${c[1]}</span></div>`).join("")}</div>
+ <div class="sec">الحصص النهارده<a onclick="go('gsess')">الكل</a></div>
+ ${GS.map(s=>`<div class="card"><div class="row"><div class="f1"><b>${s[0]}</b><div class="mut sm">${s[1]} · ${s[2]}</div></div><span class="pill ${s[4]}">${s[3]}</span></div>${s[5]?`<div class="pbar mt"><i style="width:${s[5]}%"></i></div><div class="mut sm mt6">حضور ${s[6]}</div>`:''}</div>`).join("")}</div>`}
+function g_msgS(){return `<h3>رسالة للأعضاء</h3><div class="fld mt"><label>إلى</label><div class="chips">${["كل الفرع (112)","المتأخرين (4)","جروب الصبح A","جروب المغرب A","جروب الليل B"].map((x,i)=>`<button class="chip ${i?'':'on'}" onclick="pick(this)">${x}</button>`).join("")}</div></div><div class="fld"><textarea rows="4">الملعب هيبقى مقفول الجمعة الجاية للصيانة، والحصص هتتعوّض الأحد.</textarea></div><button class="btn full" onclick="closeSheet();toast('الرسالة وصلت في التطبيق والواتساب')">إرسال</button>`}
+function g_collect(){const late=MG.mem.filter(m=>m.st==="متأخر"||m.st==="بيخلص");return hd("التحصيل")+`<div class="pad"><div class="srch">${ic('search',18)}<input placeholder="اسم العضو أو رقمه" oninput="g_find(this.value)"></div><div id="gfind" class="mt"></div>
+ <div class="sec">متأخرين وبيخلصوا<button class="btn sm wa" style="margin-inline-start:auto" onclick="toast('اتبعت تذكير لـ ${late.length}')">${ic('send',15)} ذكّر الكل</button></div>
+ <div class="card lst" style="padding:6px 16px">${late.map(m=>`<div class="it">${av(m.n,38)}<div class="f1"><b>${m.n}</b><div class="mut sm">${m.st==="متأخر"?`متأخر ${m.days} أيام`:`بيخلص بعد ${m.days} يوم`}</div></div>${m.amt?`<b style="color:var(--red)">${m.amt}</b>`:''}<button class="btn sm" onclick="sheet(g_payS('${m.n}'))">تحصيل</button></div>`).join("")}</div>
+ <div class="sec">آخر العمليات</div><div class="card lst" style="padding:6px 16px">${MG.tx.map(t=>`<div class="it"><div class="ico i-g">${ic('wallet',18)}</div><div class="f1"><b>${t[0]}</b><div class="mut sm">${t[1]} · ${t[2]} · ${t[4]}</div></div><b>${t[3].toLocaleString('en-US')} ج</b></div>`).join("")}</div></div>`}
+function g_find(q){$("gfind").innerHTML=q?`<div class="card lst" style="padding:6px 16px">${MG.mem.filter(m=>m.n.includes(q)).map(m=>`<div class="it">${av(m.n,34)}<b class="f1">${m.n}</b><span class="pill ${stC(m.st)}">${m.st}</span><button class="btn sm" onclick="sheet(g_payS('${m.n}'))">تحصيل</button></div>`).join("")||'<div class="mut">مفيش</div>'}</div>`:''}
+function g_payS(n){return `<div class="row" style="margin-bottom:12px">${av(n,46)}<div class="f1"><h3>تحصيل</h3><div class="mut">${n}</div></div></div>
+ <div class="fld"><label>الباقة</label><div class="chips" id="pp">${[["شهري",900],["3 شهور",2400],["6 شهور",4500],["حصة",120]].map((x,i)=>`<button class="chip ${i?'':'on'}" data-v="${x[1]}" onclick="pick(this);g_amt()">${x[0]} · ${x[1].toLocaleString('en-US')}</button>`).join("")}</div></div>
+ <div class="fld"><label>خصم (حدّك 10%)</label><div class="chips" id="pd">${[0,5,10].map((x,i)=>`<button class="chip ${i?'':'on'}" data-v="${x}" onclick="pick(this);g_amt()">${x?x+'%':'بدون'}</button>`).join("")}<button class="chip" onclick="toast('أكتر من 10% محتاج موافقة المالك')">أكتر…</button></div></div>
+ <div class="fld"><label>طريقة الدفع</label><div class="chips" id="pm">${["كاش","إنستاباي","فودافون كاش"].map((x,i)=>`<button class="chip red ${i?'':'on'}" onclick="pick(this)">${x}</button>`).join("")}</div></div>
+ <div class="fld"><label>رقم العملية (للتحويلات)</label><input placeholder="اختياري للكاش"></div>
+ <div class="card row" style="background:#faf6f6;box-shadow:none"><span class="f1 mut">المبلغ</span><b style="font-size:24px" id="amt">900 ج</b></div>
+ <button class="btn full" onclick="g_pay('${n}')">تحصيل وإرسال الإيصال</button>`}
+function g_amt(){const v=+document.querySelector('#pp .on').dataset.v,d=+document.querySelector('#pd .on').dataset.v;$("amt").textContent=Math.round(v*(1-d/100)).toLocaleString('en-US')+" ج"}
+function g_pay(n){const a=parseInt($("amt").textContent.replace(/,/g,'')),m=document.querySelector('#pm .on').textContent,mem=MG.mem.find(x=>x.n===n);MG.collected+=a;MG.tx.unshift([n,document.querySelector('#pp .on').textContent.split(' · ')[0],m,a,nowT()]);if(mem){mem.st="نشط";mem.amt=0;mem.days=30}
+ sheet(`<div class="okc">${ic('ok',44)}</div><h3 style="text-align:center">اتحصّل ${a.toLocaleString('en-US')} ج</h3><div class="mut" style="text-align:center">${n} · ${m}</div><div class="card mt row" style="box-shadow:inset 0 0 0 1.5px var(--line)"><img src="${LOGO}" style="width:34px;height:34px;border-radius:10px" alt=""><div class="f1"><b>إيصال #R-10${483+MG.tx.length}</b><div class="mut sm">صالح لحد 1 نوفمبر · أ. رامي</div></div></div><div class="note n-g">${ic('send',16)}<div class="f1">الإيصال وصل للعضو في التطبيق والواتساب</div></div><button class="btn full mt" onclick="closeSheet();draw()">تمام</button>`)}
+function g_members(){const F=["الكل","متأخر","بيخلص","مجمد","نشط"],L=MG.mem.filter(m=>(MG.filter==="الكل"||m.st===MG.filter)&&m.n.includes(MG.q));
+ return hd("الأعضاء","",`<button class="ib" onclick="go('newm')">${ic('plus',20)}</button>`)+`<div class="pad"><div class="srch">${ic('search',18)}<input placeholder="ابحث" value="${MG.q}" onchange="MG.q=this.value;draw()"></div><div class="chips mt">${F.map(f=>`<button class="chip ${MG.filter===f?'on':''}" onclick="MG.filter='${f}';draw()">${f} ${f==='الكل'?MG.mem.length:MG.mem.filter(m=>m.st===f).length}</button>`).join("")}</div>
+ <div class="card lst mt" style="padding:6px 16px">${L.map(m=>`<div class="it tap" onclick="sheet(g_memS('${m.n}'))">${av(m.n,40)}<div class="f1"><b>${m.n}</b><div class="mut sm">${m.g} · حضور ${m.att}%</div></div><span class="pill ${stC(m.st)}">${m.st}</span></div>`).join("")||'<div class="mut" style="padding:10px 0">مفيش نتايج</div>'}</div></div>`}
+function g_memS(n){const m=MG.mem.find(x=>x.n===n);return `<div class="row">${av(n,56)}<div class="f1"><h3>${n}</h3><div class="mut">${m.g} · 0101 234 5678</div></div><span class="pill ${stC(m.st)}">${m.st}</span></div>
+ <div class="stat4 mt">${[["حضور",m.att+"%"],["فاضل",m.st==="متأخر"?"—":m.days+" يوم"],["مستحق",m.amt?m.amt:"0"],["مستوى","★4"]].map(x=>`<div class="st"><b style="font-size:16px">${x[1]}</b><small>${x[0]}</small></div>`).join("")}</div>
+ <div class="g2"><button class="btn" onclick="sheet(g_payS('${n}'))">${ic('wallet',18)} تجديد</button><button class="btn ghost" onclick="closeSheet();toast('اتعمل تجميد 7 أيام')">${ic('snow',18)} تجميد</button><button class="btn ghost" onclick="sheet(g_moveS('${n}'))">${ic('swap',18)} نقل جروب</button><button class="btn soft" onclick="closeSheet();openChat(Object.keys(TH).find(k=>TH[k].a==='${n}'&&TH[k].b===meName())||g_newThread('${n}'))">${ic('chat',18)} رسالة</button></div>`}
+function g_newThread(n){const k=n+'|admin';TH[k]={a:n,b:"إدارة فرع الشيخ زايد",rb:"أ. رامي والاستقبال",ua:0,ub:0,m:[]};return k}
+function g_moveS(n){return `<h3>نقل ${n}</h3><div class="lst mt">${[["جروب الصبح A","18/20"],["جروب المغرب A","20/20 · كامل"],["جروب الليل B","15/22"]].map(g=>`<div class="it"><div class="ico i-k">${ic('users',18)}</div><b class="f1">${g[0]}</b><span class="mut sm">${g[1]}</span><button class="btn sm ${g[1].includes('كامل')?'ghost':''}" onclick="closeSheet();toast('${g[1].includes('كامل')?'اتحط في قائمة الانتظار':'اتنقل واتبلّغ المدرب'}')">${g[1].includes('كامل')?'انتظار':'نقل'}</button></div>`).join("")}</div>`}
+function g_requests(){return hd("الطلبات")+`<div class="pad"><div class="mut" style="margin:0 4px 12px">طلبات من تطبيق الأعضاء ومن الموظفين، والموافقة بتبلّغ صاحب الطلب على طول.</div>
+ ${REQS.map((r,i)=>`<div class="card"><div class="row"><span class="pill ${r.t==='تجميد'?'p-b':r.t==='خصم'?'p-o':r.t==='تأكيد دفع'?'p-g':'p-x'}">${r.t}</span><b class="f1">${r.n}</b>${r.st?`<span class="pill ${r.st==='ok'?'p-g':'p-r'}">${r.st==='ok'?'✓ اتوافق':'اترفض'}</span>`:''}</div><div class="mt6" style="color:var(--ink2);font-size:13px">${r.d}</div>${r.st?'':`<div class="g2 mt"><button class="btn sm" onclick="REQS[${i}].st='ok';draw();toast('اتوافق واتبلّغ')">موافقة</button><button class="btn sm ghost" onclick="REQS[${i}].st='no';draw();toast('اترفض')">رفض</button></div>`}</div>`).join("")}</div>`}
+function g_more(){const un=unreadFor("إدارة فرع الشيخ زايد");return hd("المزيد")+`<div class="pad">
+ <div class="card lst" style="padding:6px 16px">
+  ${rowL('box','i-o','المفقودات','اللي اتلقى وبلاغات الأعضاء',lostPend()?`<span class="pill p-o">${lostPend()}</span>`:'',"go('glost')")}
+  ${rowL('chat','i-r','رسائل الأعضاء','للإدارة والاستقبال',un?`<span class="pill" style="background:var(--red);color:#fff">${un}</span>`:'',"go('gchats')")}
+  ${rowL('qr','i-b','كود الحضور للفرع','اطبعه وعلّقه عند المدخل','',"go('gqr')")}</div>
+ <div class="card lst" style="padding:6px 16px">
+  ${rowL('cal','i-k','الحصص والتقسيمة','نقل وإلغاء الحصص وتعديل التقسيمة','',"go('gsess')")}
+  ${rowL('chart','i-k','التقارير','التحصيل وتقييم الأعضاء للفرع','',"go('reports')")}
+  ${rowL('out','i-k','تسجيل الخروج','','',"toast('خروج')")}</div></div>`}
+function g_lost(){const s=MG.lseg;let b="";
+ if(s==="found") b=LOST.found.map(f=>lostCard(f,f.st==="open"?`<div class="g2"><button class="btn sm ghost" onclick="toast('اتبعت تذكير للأعضاء')">${ic('send',15)} فكّرهم</button><button class="btn sm ghost" onclick="g_lf(${f.id},'done')">اتسلّم</button></div>`:f.st==="claimed"?`<div class="note n-b" style="margin:0 0 8px">${ic('user',16)}<div class="f1"><b>${f.by}</b> قال إنه صاحبها. اتأكد من بطاقته قبل التسليم.</div></div><button class="btn sm full" onclick="g_lf(${f.id},'done')">${ic('ok',16)} سلّمتها</button>`:"",1)).join("");
+ else b=LOST.reports.map(r=>lostCard(Object.assign({},r,{rep:r.by}),r.st==="search"?`<button class="btn sm full soft" onclick="g_lr(${r.id})">${ic('ok',16)} لقيناها، بلّغه</button>`:'',1)).join("");
+ return hd("المفقودات","gmore")+`<div class="pad">${seg([["found","لقيناها ("+LOST.found.filter(f=>f.st!=='done').length+")"],["rep","بلاغات الأعضاء ("+LOST.reports.filter(r=>r.st==='search').length+")"]],s,"g_ls")}<div class="mt">${b}</div><button class="btn full" onclick="sheet(lostS('mgr'))">${ic('plus',18)} لقيت حاجة ومش عارف صاحبها</button></div>`}
+function g_lf(id,st){const f=LOST.found.find(x=>x.id===id);f.st=st;if(!f.by)f.by="عضو";draw();toast('اتسلّمت واتبلّغ العضو')}
+function g_lr(id){const r=LOST.reports.find(x=>x.id===id);r.st="found";draw();toast('اتبلّغ '+r.by+' إنها اتلقت')}
+function g_ls(k){MG.lseg=k;draw()}
+function g_qr(){return hd("كود الحضور","gmore")+`<div class="pad"><div class="card" style="text-align:center"><b class="ttl">ملعب 1 · فرع الشيخ زايد</b><div class="mut sm">الأعضاء بيمسحوه من تطبيقهم أول ما يوصلوا</div><div style="display:grid;place-items:center;padding:18px"><div style="padding:16px;border-radius:24px;box-shadow:var(--sh)">${qrSvg(200)}</div></div><div class="row" style="justify-content:center;gap:10px"><button class="btn sm ghost" onclick="toast('PDF جاهز للطباعة')">اطبع</button><button class="btn sm ghost" onclick="toast('ملعب 2')">ملعب 2</button></div></div>
+ <div class="card lst" style="padding:6px 16px"><div class="it"><span class="f1"><b>يتغير كل يوم</b><div class="mut sm">عشان محدش يسجّل من صورة قديمة</div></span><button class="tg on" onclick="tgl(this)"></button></div><div class="it"><span class="f1"><b>لازم يبقى في الفرع</b><div class="mut sm">التطبيق بيتأكد من الموقع</div></span><button class="tg on" onclick="tgl(this)"></button></div><div class="it"><span class="f1"><b>بيشتغل قبل الحصة بـ</b></span><span class="pill p-x">30 دقيقة</span></div></div></div>`}
+function g_sess(){return hd("الحصص","gmore")+`<div class="pad">${GS.map((s,i)=>{const c=MG.sess[i];return `<div class="card"><div class="row"><div class="f1"><b>${s[0]}</b><div class="mut sm">${s[1]} · ${s[2]}</div></div><span class="pill ${c?'p-r':s[4]}">${c||s[3]}</span></div>${s[5]?`<div class="pbar mt"><i style="width:${s[5]}%"></i></div><div class="row mt6"><span class="mut sm f1">حضور ${s[6]} · 2 ماتش</span><button class="btn sm ghost" onclick="C.g='A';go('gteams')">${ic('bolt',15)} التقسيمة</button></div>`:`<div class="g2 mt"><button class="btn sm ghost" onclick="sheet(g_cancelS(${i}))">نقل / إلغاء</button><button class="btn sm ghost" onclick="C.g=${i===2?"'B'":"'A'"};go('gteams')">${ic('bolt',15)} التقسيمة</button></div>`}</div>`}).join("")}</div>`}
+function g_cancelS(i){return `<h3>${GS[i][0]} · ${GS[i][1]}</h3><div class="fld mt"><label>الإجراء</label><div class="chips" id="ca">${["نقل لميعاد تاني","إلغاء + تعويض","إلغاء"].map((x,j)=>`<button class="chip ${j?'':'on'}" onclick="pick(this)">${x}</button>`).join("")}</div></div><div class="fld"><label>الميعاد الجديد</label><input type="datetime-local" value="2026-10-02T20:00"></div><div class="row" style="margin-bottom:14px"><span class="f1">بلّغ الأعضاء والمدربين</span><button class="tg on" onclick="tgl(this)"></button></div><button class="btn full" onclick="MG.sess[${i}]=document.querySelector('#ca .on').textContent.startsWith('نقل')?'اتنقلت 8 م':'اتلغت';closeSheet();draw();toast('اتبلّغ ${GS[i][0]}')">تأكيد</button>`}
+function g_reports(){const w=[["سبت",9],["أحد",6.3],["اثنين",11],["ثلاثاء",4.8],["أربعاء",8.1],["خميس",3.6],["جمعة",5.4]];return hd("التقارير","gmore")+`<div class="pad">
+ <div class="g2" style="margin-bottom:12px"><div class="st"><b>48,200</b><small>إيراد الأسبوع (ج)</small></div><div class="st"><b>91%</b><small>نسبة التحصيل</small></div></div>
+ <div class="card"><b>التحصيل اليومي (ألف ج)</b><div class="bars">${w.map(x=>`<div><b style="color:var(--ink);font-size:11px">${x[1]}</b><i style="height:${x[1]/11*80}%"></i>${x[0]}</div>`).join("")}</div></div>
+ <div class="card"><b>طرق الدفع</b>${[["كاش",46],["إنستاباي",38],["فودافون كاش",16]].map(x=>`<div class="crit"><span style="width:90px">${x[0]}</span><div class="bar"><i style="width:${x[1]}%;background:var(--red)"></i></div><b>${x[1]}%</b></div>`).join("")}</div>
+ <div class="card"><b>تقييم الأعضاء لفرعك (سبتمبر)</b>${[["مدير الفرع",4.5],["الاستقبال",4.3],["الملعب والخدمات",3.9],["المدربين",4.6]].map(x=>`<div class="crit"><span style="width:110px">${x[0]}</span><div class="bar"><i style="width:${x[1]*20}%"></i></div><b>${x[1]}</b></div>`).join("")}<div class="note n-o">${ic('door',16)}<div class="f1">أقل بند: غرف التغيير (3.6). 7 أعضاء كتبوا إنها محتاجة نضافة أكتر.</div></div></div></div>`}
+function g_newm(){return hd("عضو جديد","members")+`<div class="pad"><div class="card">
+ <div class="fld"><label>الاسم</label><input id="nmN"></div><div class="fld"><label>الموبايل (واتساب)</label><input dir="ltr" placeholder="01xxxxxxxxx"></div>
+ <div class="fld"><label>الجروب</label><div class="chips">${["جروب الصبح A · 18/20","جروب المغرب A · كامل","جروب الليل B · 15/22"].map((x,i)=>`<button class="chip ${i?'':'on'}" onclick="pick(this)">${x}</button>`).join("")}</div></div>
+ <div class="fld"><label>الباقة</label><div class="chips">${["شهري · 900","3 شهور · 2,400","حصة تجربة · 120"].map((x,i)=>`<button class="chip red ${i?'':'on'}" onclick="pick(this)">${x}</button>`).join("")}</div></div>
+ <div class="fld"><label>جه عن طريق</label><div class="chips">${["كابتن محمود","كابتن شريف","عضو في النادي","فيسبوك / إنستجرام","معدّي"].map((x,i)=>`<button class="chip ${i===2?'on':''}" onclick="pick(this)">${x}</button>`).join("")}</div><div class="mut sm mt6">بيتحسب في حوافز المدرب لو هو اللي جابه</div></div>
+ <div class="fld"><label>تقدير المستوى المبدئي (المدرب بيأكده)</label><div class="chips">${[1,2,3,4,5].map(v=>`<button class="chip ${v===3?'on':''}" onclick="pick(this)">${"★".repeat(v)}</button>`).join("")}</div></div>
+ <button class="btn full" onclick="const n=$('nmN').value.trim()||'عضو جديد';MG.mem.unshift({n,g:'جروب الصبح A',st:'نشط',amt:0,days:30,att:100});go('members');toast(n+' اتسجل ووصله لينك التطبيق')">تسجيل وتحصيل</button></div></div>`}
+
+/* ================= ROUTER ================= */
+const APPS={
+ member:{name:"تطبيق العضو",ico:"user",who:"أحمد سامي · جروب الصبح A",desc:"العضو بيأكد حضوره أو بيعتذر، ويسجّل وصوله بكود الملعب، ويتابع اشتراكه وأداءه وأكله، ويقيّم ويتواصل مع مدربينه.",
+  tabs:[["home","home","الرئيسية"],["sessions","cal","حصصي"],["football","ball","الكورة"],["food","food","التغذية"],["more","more","المزيد"]],sub:{vote:"football",feedback:"more",rate:"more",lost:"more",account:"more",msgs:"more",chat:"more",shop:"food"},
+  F:{home:m_home,sessions:m_sessions,football:m_football,vote:m_vote,food:m_food,shop:m_shop,more:m_more,feedback:m_feedback,rate:m_rate,lost:m_lost,account:m_account,msgs:()=>chatList(ME.n,"more"),chat:()=>chatView("msgs")},
+  list:[["home","الرئيسية والحصة الجاية"],["sessions","تأكيد / اعتذار والتعويض"],["football","إحصائياتي والترتيب"],["food","وجبات النهارده"],["shop","قايمة المشتريات"],["msgs","الرسائل مع المدربين"],["feedback","تقييمي والملاحظات"],["rate","قيّم تجربتك"],["lost","المفقودات"],["account","الاشتراك والدفع"]]},
+ coach:{name:"تطبيق المدرب",ico:"whistle",who:"كابتن محمود · مدرب كورة",desc:"المدرب بيشوف جروباته بس، ويخلّص الحصة كلها من الملعب: وصوله، والحضور، والتقسيمة، والماتشات، والتقييم، والرسائل مع لاعيبته.",
+  tabs:[["home","home","النهارده"],["attend","check","الحضور"],["teams","bolt","التقسيمة"],["players","users","اللاعيبة"],["cmsgs","chat","الرسائل"]],sub:{record:"teams",cchat:"cmsgs"},
+  F:{home:c_home,attend:c_attend,teams:c_teams,record:c_record,players:c_players,cmsgs:()=>chatList("كابتن محمود","",`<button class="btn dark full" style="margin-bottom:12px" onclick="sheet(c_bcS())">${ic('send',18)} رسالة لكل الجروب</button>`),cchat:()=>chatView("cmsgs")},
+  list:[["home","النهارده وتسجيل الوصول"],["attend","الحضور"],["teams","التقسيمة"],["record","تسجيل الماتش"],["players","اللاعيبة والتقييم"],["cmsgs","الرسائل"]]},
+ manager:{name:"تطبيق مدير الفرع",ico:"users",who:"أ. رامي · فرع الشيخ زايد",desc:"إدارة الفرع من الموبايل: التحصيل والأعضاء والموافقات والمفقودات وكود الحضور. التقارير الكاملة والإعدادات من لوحة التحكم.",
+  tabs:[["home","home","الرئيسية"],["collect","wallet","التحصيل"],["members","users","الأعضاء"],["requests","inbox","الطلبات"],["gmore","more","المزيد"]],sub:{newm:"members",gteams:"gmore",glost:"gmore",gqr:"gmore",gsess:"gmore",reports:"gmore",gchats:"gmore",gchat:"gmore"},
+  F:{home:g_home,collect:g_collect,members:g_members,requests:g_requests,gmore:g_more,glost:g_lost,gqr:g_qr,gsess:g_sess,gteams:()=>teamsView("gsess",1),reports:g_reports,newm:g_newm,gchats:()=>chatList("إدارة فرع الشيخ زايد","gmore"),gchat:()=>chatView("gchats")},
+  list:[["home","ملخص الفرع والمدربين"],["collect","التحصيل"],["members","الأعضاء"],["newm","عضو جديد"],["requests","الموافقات"],["glost","المفقودات"],["gsess","الحصص والتقسيمة"],["gqr","كود الحضور"],["gchats","رسائل الأعضاء"],["reports","التقارير"]]}};
+function go(s){S.scr[S.app]=s;closeSheet();draw();$("view").scrollTop=0;if(/chat$/.test(s))$("view").scrollTop=1e6}
+function setApp(a){S.app=a;closeSheet();draw();$("view").scrollTop=0}
+function draw(){const A=APPS[S.app],cur=S.scr[S.app],tabOn=A.sub[cur]||cur,isChat=/chat$/.test(cur);
+ $("sw").innerHTML=Object.entries(APPS).map(([k,v])=>`<button class="${S.app===k?'on':''}" onclick="setApp('${k}')">${ic(v.ico,16)} ${v.name.replace('تطبيق ','')}</button>`).join("");
+ $("view").innerHTML=A.F[cur]();
+ $("over").innerHTML=isChat?chatOver():'';
+ $("tab").style.display=isChat?'none':'';
+ $("stbar").classList.toggle("dk",cur==="home");
+ const badge=k=>S.app==='manager'&&k==='requests'?pend():S.app==='manager'&&k==='gmore'?lostPend()+unreadFor("إدارة فرع الشيخ زايد"):S.app==='coach'&&k==='cmsgs'?unreadFor("كابتن محمود"):S.app==='member'&&k==='more'?unreadFor(ME.n)+(RT.some(r=>!r.done)?1:0):0;
+ $("tab").innerHTML=A.tabs.map(([k,icn,l])=>{const b=badge(k);return `<button class="${tabOn===k?'on':''}" onclick="go('${k}')"><i>${ic(icn,22)}</i>${l}${b?`<em class="bd">${b}</em>`:''}</button>`}).join("");
+ $("guide").innerHTML=`<h2>${A.name}</h2><div class="who">${A.who}</div><p>${A.desc}</p><div class="sl">${A.list.map(([k,l])=>`<button class="${cur===k||A.sub[cur]===k&&!A.list.some(x=>x[0]===cur)?'on':''}" onclick="go('${k}')">${l}</button>`).join("")}</div>`;
+ if(isChat)$("view").scrollTop=1e6;
+}
+draw();
+</script>
+<script src="team-cards.js"></script><script src="enhancements.js"></script><script src="dashboard.js"></script><script src="finance.js"></script><script src="member-home.js"></script><script src="refinements.js"></script><script src="mobile-suite.js"></script><script src="coach-complete.js"></script><script src="mobile-parity.js"></script><script src="prototype-flow.js"></script><script src="community.js"></script><script src="sports-config.js"></script><script src="ms-apps.js"></script><script src="journey.js"></script><script src="enrollment.js"></script></body>
+</html>
+
+
+
+
+
+
+
+

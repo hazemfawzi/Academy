@@ -1,0 +1,1008 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>أكاديمية النخبة — لوحة التحكم</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f6f3f3;--card:#fff;--ink:#1a1414;--muted:#7a6e6e;--line:#ece4e4;
+  --brand:#9e1016;--brand2:#e01f26;--lime:#ff4d4d;--navy:#111111;
+  --red:#d64545;--redbg:#fde8e8;--orange:#d9822b;--orbg:#fdf0e1;--blue:#2f6fd6;--bluebg:#e6effc;
+  --greenbg:#e3f6ea;--radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:14px}
+.app{display:flex;min-height:100vh}
+/* sidebar */
+.side{width:250px;background:var(--navy);color:#e8dede;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid #2a2a2a}
+.logo .ball{width:40px;height:40px;border-radius:12px;background:var(--lime);display:grid;place-items:center;color:var(--navy);font-weight:800;font-size:20px}
+.logo b{display:block;color:#fff;font-size:18px}.logo small{font-size:11px;color:#b9a5a5}
+.nav{padding:12px 10px;flex:1}
+.nav .grp{font-size:11px;color:#9a8585;padding:14px 10px 6px}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:#e8dede;text-decoration:none;font-weight:600;font-size:13.5px;margin-bottom:2px}
+.nav a:hover{background:#1f1f1f}
+.nav a.on{background:var(--brand2);color:#fff}
+.nav a .ic{width:20px;text-align:center}
+.nav a .tag{margin-inline-start:auto;font-size:10px;background:var(--brand2);color:#fff;border-radius:6px;padding:0 6px;font-weight:700}
+.side .foot{padding:14px;border-top:1px solid #2a2a2a;font-size:12px}
+.plan{background:#1f1f1f;border-radius:10px;padding:10px}
+.bar{height:6px;background:#3a3a3a;border-radius:4px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--lime)}
+/* main */
+.main{flex:1;min-width:0}
+.top{display:flex;align-items:center;gap:12px;padding:14px 26px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+.top h1{font-size:20px;font-weight:800}
+.top .sp{flex:1}
+.sel{border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:#fff}
+.btn{border:0;border-radius:10px;padding:8px 14px;font-weight:700;background:var(--brand2);color:#fff;font-size:13px}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.wa{background:#25d366}
+.btn.sm{padding:5px 10px;font-size:12px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700}
+.legend{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
+.content{padding:22px 26px 60px}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:2fr 1fr}.g2e{grid-template-columns:1fr 1fr}
+.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--line);padding:18px}
+.card h3{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card h3 .sp{flex:1}
+.kpi .v{font-size:26px;font-weight:800;margin-top:4px}.kpi .l{color:var(--muted);font-size:12.5px}
+.kpi .d{font-size:12px;margin-top:4px}.up{color:var(--brand2)}.down{color:var(--red)}
+.badge{display:inline-block;padding:1px 9px;border-radius:20px;font-size:11.5px;font-weight:700}
+.b-green{background:var(--greenbg);color:#137a3f}.b-red{background:var(--redbg);color:var(--red)}.b-or{background:var(--orbg);color:var(--orange)}.b-blue{background:var(--bluebg);color:var(--blue)}.b-gray{background:#f2eded;color:var(--muted)}
+.star{background:#fdecec;color:#b3141b;border:1px solid #f3c2c4;font-size:10.5px;padding:0 7px;border-radius:6px;font-weight:700}
+.ph2{background:#efe9fb;color:#6b46c1;border:1px solid #d9cdf5;font-size:10.5px;padding:0 7px;border-radius:6px;font-weight:700}
+table{width:100%;border-collapse:collapse}
+th{text-align:right;font-size:12px;color:var(--muted);font-weight:700;padding:9px 8px;border-bottom:1px solid var(--line);background:#fbf9f9}
+td{padding:10px 8px;border-bottom:1px solid #f3eeee;vertical-align:middle}
+tr.click:hover td{background:#fcf6f6;cursor:pointer}
+.list .it{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f3eeee}
+.list .it:last-child{border:0}
+.mini{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;background:#f8e5e5;color:var(--brand)}
+.muted{color:var(--muted);font-size:12.5px}
+.f1{flex:1}
+.cap{height:7px;background:#f1eaea;border-radius:5px;overflow:hidden;width:110px}.cap i{display:block;height:100%;background:var(--brand2)}
+.cap.full i{background:var(--red)}
+.sched{display:grid;grid-template-columns:80px repeat(6,1fr);gap:6px}
+.sched .h{font-weight:700;font-size:12px;color:var(--muted);text-align:center;padding:6px}
+.sched .t{font-size:12px;color:var(--muted);display:flex;align-items:center}
+.slot{background:#fdecec;border-inline-start:3px solid var(--brand2);border-radius:8px;padding:6px 8px;font-size:11.5px;min-height:46px}
+.slot b{display:block;font-size:12px}
+.slot.b2{background:var(--bluebg);border-color:var(--blue)}.slot.b3{background:var(--orbg);border-color:var(--orange)}
+.empty{min-height:46px}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tabs button{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 14px;font-weight:700;font-size:12.5px}
+.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.plancard{border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
+.plancard .p{font-size:24px;font-weight:800;color:var(--brand)}
+.toggle{width:40px;height:22px;border-radius:20px;background:#d9cfcf;position:relative;border:0;flex-shrink:0}
+.toggle.on{background:var(--brand2)}
+.toggle::after{content:"";position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s}
+.toggle.on::after{right:21px}
+.chk{width:22px;height:22px;border-radius:6px;border:2px solid #cdbfbf;display:grid;place-items:center;flex-shrink:0;background:#fff;font-size:13px;color:#fff}
+.chk.on{background:var(--brand2);border-color:var(--brand2)}
+.pitch{background:linear-gradient(135deg,#9e1016,#e01f26);border-radius:14px;padding:16px;color:#fff;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.team{background:rgba(255,255,255,.12);border-radius:10px;padding:12px}
+.team h4{margin-bottom:8px}
+.team div{padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.25);font-size:13px;display:flex;justify-content:space-between}
+.score{display:flex;align-items:center;justify-content:center;gap:16px;font-size:34px;font-weight:800;margin:10px 0}
+.score input{width:70px;text-align:center;font-size:28px;font-weight:800;border:2px solid var(--line);border-radius:10px;padding:4px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field label{font-size:12.5px;font-weight:700;color:var(--muted)}
+.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;margin-bottom:8px;font-size:13px}
+.alert.r{background:var(--redbg)}.alert.o{background:var(--orbg)}.alert.g{background:var(--greenbg)}
+/* phones */
+.phones{display:flex;gap:30px;flex-wrap:wrap;justify-content:center}
+.phone{width:290px;height:590px;border-radius:38px;background:#0d1b16;padding:12px;box-shadow:0 20px 40px rgba(0,0,0,.18)}
+.screen{width:100%;height:100%;border-radius:28px;background:#f3f5f4;overflow:hidden;display:flex;flex-direction:column}
+.ph-top{background:var(--brand);color:#fff;padding:22px 16px 16px}
+.ph-top small{opacity:.8}
+.ph-body{padding:12px;overflow-y:auto;flex:1}
+.ph-card{background:#fff;border-radius:12px;padding:12px;margin-bottom:10px;font-size:12.5px}
+.ph-nav{display:flex;justify-content:space-around;background:#fff;padding:10px 0;border-top:1px solid var(--line);font-size:18px}
+/* drawer/modal */
+.ov{position:fixed;inset:0;background:rgba(13,27,22,.45);display:none;z-index:20}
+.ov.show{display:block}
+.drawer{position:fixed;top:0;left:0;height:100vh;width:min(520px,100vw);background:#fff;z-index:21;transform:translateX(-100%);transition:.25s;overflow-y:auto;padding:22px}
+.drawer.show{transform:none}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.96);width:min(460px,92vw);background:#fff;border-radius:16px;padding:22px;z-index:22;display:none}
+.modal.show{display:block;transform:translate(-50%,-50%)}
+.x{float:left;border:0;background:#f2eded;border-radius:8px;width:30px;height:30px;font-size:16px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:12px;font-weight:700;opacity:0;transition:.25s;z-index:30;pointer-events:none}
+.toast.show{opacity:1}
+.menu-btn{display:none;border:0;background:#f2eded;border-radius:10px;width:38px;height:38px;font-size:18px}
+.ch{position:relative;height:240px}
+@media (max-width:1100px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr 1fr}.g2,.g2e{grid-template-columns:1fr}}
+@media (max-width:760px){
+  .side{position:fixed;right:-260px;z-index:25;transition:.25s}.side.show{right:0}
+  .menu-btn{display:block}.content{padding:16px}.top{padding:12px 16px}
+  .g4,.g3{grid-template-columns:1fr 1fr}.legend{display:none}
+  .sched{overflow-x:auto;grid-template-columns:70px repeat(6,120px)}
+  .tbl-wrap{overflow-x:auto}
+  .pitch{grid-template-columns:1fr}
+}
+
+:root{color-scheme:light}
+html{background:var(--bg)}
+button{color:var(--ink);background:#fff}
+select,input,textarea{color:var(--ink)!important;background-color:#fff!important}
+option,optgroup{color:var(--ink);background:#fff}
+.btn{color:#fff}.btn.ghost{color:var(--ink);background:#fff}
+.tabs button{color:var(--ink)}.tabs button.on{color:#fff}
+.x{color:var(--ink)}
+.chk{color:#fff}
+.modal{max-height:90vh;overflow-y:auto}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.pchip{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:20px;padding:5px 11px;font-weight:600;font-size:12.5px}
+.pchip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pchip small{opacity:.65;font-size:11px}
+.tcard{border-radius:14px;border:1px solid var(--line);overflow:hidden;background:#fff}
+.tcard .hd{padding:10px 12px;display:flex;align-items:center;gap:8px;font-weight:800}
+.tcard .pl{display:flex;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid #f3eeee;cursor:pointer;user-select:none}
+.tcard .pl:hover{background:#fcf6f6}
+.tcard .pl.sel{background:#fdecec;box-shadow:inset 3px 0 0 var(--brand2)}
+.pos{font-size:10.5px;font-weight:800;border-radius:6px;padding:0 6px;background:#f2eded;color:var(--muted)}
+.pos.gk{background:#fff4cc;color:#8a6a00}
+.big{font-size:16px;padding:12px 18px;width:100%}
+.macro{display:flex;height:8px;border-radius:5px;overflow:hidden;margin:8px 0}
+.cellc{display:flex;justify-content:center}
+.chk[disabled]{opacity:.55;cursor:not-allowed}
+.grip{color:#bdb1af;touch-action:none;cursor:grab;padding:6px 3px;display:grid;place-items:center;flex-shrink:0;margin-inline-start:-6px}
+.grip:active{cursor:grabbing;color:#e01f26}
+.drag-ghost{position:fixed;z-index:9999;pointer-events:none;background:#fff;box-shadow:0 18px 40px rgba(0,0,0,.28);border-radius:14px;transform:rotate(-2deg) scale(1.04);display:flex;align-items:center;gap:8px;padding:10px 14px;font-family:Cairo,sans-serif;font-size:14px}
+.drag-src{opacity:.3}
+.drop-on{outline:3px dashed #e01f26;outline-offset:3px;transform:scale(1.015);transition:transform .12s}
+body.dragging{user-select:none;-webkit-user-select:none;cursor:grabbing}
+</style>
+<link rel="stylesheet" href="v2.css"><link rel="stylesheet" href="dashboard.css"><link rel="stylesheet" href="finance.css"><script src="avatars.js"></script><script src="core.js"></script><script src="demo-data.js"></script><link rel="stylesheet" href="refinements.css"><link rel="stylesheet" href="prototype-flow.css"><link rel="stylesheet" href="avatars.css"><link rel="stylesheet" href="fixes.css"><link rel="stylesheet" href="ms.css"><link rel="stylesheet" href="journey.css">
+<link rel="stylesheet" href="team-cards.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="logo"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgcng9IjU2IiBmaWxsPSIjMTExIi8+PHBhdGggZD0iTTEyOCAzNGw3OCAyOHY2MmMwIDUwLTMzIDg2LTc4IDEwMC00NS0xNC03OC01MC03OC0xMDBWNjJ6IiBmaWxsPSIjZTAxZjI2Ii8+PHBhdGggZD0iTTEyOCA1OGw1NiAyMHY0NmMwIDM2LTIzIDYyLTU2IDc0LTMzLTEyLTU2LTM4LTU2LTc0Vjc4eiIgZmlsbD0iIzExMSIvPjxwYXRoIGQ9Ik05OCA5Nmg2MHYxNmgtNDJ2MTZoMzZ2MTZoLTM2djE2aDQ0djE2SDk4eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPgo=" alt="Elite Sports" style="width:46px;height:46px;border-radius:12px;object-fit:cover"><div><b>ELITE <span style="color:#ff3b3b">SPORTS</span></b><small>أكاديمية رياضات متعددة</small></div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="foot">
+      <div class="plan">
+        <div style="display:flex;justify-content:space-between"><b style="color:#fff">باقة النمو</b><span>✦</span></div>
+        <div class="muted" style="color:#b9a5a5">248 من 300 عضو نشط</div>
+        <div class="bar"><i style="width:83%"></i></div>
+      </div>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="top">
+      <button class="menu-btn" onclick="document.getElementById('side').classList.toggle('show')">☰</button>
+      <h1 id="title">لوحة التحكم</h1>
+      <div class="legend"><span class="star">✦ ميزة تنافسية</span><span class="ph2">المرحلة 2</span></div>
+      <div class="sp"></div>
+      <select class="sel" id="branchSel" onchange="state.branch=this.value;render()">
+        <option value="all">كل الفروع</option>
+        <option>الشيخ زايد</option><option>أكتوبر</option><option>المهندسين</option>
+      </select>
+      <div class="avatar">ح</div>
+    </header>
+    <section class="content" id="content"></section>
+  </main>
+</div>
+
+<div class="ov" id="ov" onclick="closeAll()"></div>
+<div class="drawer" id="drawer"></div>
+<div class="modal" id="modal"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const NAV=[
+ ["الرئيسية",[["dash","📊","لوحة التحكم"]]],
+ ["التشغيل",[["branches","📍","الفروع"],["groups","🗓️","الجروبات والمواعيد"],["members","👥","الأعضاء"],["attendance","✅","الحضور"]]],
+ ["الفلوس",[["billing","💳","الاشتراكات والتحصيل"]]],
+ ["التفاعل",[["matches","⚽","الماتشات والإحصائيات","✦"],["nutrition","🥗","التغذية والتقدم"],["comms","💬","واتساب والتواصل","✦"]]],
+ ["الإدارة",[["reports","📈","التقارير"],["users","🔐","الفريق والصلاحيات"],["settings","⚙️","الإعدادات والباقة"]]]
+];
+const BR=["الشيخ زايد","أكتوبر","المهندسين"];
+const GROUPS=[
+ {id:1,name:"جروب الصبح A",br:"الشيخ زايد",coaches:[["كابتن محمود","رئيسي"],["كابتن حسام","لياقة"],["د. ريم","تغذية"]],cap:20,n:18,lvl:"متوسط",days:[0,2,4],time:"7:00 ص",cls:""},
+ {id:2,name:"جروب المغرب A",br:"الشيخ زايد",coaches:[["كابتن شريف","رئيسي"],["كابتن حسام","لياقة"],["كابتن أيمن","حراس"],["د. ريم","تغذية"]],cap:20,n:20,lvl:"متقدم",days:[1,3],time:"7:00 م",cls:"b2",wait:4},
+ {id:3,name:"جروب الليل B",br:"الشيخ زايد",coaches:[["كابتن محمود","رئيسي"]],cap:22,n:15,lvl:"مبتدئ",days:[0,2,4],time:"9:00 م",cls:"b3"},
+ {id:4,name:"جروب الصبح",br:"أكتوبر",coaches:[["كابتن عمرو","رئيسي"],["كابتن نادر","لياقة"],["د. ريم","تغذية"]],cap:18,n:12,lvl:"مبتدئ",days:[1,3,5],time:"7:00 ص",cls:""},
+ {id:5,name:"جروب المغرب",br:"أكتوبر",coaches:[["كابتن عمرو","رئيسي"]],cap:20,n:19,lvl:"متوسط",days:[0,2],time:"7:00 م",cls:"b2"},
+ {id:6,name:"جروب الليل",br:"المهندسين",coaches:[["كابتن ياسر","رئيسي"],["كابتن طارق","لياقة"]],cap:20,n:17,lvl:"متقدم",days:[1,3,5],time:"9:00 م",cls:"b3"},
+ {id:7,name:"جروب العصر",br:"المهندسين",coaches:[["كابتن ياسر","رئيسي"]],cap:16,n:9,lvl:"مبتدئ",days:[0,4],time:"5:00 م",cls:""}
+];
+const MEM=[
+ {n:"أحمد سامي",g:1,br:"الشيخ زايد",st:"نشط",end:"28 أكتوبر",pay:"مدفوع",goals:14,ast:6,mvp:3,att:92,lvl:4},
+ {n:"كريم عادل",g:1,br:"الشيخ زايد",st:"ينتهي قريباً",end:"4 أكتوبر",pay:"مدفوع",goals:9,ast:11,mvp:2,att:85,lvl:4},
+ {n:"محمد طارق",g:2,br:"الشيخ زايد",st:"متأخر",end:"25 سبتمبر",pay:"متأخر 900 ج",goals:5,ast:3,mvp:0,att:48,lvl:3},
+ {n:"يوسف حسن",g:2,br:"الشيخ زايد",st:"نشط",end:"15 نوفمبر",pay:"مدفوع",goals:17,ast:4,mvp:5,att:96,lvl:5},
+ {n:"عمر خالد",g:3,br:"الشيخ زايد",st:"مجمد",end:"—",pay:"مدفوع",goals:2,ast:1,mvp:0,att:30,lvl:2},
+ {n:"مصطفى إبراهيم",g:4,br:"أكتوبر",st:"نشط",end:"20 أكتوبر",pay:"مدفوع",goals:7,ast:8,mvp:1,att:88,lvl:3},
+ {n:"زياد ممدوح",g:5,br:"أكتوبر",st:"متأخر",end:"27 سبتمبر",pay:"متأخر 900 ج",goals:3,ast:2,mvp:0,att:55,lvl:2},
+ {n:"هشام فؤاد",g:5,br:"أكتوبر",st:"نشط",end:"2 نوفمبر",pay:"مدفوع",goals:11,ast:9,mvp:4,att:90,lvl:4},
+ {n:"عبدالرحمن نبيل",g:6,br:"المهندسين",st:"ينتهي قريباً",end:"5 أكتوبر",pay:"مدفوع",goals:12,ast:5,mvp:2,att:81,lvl:4},
+ {n:"مازن رضا",g:6,br:"المهندسين",st:"نشط",end:"30 أكتوبر",pay:"مدفوع",goals:6,ast:12,mvp:3,att:94,lvl:5},
+ {n:"سيف علاء",g:7,br:"المهندسين",st:"متأخر",end:"22 سبتمبر",pay:"متأخر 750 ج",goals:1,ast:0,mvp:0,att:40,lvl:1},
+ {n:"إسلام وليد",g:1,br:"الشيخ زايد",st:"نشط",end:"18 أكتوبر",pay:"مدفوع",goals:4,ast:7,mvp:1,att:79,lvl:3}
+];
+const DAYS=["السبت","الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس"];
+const state={page:"dash",branch:"all",billTab:"plans",matchTab:"teams",permTab:"coaches",role:"مدير فرع",nutTab:"overview",nm:"أحمد سامي",rg:1,gid:1};
+const charts=[];
+const $=id=>document.getElementById(id);
+const gName=id=>GROUPS.find(g=>g.id===id).name;
+const fb=arr=>state.branch==="all"?arr:arr.filter(x=>x.br===state.branch);
+const stB=s=>({"نشط":"b-green","ينتهي قريباً":"b-or","متأخر":"b-red","مجمد":"b-blue"}[s]||"b-gray");
+const ini=n=>n.trim()[0];
+
+function navHTML(){
+  return NAV.map(([g,items])=>`<div class="grp">${g}</div>`+items.map(([k,ic,l,t])=>
+    `<a href="#" class="${state.page===k||(state.page==='group'&&k==='groups')||(state.page==='coach'&&k==='users')?'on':''}" onclick="go('${k}');return false"><span class="ic">${ic}</span>${l}${t?`<span class="tag">${t}</span>`:''}</a>`).join("")).join("");
+}
+function go(p){state.page=p;$("side").classList.remove("show");render();window.scrollTo(0,0)}
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),2200)}
+function closeAll(){["ov","drawer","modal"].forEach(i=>$(i).classList.remove("show"))}
+function modal(h){$("modal").innerHTML=`<button class="x" onclick="closeAll()">×</button>`+h;$("modal").classList.add("show");$("ov").classList.add("show")}
+function chart(id,cfg){const c=$(id);if(!c||!window.Chart)return;cfg.options=Object.assign({responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:"Cairo"}}}},scales:cfg.type==="doughnut"?{}:{x:{ticks:{font:{family:"Cairo"}},grid:{display:false}},y:{ticks:{font:{family:"Cairo"}},beginAtZero:true}}},cfg.options||{});charts.push(new Chart(c,cfg))}
+
+const PAGES={
+dash(){
+  const m=fb(MEM),late=m.filter(x=>x.st==="متأخر"),soon=m.filter(x=>x.st==="ينتهي قريباً"),risk=m.filter(x=>x.att<60);
+  const top=[...m].sort((a,b)=>b.goals-a.goals).slice(0,5);
+  const k=state.branch==="all"?[248,"186,400",late.length*8+3,"84%"]:[ {"الشيخ زايد":112,"أكتوبر":71,"المهندسين":65}[state.branch],{"الشيخ زايد":"84,000","أكتوبر":"53,200","المهندسين":"49,200"}[state.branch],late.length*6+2,"82%"];
+  return `
+  <div class="grid g4">
+    <div class="card kpi"><div class="l">أعضاء نشطين</div><div class="v">${k[0]}</div><div class="d up">▲ 12 عضو عن الشهر اللي فات</div></div>
+    <div class="card kpi"><div class="l">إيراد الشهر (جنيه)</div><div class="v">${k[1]}</div><div class="d up">▲ 9%</div></div>
+    <div class="card kpi"><div class="l">متأخرين في الدفع</div><div class="v" style="color:var(--red)">${k[2]}</div><div class="d down">مستحق 14,250 ج</div></div>
+    <div class="card kpi"><div class="l">نسبة الحضور</div><div class="v">${k[3]}</div><div class="d up">▲ 3% بعد تفعيل الإحصائيات</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card"><h3>الإيراد والتحصيل آخر 6 شهور</h3><div class="ch"><canvas id="c1"></canvas></div></div>
+    <div class="card"><h3>تنبيهات النهارده</h3>
+      <div class="alert r">⚠️<div class="f1"><b>${late.length} أعضاء متأخرين</b><div class="muted">${late.map(x=>x.n).join("، ")||"لا يوجد"}</div></div><button class="btn wa sm" onclick="toast('اتبعت تذكير واتساب للمتأخرين')">ذكّرهم</button></div>
+      <div class="alert o">⏳<div class="f1"><b>${soon.length} اشتراكات بتخلص الأسبوع ده</b><div class="muted">تذكير التجديد بيتبعت تلقائي</div></div></div>
+      <div class="alert g">🔥<div class="f1"><b>${risk.length} أعضاء مهددين بالانسحاب <span class="star">✦</span></b><div class="muted">حضور أقل من 60% آخر شهر</div></div><button class="btn sm ghost" onclick="go('reports')">شوف</button></div>
+      <div class="alert o">👥<div class="f1"><b>جروب المغرب A كامل</b><div class="muted">4 في قائمة الانتظار</div></div></div>
+    </div>
+  </div>
+  <div class="grid g2e" style="margin-top:16px">
+    <div class="card"><h3>حصص النهارده<span class="sp"></span><span class="muted">الخميس</span></h3>
+      <table><tr><th>الجروب</th><th>الفرع</th><th>المدرب</th><th>الميعاد</th><th>الحضور</th></tr>
+      ${fb(GROUPS).slice(0,5).map((g,i)=>`<tr class="click" onclick="openGroup(${g.id})"><td><b>${g.name}</b></td><td>${g.br}</td><td>${coachTxt(g)}</td><td>${g.time}</td><td>${i<2?`<span class="badge b-green">${g.n-2}/${g.n}</span>`:'<span class="badge b-gray">لسه</span>'}</td></tr>`).join("")}
+      </table></div>
+    <div class="card"><h3>هدافين الشهر <span class="star">✦</span><span class="sp"></span><button class="btn sm ghost" onclick="go('matches')">الترتيب الكامل</button></h3>
+      <div class="list">${top.map((x,i)=>`<div class="it"><div class="mini" style="${i===0?'background:var(--brand2);color:#fff':''}">${i+1}</div><div class="f1"><b>${x.n}</b><div class="muted">${gName(x.g)}</div></div><b>⚽ ${x.goals}</b><span class="muted">🅰️ ${x.ast}</span></div>`).join("")}</div>
+    </div>
+  </div>`;
+},
+dash_after(){chart("c1",{type:"bar",data:{labels:["أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر"],datasets:[{label:"المستحق",data:[150,158,162,170,175,201],backgroundColor:"#f1d6d7",borderRadius:6},{label:"المحصّل",data:[128,140,151,160,166,186],backgroundColor:"#e01f26",borderRadius:6}]},options:{plugins:{legend:{position:"bottom",labels:{font:{family:"Cairo"}}},tooltip:{callbacks:{label:c=>c.dataset.label+": "+c.raw+" ألف ج"}}}}})},
+
+branches(){
+  const d={"الشيخ زايد":[3,112,"84,000","91%"],"أكتوبر":[2,71,"53,200","78%"],"المهندسين":[2,65,"49,200","85%"]};
+  return `<div style="display:flex;margin-bottom:14px"><div class="f1 muted">كل فرع له جروباته ومديره وتقاريره، وتقدر تشوف الفروع كلها مع بعض.</div><button class="btn" onclick="modal(addBranch())">+ فرع جديد</button></div>
+  <div class="grid g3">${BR.map(b=>`<div class="card"><h3>📍 ${b}<span class="sp"></span><span class="badge b-green">شغال</span></h3>
+   <div class="grid g2e" style="gap:10px">
+    <div><div class="muted">الجروبات</div><b style="font-size:20px">${d[b][0]}</b></div>
+    <div><div class="muted">الأعضاء</div><b style="font-size:20px">${d[b][1]}</b></div>
+    <div><div class="muted">إيراد الشهر</div><b>${d[b][2]} ج</b></div>
+    <div><div class="muted">نسبة التحصيل</div><b>${d[b][3]}</b></div></div>
+   <div class="muted" style="margin-top:12px">مدير الفرع: ${{"الشيخ زايد":"أ. رامي","أكتوبر":"أ. هاني","المهندسين":"أ. وائل"}[b]}</div>
+   <div style="margin-top:12px;display:flex;gap:8px"><button class="btn sm ghost" onclick="state.branch='${b}';$('branchSel').value='${b}';go('groups')">الجروبات</button><button class="btn sm ghost" onclick="state.branch='${b}';$('branchSel').value='${b}';go('dash')">لوحة الفرع</button></div></div>`).join("")}</div>`;
+},
+
+groups(){
+  const gs=fb(GROUPS);
+  const times=[...new Set(gs.map(g=>g.time))].sort((a,b)=>{const v=t=>parseInt(t)+(t.includes("م")?12:0);return v(a)-v(b)});
+  let grid=`<div class="sched"><div></div>${DAYS.map(d=>`<div class="h">${d}</div>`).join("")}`;
+  times.forEach(t=>{grid+=`<div class="t">${t}</div>`;DAYS.forEach((d,i)=>{const s=gs.filter(g=>g.time===t&&g.days.includes(i));grid+=s.length?`<div>${s.map(g=>`<div class="slot ${g.cls}" style="margin-bottom:4px;cursor:pointer" onclick="openGroup(${g.id})"><b>${g.name}</b>${coachTxt(g)}${state.branch==="all"?" · "+g.br:""}</div>`).join("")}</div>`:`<div class="empty"></div>`})});
+  grid+=`</div>`;
+  return `<div class="card"><h3>الجدول الأسبوعي<span class="sp"></span><button class="btn sm ghost" onclick="modal(cancelSession())">إلغاء / تعديل حصة</button><button class="btn sm" onclick="modal(addGroup())">+ جروب جديد</button></h3>${grid}<div class="muted" style="margin-top:10px">المواعيد بتتكرر تلقائي كل أسبوع، وأي تعديل بيوصل لأعضاء الجروب على الواتساب.</div></div>
+  <div class="card" style="margin-top:16px"><h3>الجروبات<span class="sp"></span><span class="muted">اضغط على أي جروب تفتح إحصائياته الكاملة</span></h3><div class="tbl-wrap"><table><tr><th>الجروب</th><th>الفرع</th><th>المستوى</th><th>المدربين</th><th>المواعيد</th><th>السعة</th><th>قائمة الانتظار</th></tr>
+  ${gs.map(g=>`<tr class="click" onclick="openGroup(${g.id})"><td><b>${g.name}</b> <span style="color:var(--brand2)">↗</span></td><td>${g.br}</td><td><span class="badge b-gray">${g.lvl}</span></td><td>${coachCell(g)}</td><td>${g.days.map(d=>DAYS[d]).join("، ")} · ${g.time}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="cap ${g.n>=g.cap?'full':''}"><i style="width:${g.n/g.cap*100}%"></i></div>${g.n}/${g.cap}</div></td><td>${g.wait?`<span class="badge b-or">${g.wait} منتظرين</span>`:'—'}</td></tr>`).join("")}</table></div></div>`;
+},
+
+members(){
+  const m=fb(MEM);
+  return `<div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap"><input class="sel f1" placeholder="🔍 ابحث بالاسم أو رقم الموبايل" oninput="filterMem(this.value)" style="min-width:200px"><select class="sel"><option>كل الحالات</option><option>نشط</option><option>متأخر</option><option>مجمد</option></select><button class="btn ghost" onclick="modal(importX())">⬆️ استيراد من Excel</button><button class="btn" onclick="modal(addMember())">+ عضو جديد</button></div>
+  <div class="card"><div class="tbl-wrap"><table id="memT"><tr><th>العضو</th><th>الجروب</th><th>الفرع</th><th>الحالة</th><th>نهاية الاشتراك</th><th>الدفع</th><th>الحضور</th></tr>
+  ${m.map(x=>`<tr class="click" data-n="${x.n}" onclick="memberDrawer('${x.n}')"><td><div style="display:flex;align-items:center;gap:8px"><div class="mini">${ini(x.n)}</div><b>${x.n}</b></div></td><td>${gName(x.g)}</td><td>${x.br}</td><td><span class="badge ${stB(x.st)}">${x.st}</span></td><td>${x.end}</td><td>${x.pay.includes("متأخر")?`<span class="badge b-red">${x.pay}</span>`:x.pay}</td><td>${x.att}%</td></tr>`).join("")}</table></div>
+  <div class="muted" style="margin-top:10px">اضغط على أي عضو تفتح ملفه الكامل.</div></div>`;
+},
+
+attendance(){
+  const g=fb(GROUPS)[0], m=MEM.filter(x=>x.g===g.id);
+  const roster=m.concat([{n:"خالد منير",st:"نشط"},{n:"باسم حمدي",st:"نشط"},{n:"طارق جمال",st:"متأخر"}]);
+  return `<div class="grid g2">
+  <div class="card"><h3>تسجيل الحضور<span class="sp"></span><select class="sel">${fb(GROUPS).map(x=>`<option>${x.name} · ${x.time}</option>`).join("")}</select></h3>
+   <div class="list" id="roster">${roster.map((x,i)=>`<div class="it"><button class="chk ${i<3?'on':''}" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'✓':''">${i<3?'✓':''}</button><div class="f1"><b>${x.n}</b>${x.st==="متأخر"?`<div style="color:var(--red);font-size:12px;font-weight:700">⚠️ الاشتراك منتهي، حوّله للاستقبال</div>`:''}</div><span class="badge ${stB(x.st)}">${x.st}</span></div>`).join("")}</div>
+   <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" onclick="toast('اتسجل الحضور واتحدثت الإحصائيات')">حفظ الحضور</button><button class="btn ghost" onclick="toast('الكاميرا اتفتحت لمسح QR')">📷 مسح QR</button></div></div>
+  <div class="card"><h3>QR العضو</h3><div style="display:grid;place-items:center;padding:10px">${qr()}</div><div class="muted" style="text-align:center">العضو يفتح الـ QR من بوابته، والمدرب أو الاستقبال يمسحه. لو الاشتراك منتهي يظهر تنبيه فوراً.</div>
+   <h3 style="margin-top:16px">حضور الأسبوع</h3><div class="ch" style="height:170px"><canvas id="c2"></canvas></div></div></div>`;
+},
+attendance_after(){chart("c2",{type:"bar",data:{labels:DAYS,datasets:[{label:"نسبة الحضور %",data:[88,79,91,84,86,72],backgroundColor:"#e01f26",borderRadius:6}]},options:{plugins:{legend:{display:false}}}})},
+
+billing(){
+  const t=state.billTab;
+  const tabs=[["plans","الباقات"],["collect","التحصيل"],["late","المتأخرين"],["tx","سجل الحركات"]];
+  let body="";
+  if(t==="plans") body=`<div class="grid g4">${[["شهري","900","12 حصة في رياضة واحدة"],["3 شهور","2,400","خصم 11% · تجميد 10 أيام"],["6 شهور","4,500","خصم 17% · تجميد 20 يوم"],["بالحصة","120","للزوار والتجربة"]].map(p=>`<div class="plancard"><b>${p[0]}</b><div class="p">${p[1]} ج</div><div class="muted">${p[2]}</div><button class="btn sm ghost" style="margin-top:10px">تعديل</button></div>`).join("")}</div>
+   <div class="grid g2e" style="margin-top:16px"><div class="card"><h3>الخصومات</h3><div class="list"><div class="it"><div class="f1"><b>خصم الأصحاب</b><div class="muted">10% لو اتنين اشتركوا مع بعض</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div><div class="it"><div class="f1"><b>مكافأة الالتزام <span class="star">✦</span></b><div class="muted">5% على التجديد لحضور فوق 90%</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div><div class="it"><div class="f1"><b>عرض أول شهر</b><div class="muted">700 ج بدل 900</div></div><button class="toggle" onclick="this.classList.toggle('on')"></button></div></div></div>
+   <div class="card"><h3>التجميد</h3><div class="muted">العضو يطلب التجميد من بوابته والمدير يوافق، والأيام بتتضاف لنهاية الاشتراك تلقائياً.</div><div class="alert o" style="margin-top:10px">❄️<div class="f1"><b>عمر خالد</b><div class="muted">مجمد 14 يوم · سفر</div></div></div></div></div>`;
+  if(t==="collect") body=`<div class="grid g2e"><div class="card"><h3>تحصيل اشتراك</h3>
+   <div class="field"><label>العضو</label><select>${MEM.map(x=>`<option>${x.n}</option>`).join("")}</select></div>
+   <div class="field"><label>الباقة</label><select><option>شهري · 900 ج</option><option>3 شهور · 2,400 ج</option><option>6 شهور · 4,500 ج</option></select></div>
+   <div class="field"><label>طريقة الدفع</label><div class="tabs" id="pm">${["كاش","إنستاباي","فودافون كاش","لينك دفع أونلاين"].map((x,i)=>`<button class="${i===0?'on':''}" onclick="document.querySelectorAll('#pm button').forEach(b=>b.classList.remove('on'));this.classList.add('on')">${x}${i===3?' <span class="ph2">المرحلة 2</span>':''}</button>`).join("")}</div></div>
+   <div class="field"><label>رقم العملية (للتحويلات)</label><input placeholder="مثال: 482910"></div>
+   <button class="btn" onclick="modal(receipt())">تحصيل وإرسال الإيصال</button></div>
+   <div class="card"><h3>تحصيل النهارده</h3><div class="ch" style="height:200px"><canvas id="c3"></canvas></div><div class="muted" style="margin-top:8px">كل تحصيل كاش بيتبعت إيصاله للعضو على الواتساب فوراً، فالعضو نفسه بيبقى رقيب على الكاش.</div></div></div>`;
+  if(t==="late"){const l=fb(MEM).filter(x=>x.st==="متأخر");body=`<div class="card"><h3>المتأخرين<span class="sp"></span><button class="btn wa sm" onclick="toast('اتبعت تذكير لـ ${l.length} أعضاء')">💬 تذكير الكل</button></h3><table><tr><th>العضو</th><th>الجروب</th><th>المبلغ</th><th>متأخر من</th><th></th></tr>${l.map(x=>`<tr><td><b>${x.n}</b></td><td>${gName(x.g)}</td><td style="color:var(--red);font-weight:700">${x.pay.replace("متأخر ","")}</td><td>${x.end}</td><td><button class="btn wa sm" onclick="toast('اتبعت لـ ${x.n}')">واتساب</button> <button class="btn sm ghost" onclick="state.billTab='collect';render()">تحصيل</button></td></tr>`).join("")||'<tr><td colspan=5 class="muted">مفيش متأخرين 🎉</td></tr>'}</table></div>`}
+  if(t==="tx") body=`<div class="card"><h3>سجل الحركات المالية<span class="sp"></span><button class="btn sm ghost" onclick="toast('اتصدر Excel')">تصدير Excel</button></h3><div class="tbl-wrap"><table><tr><th>التاريخ</th><th>العضو</th><th>النوع</th><th>الطريقة</th><th>المبلغ</th><th>بواسطة</th><th>الإيصال</th></tr>
+   ${[["1 أكتوبر","أحمد سامي","تجديد شهري","إنستاباي","900","أ. رامي"],["1 أكتوبر","هشام فؤاد","3 شهور","كاش","2,400","أ. هاني"],["30 سبتمبر","مازن رضا","تجديد شهري","فودافون كاش","900","أ. وائل"],["30 سبتمبر","إسلام وليد","تجديد شهري","كاش","810","أ. رامي"],["29 سبتمبر","يوسف حسن","6 شهور","إنستاباي","4,500","أ. رامي"]].map(r=>`<tr><td>${r[0]}</td><td><b>${r[1]}</b></td><td>${r[2]}</td><td><span class="badge b-gray">${r[3]}</span></td><td><b>${r[4]} ج</b></td><td>${r[5]}</td><td><button class="btn sm ghost" onclick="modal(receipt())">PDF</button></td></tr>`).join("")}</table></div><div class="muted" style="margin-top:8px">🔒 أي تعديل أو حذف لحركة مالية بيتسجل في سجل التدقيق باسم اللي عمله.</div></div>`;
+  return `<div class="tabs">${tabs.map(([k,l])=>`<button class="${t===k?'on':''}" onclick="state.billTab='${k}';render()">${l}</button>`).join("")}</div>${body}`;
+},
+billing_after(){if(state.billTab==="collect")chart("c3",{type:"doughnut",data:{labels:["كاش","إنستاباي","فودافون كاش"],datasets:[{data:[4200,5400,1800],backgroundColor:["#9e1016","#e01f26","#ff9a9a"]}]},options:{plugins:{legend:{position:"bottom",labels:{font:{family:"Cairo"}}}}}})},
+
+matches(){
+  const t=state.matchTab;
+  const tabs=[["teams","تقسيم الفرق ⚡"],["rating","تقييم اللاعبين"],["record","تسجيل ماتش"],["board","ترتيب الشهر"],["league","الدوري 🏆"],["archive","📚 سجل الشهور"]];
+  const B={teams:teamsTab,rating:ratingTab,record:recordTab,board:boardTab,league:leagueTab,archive:archiveTab};
+  return `<div class="tabs">${tabs.map(([k,l])=>`<button class="${t===k?'on':''}" onclick="state.matchTab='${k}';render()">${l}</button>`).join("")}</div>${B[t]()}`;
+},
+matches_after(){if(state.matchTab==="teams")tbBuild()},
+
+nutrition(){
+  const t=state.nutTab;
+  const tabs=[["overview","نظرة عامة"],["programs","البرامج"],["builder","صانع البرنامج"],["assign","التعيين (فرد / جروب)"],["member","ملف العضو"],["checkins","المتابعات"],["foods","مكتبة الأكل"]];
+  const F={overview:nutOverview,programs:nutPrograms,builder:nutBuilder,assign:nutAssign,member:nutMember,checkins:nutCheckins,foods:nutFoods};
+  return `<div class="tabs">${tabs.map(([k,l])=>`<button class="${t===k?'on':''}" onclick="state.nutTab='${k}';render()">${l}</button>`).join("")}</div>${F[t]()}`;
+},
+nutrition_after(){
+  const t=state.nutTab;
+  if(t==="overview")chart("c11",{type:"bar",data:{labels:GROUPS.map(g=>g.name),datasets:[{label:"الالتزام %",data:[78,74,61,70,66,81,52],backgroundColor:[78,74,61,70,66,81,52].map(v=>v<60?"#d64545":v<70?"#d9822b":"#2b2b2b"),borderRadius:6}]},options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{max:100,ticks:{font:{family:"Cairo"}}},y:{ticks:{font:{family:"Cairo"}}}}}});
+  if(t==="member"){nutCalc();
+    chart("c4",{type:"line",data:{labels:["يونيو","يوليو","أغسطس","سبتمبر","أكتوبر"],datasets:[{label:"الوزن (كجم)",data:[90,88.5,87,85.2,84],borderColor:"#e01f26",backgroundColor:"rgba(224,31,38,.12)",fill:true,tension:.35}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:false}}}});
+    chart("c10",{type:"bar",data:{labels:[...Array(14)].map((_,i)=>String(18+i>30?18+i-30:18+i)),datasets:[{label:"الوجبات المسجلة %",data:[100,80,60,100,100,40,80,100,60,80,100,100,20,80],backgroundColor:"#e01f26",borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{max:100}}}});}
+},
+
+comms(){
+  const T=[["تذكير قبل نهاية الاشتراك","قبلها بـ 3 أيام",1],["تنبيه تأخير الدفع","يوم 1 و3 و7 من التأخير",1],["إيصال الدفع","فور التحصيل",1],["تغيير أو إلغاء حصة","فور التعديل",1],["ترحيب بعضو جديد","عند التسجيل + لينك البوابة",1],["ملخص الماتش والإحصائيات ✦","بعد كل حصة",1],["افتقدناك (غياب أسبوعين) ✦","لما العضو يغيب",0]];
+  return `<div class="grid g2">
+  <div class="card"><h3>الرسائل التلقائية على الواتساب</h3><div class="list">${T.map(r=>`<div class="it"><div class="mini" style="background:#e3f9ea">💬</div><div class="f1"><b>${r[0].replace(" ✦","")}</b> ${r[0].includes("✦")?'<span class="star">✦</span>':''}<div class="muted">${r[1]}</div></div><button class="toggle ${r[2]?'on':''}" onclick="this.classList.toggle('on')"></button></div>`).join("")}</div></div>
+  <div class="card"><h3>رسالة لجروب</h3>
+   <div class="field"><label>إلى</label><select><option>جروب الصبح A (18)</option><option>كل أعضاء فرع الشيخ زايد</option><option>المتأخرين فقط</option></select></div>
+   <div class="field"><label>الرسالة</label><textarea rows="5">يا شباب، حصة الخميس اتنقلت لـ 8 بالليل بسبب صيانة الملعب. نشوفكم ⚽</textarea></div>
+   <button class="btn wa" onclick="toast('اتبعتت لـ 18 عضو على الواتساب')">إرسال واتساب</button>
+   <div class="muted" style="margin-top:12px">رصيد الرسائل: 1,240 من 2,000 هذا الشهر</div><div class="bar" style="background:#e3e8e5"><i style="width:62%;background:var(--brand2)"></i></div></div></div>`;
+},
+
+reports(){
+  const risk=fb(MEM).filter(x=>x.att<60||x.st==="ينتهي قريباً");
+  return `<div class="grid g2e">
+   <div class="card"><h3>الإيراد حسب الفرع (ألف جنيه)</h3><div class="ch"><canvas id="c6"></canvas></div></div>
+   <div class="card"><h3>نسبة الحضور حسب الجروب</h3><div class="ch"><canvas id="c7"></canvas></div></div></div>
+  <div class="card" style="margin-top:16px"><h3>أعضاء مهددين بالانسحاب <span class="star">✦</span><span class="sp"></span><button class="btn wa sm" onclick="toast('اتبعتت رسالة افتقدناك')">💬 راسلهم</button></h3>
+   <div class="muted" style="margin-bottom:10px">بنحسبها من: حضور قليل آخر شهر + اشتراك قرب يخلص + مفيش تفاعل في الماتشات.</div>
+   <table><tr><th>العضو</th><th>الجروب</th><th>الحضور</th><th>نهاية الاشتراك</th><th>الخطورة</th></tr>${risk.map(x=>`<tr><td><b>${x.n}</b></td><td>${gName(x.g)}</td><td>${x.att}%</td><td>${x.end}</td><td><span class="badge ${x.att<50?'b-red':'b-or'}">${x.att<50?'عالية':'متوسطة'}</span></td></tr>`).join("")}</table></div>`;
+},
+reports_after(){
+  chart("c6",{type:"bar",data:{labels:BR,datasets:[{label:"أغسطس",data:[76,49,46],backgroundColor:"#f1d6d7",borderRadius:6},{label:"سبتمبر",data:[84,53.2,49.2],backgroundColor:"#e01f26",borderRadius:6}]},options:{plugins:{legend:{position:"bottom",labels:{font:{family:"Cairo"}}}}}});
+  chart("c7",{type:"bar",data:{labels:GROUPS.map(g=>g.name),datasets:[{label:"%",data:[91,88,72,80,77,86,64],backgroundColor:["#2b2b2b","#2b2b2b","#d9822b","#2b2b2b","#2b2b2b","#2b2b2b","#e01f26"],borderRadius:6}]},options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{max:100,ticks:{font:{family:"Cairo"}}},y:{ticks:{font:{family:"Cairo"}}}}}});
+},
+
+users(){
+  const t=state.permTab;
+  const tabs=`<div class="tabs">${[["coaches","🏃 المدربين والأخصائيين"],["staff","🗂️ الموظفين والإدارة"],["incent","🎁 برنامج الحوافز"],["roles","🔐 صلاحيات الموظفين"],["matrix","📍 خريطة الفروع"]].map(([k,l])=>`<button class="${t===k?'on':''}" onclick="state.permTab='${k}';render()">${l}</button>`).join("")}</div>`;
+  const brOk=a=>state.branch==="all"||a==="all"||a.includes(state.branch);
+  const brCell=a=>a==="all"?'<span class="badge b-blue">كل الفروع</span>':a.map(b=>`<span class="badge b-gray" style="margin:1px">${b}</span>`).join("");
+  if(t==="coaches"){
+    const cs=COACHES.map((c,i)=>({c,i})).filter(({c})=>brOk(c.br)),noHead=fb(GROUPS).filter(g=>!g.coaches.some(c=>c[1]==="رئيسي"));
+    return tabs+`<div class="grid g4">${[["مدربين",COACHES.filter(c=>c.spec.startsWith("مدرب")).length],["أخصائيين",COACHES.filter(c=>c.spec.startsWith("أخصائي")).length],["جروبات ليها مدرب رئيسي",(fb(GROUPS).length-noHead.length)+" / "+fb(GROUPS).length],["حسابات موقوفة",COACHES.filter(c=>!c.act).length]].map(([l,v])=>`<div class="card kpi"><div class="l">${l}</div><div class="v">${v}</div></div>`).join("")}</div>
+    ${noHead.length?`<div class="alert r" style="margin-top:16px">⚠️<div class="f1"><b>${noHead.length} جروب من غير مدرب رئيسي</b><div class="muted">${noHead.map(g=>g.name+" · "+g.br).join("، ")}</div></div></div>`:''}
+    <div class="card" style="margin-top:16px"><h3>المدربين والأخصائيين<span class="sp"></span><button class="btn sm" onclick="coachDrawer(-1)">+ مدرب / أخصائي</button></h3>
+    <div class="muted" style="margin-bottom:10px">بيشتغلوا من تطبيق المدرب على جروباتهم بس. لما تختار الفرع بتظهرلك جروباته تعيّنه عليها وتحدد دوره في كل جروب.</div>
+    <div class="tbl-wrap"><table><tr><th>الاسم</th><th>التخصص</th><th>الفروع</th><th>الجروبات ودوره فيها</th><th>الحالة</th><th></th></tr>
+    ${cs.map(({c,i})=>{const gs=coachGroups(c.n);return `<tr><td><div style="display:flex;align-items:center;gap:8px"><div class="mini">${ini(c.n.replace(/^(كابتن|د\.)\s*/,''))}</div><b style="cursor:pointer;color:var(--brand2)" onclick="openCoach(${i})">${c.n} ↗</b></div></td><td><span class="badge ${c.spec.startsWith('أخصائي')?'b-or':'b-blue'}">${c.spec}</span></td><td>${brCell(c.br)}</td><td>${gs.length?gs.map(([g,r])=>`<span class="badge b-gray" style="margin:1px">${g.name} · ${r}</span>`).join(""):'<span class="muted">على مستوى الفرع</span>'}</td><td><span class="badge ${c.act?'b-green':'b-red'}">${c.act?'نشط':'موقوف'}</span></td><td><button class="btn sm ghost" onclick="coachDrawer(${i})">تعديل</button></td></tr>`}).join("")}</table></div></div>`;
+  }
+  if(t==="staff"){
+    const us=USERS.map((u,i)=>({u,i})).filter(({u})=>brOk(u.br));
+    return tabs+`<div class="card"><h3>الموظفين والإدارة<span class="sp"></span><button class="btn sm" onclick="staffDrawer(-1)">+ موظف</button></h3>
+    <div class="muted" style="margin-bottom:10px">الفريق الدائم اللي بيدير النادي إدارياً من لوحة التحكم وتطبيق الإدارة: المدير والكاشير والاستقبال. صلاحياتهم جاية من دورهم، ونطاقهم من الفروع المحددة.</div>
+    <div class="tbl-wrap"><table><tr><th>الاسم</th><th>الدور</th><th>الفروع</th><th>الدخول على</th><th>الحالة</th><th></th></tr>
+    ${us.map(({u,i})=>`<tr><td><div style="display:flex;align-items:center;gap:8px"><div class="mini">${ini(u.n.replace(/^أ\.\s*/,''))}</div><b>${u.n}</b></div></td><td><span class="badge b-gray">${u.role}</span></td><td>${brCell(u.br)}</td><td>${u.web?'<span class="badge b-blue">🖥️ لوحة التحكم</span> ':''}${u.mob?'<span class="badge b-blue">📱 تطبيق الإدارة</span>':''}</td><td><span class="badge ${u.act?'b-green':'b-red'}">${u.act?'نشط':'موقوف'}</span></td><td><button class="btn sm ghost" onclick="staffDrawer(${i})">تعديل</button></td></tr>`).join("")}</table></div></div>`;
+  }
+  if(t==="incent") return tabs+incentTab();
+  if(t==="matrix") return tabs+`<div class="card"><h3>مين شغال في أنهي فرع</h3><div class="tbl-wrap"><table><tr><th>الاسم</th><th>النوع</th>${BR.map(b=>`<th style="text-align:center">${b}</th>`).join("")}</tr>
+    <tr><td colspan="${2+BR.length}" style="background:#fbf7f7;font-weight:800">🗂️ الموظفين والإدارة</td></tr>
+    ${USERS.map(u=>`<tr><td><b>${u.n}</b></td><td><span class="badge b-gray">${u.role}</span></td>${BR.map(b=>`<td><div class="cellc">${u.br==="all"||u.br.includes(b)?`<span class="badge b-green">${u.br==="all"?"كامل":"✓"}</span>`:'<span class="muted">—</span>'}</div></td>`).join("")}</tr>`).join("")}
+    <tr><td colspan="${2+BR.length}" style="background:#fbf7f7;font-weight:800">🏃 المدربين والأخصائيين</td></tr>
+    ${COACHES.map(c=>`<tr><td><b>${c.n}</b></td><td><span class="badge ${c.spec.startsWith('أخصائي')?'b-or':'b-blue'}">${c.spec}</span></td>${BR.map(b=>{const k=coachGroups(c.n).filter(([g])=>g.br===b).length;return `<td><div class="cellc">${c.br.includes(b)?`<span class="badge b-green">${k?k+" جروب":"✓"}</span>`:'<span class="muted">—</span>'}</div></td>`}).join("")}</tr>`).join("")}</table></div></div>`;
+  if(!ADMIN_ROLES.includes(state.role))state.role='مدير فرع';const r=state.role,P=PERMS[r],own=r==='مالك';
+  const rb=x=>`<button class="${x===r?'on':''}" onclick="state.role='${x}';render()">${x} (${roleCount(x)})</button>`;
+  return tabs+`<div class="card"><h3>اختار الدور<span class="sp"></span><button class="btn sm ghost" onclick="newRole()">+ دور مخصص</button></h3>
+    <div class="muted" style="margin-bottom:8px">الصلاحيات هنا للموظفين بس. المدرب أو الأخصائي بيتحكم في جروباته وأنشطته بس، من غير أدوار.</div><div class="tabs">${ADMIN_ROLES.map(rb).join("")}</div>
+    <div class="muted">${ROLE_DESC[r]||'دور مخصص، حدد صلاحياته من الجدول.'}</div></div>
+    <div class="card" style="margin-top:16px"><h3>صلاحيات «${r}» لكل خاصية<span class="sp"></span>${own?'':`<button class="btn sm ghost" onclick="permAll(1)">تحديد الكل</button><button class="btn sm ghost" onclick="permAll(0)">مسح الكل</button>`}<button class="btn sm" onclick="toast('اتحفظت صلاحيات ${r}')">حفظ</button></h3>
+    <div class="tbl-wrap"><table><tr><th>الخاصية</th>${ACTS.map(a=>`<th style="text-align:center">${a}</th>`).join("")}</tr>
+    ${FEATS.map((f,fi)=>`<tr><td><b>${f[0]}</b><div class="muted">${f[1]}</div></td>${ACTS.map((a,ai)=>{const v=P[fi][ai];return `<td><div class="cellc">${v===null?'<span class="muted">—</span>':`<button class="chk ${v?'on':''}" ${own?'disabled':''} onclick="togglePerm(${fi},${ai})">${v?'✓':''}</button>`}</div></td>`}).join("")}</tr>`).join("")}</table></div>
+    ${own?'<div class="muted" style="margin-top:8px">المالك له كل الصلاحيات ومينفعش تتعدل.</div>':''}</div>
+    <div class="card" style="margin-top:16px"><h3>نطاق البيانات والقيود</h3><div class="list">
+     ${LIMITS.map((l,i)=>`<div class="it"><div class="f1"><b>${l[0]}</b><div class="muted">${l[1]}</div></div>${l[2]==='t'?`<button class="toggle ${LIMV[r][i]?'on':''}" ${own?'disabled':''} onclick="this.classList.toggle('on')"></button>`:`<select class="sel" ${own?'disabled':''}>${l[3].map(o=>`<option ${LIMV[r][i]===o?'selected':''}>${o}</option>`).join("")}</select>`}</div>`).join("")}</div></div>`;
+},
+
+settings(){
+  return `<div class="grid g2e">
+  <div class="card"><h3>هوية النادي</h3>
+   <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgcng9IjU2IiBmaWxsPSIjMTExIi8+PHBhdGggZD0iTTEyOCAzNGw3OCAyOHY2MmMwIDUwLTMzIDg2LTc4IDEwMC00NS0xNC03OC01MC03OC0xMDBWNjJ6IiBmaWxsPSIjZTAxZjI2Ii8+PHBhdGggZD0iTTEyOCA1OGw1NiAyMHY0NmMwIDM2LTIzIDYyLTU2IDc0LTMzLTEyLTU2LTM4LTU2LTc0Vjc4eiIgZmlsbD0iIzExMSIvPjxwYXRoIGQ9Ik05OCA5Nmg2MHYxNmgtNDJ2MTZoMzZ2MTZoLTM2djE2aDQ0djE2SDk4eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPgo=" alt="Elite Sports" style="width:64px;height:64px;border-radius:12px;object-fit:cover"><button class="btn sm ghost">تغيير اللوجو</button></div>
+   <div class="field"><label>اسم النادي</label><input value="أكاديمية النخبة"></div>
+   <div class="field"><label>رابط البوابة</label><input value="koragym.platform.app" dir="ltr"></div>
+   <div class="field"><label>اللون الأساسي</label><div style="display:flex;gap:8px">${["#e01f26","#9e1016","#2f6fd6","#d64545","#111"].map((c,i)=>`<span style="width:30px;height:30px;border-radius:8px;background:${c};${i===0?'outline:3px solid #111':''}"></span>`).join("")}</div></div>
+   <div class="grid g2e" style="gap:10px"><div class="field"><label>العملة</label><select><option>جنيه مصري</option><option>ريال سعودي</option></select></div><div class="field"><label>المنطقة الزمنية</label><select><option>القاهرة</option><option>الرياض</option></select></div></div></div>
+  <div class="card"><h3>باقة المنصة</h3>
+   <div class="grid g2e" style="gap:10px">${[["مجانية","0","حتى 30 عضو"],["أساسية","499","حتى 100 عضو"],["نمو","999","حتى 300 عضو",1],["احترافية","1,999","غير محدود"]].map(p=>`<div class="plancard" style="${p[3]?'border:2px solid var(--brand2);background:#fdf1f1':''}"><b>${p[0]}</b><div class="p" style="font-size:20px">${p[1]} ج</div><div class="muted">${p[2]}</div>${p[3]?'<span class="badge b-green" style="margin-top:6px">باقتك الحالية</span>':''}</div>`).join("")}</div>
+   <div style="margin-top:14px"><div class="muted">الاستخدام: 248 من 300 عضو نشط</div><div class="bar" style="background:#e3e8e5"><i style="width:83%;background:var(--brand2)"></i></div></div>
+   <div class="list" style="margin-top:10px"><div class="it"><div class="f1"><b>تطبيق باسم النادي (White-label)</b><div class="muted">إضافة مدفوعة</div></div><span class="ph2">المرحلة 3</span></div><div class="it"><div class="f1"><b>الدفع الأونلاين</b><div class="muted">Paymob / Fawry</div></div><span class="ph2">المرحلة 2</span></div></div></div></div>`;
+},
+
+coach(){
+  const i=state.cid,c=COACHES[i],gs=coachGroups(c.n),R=coachRating(i),t=state.ctab||"activity",isN=c.spec==="أخصائي تغذية";
+  const kpi=(l,v,d)=>`<div class="card kpi"><div class="l">${l}</div><div class="v">${v}</div>${d?`<div class="d muted">${d}</div>`:''}</div>`;
+  const inc=incCalc(i);
+  let body="";
+  if(t==="activity") body=`<div class="grid g2"><div class="card"><h3>آخر الأنشطة</h3><div class="list">${coachLog(c).map(a=>`<div class="it"><div class="mini">${a[1]}</div><div class="f1"><b>${a[2]}</b><div class="muted">${a[0]}${a[3]?' · '+a[3]:''}</div></div></div>`).join("")}</div></div>
+   <div class="card"><h3>جروباته</h3>${gs.length?`<table><tr><th>الجروب</th><th>دوره</th><th>الأعضاء</th><th>الحضور</th><th>حصص الشهر</th></tr>${gs.map(([g,r],k)=>`<tr class="click" onclick="openGroup(${g.id})"><td><b>${g.name}</b></td><td><span class="badge b-gray">${r}</span></td><td>${g.n}</td><td>${[86,91,72,80,77][k%5]}%</td><td>${g.days.length*4-(k%2)} / ${g.days.length*4}</td></tr>`).join("")}</table>`:'<div class="muted">شغال على مستوى الفرع، مش متعيّن على جروب.</div>'}
+   <div class="alert o" style="margin-top:12px">🔒<div class="f1">المدرب بيشوف ويتحكم في الجروبات دي وأنشطتها بس.</div></div></div></div>`;
+  if(t==="ratings") body=`<div class="grid g2e"><div class="card"><h3>تقييم الأعضاء ليه</h3><div style="display:flex;gap:16px;align-items:center"><div style="text-align:center"><div style="font-size:40px;font-weight:800">${R.avg}</div><div style="color:#d9822b;font-size:18px">${"★".repeat(Math.round(R.avg))}</div><div class="muted">${R.n} تقييم · ${R.month}</div></div><div class="f1">${[5,4,3,2,1].map((s,k)=>`<div style="display:flex;align-items:center;gap:8px;margin:3px 0"><span style="width:28px">${s}★</span><div class="bar" style="flex:1;background:#efe8e8;height:8px"><i style="width:${R.dist[k]}%;background:#d9822b"></i></div><span class="muted" style="width:34px">${R.dist[k]}%</span></div>`).join("")}</div></div>
+    <h3 style="margin-top:16px">حسب المعيار</h3>${R.crit.map(([n,v])=>`<div style="display:flex;align-items:center;gap:8px;margin:6px 0"><span style="width:150px">${n}</span><div class="bar" style="flex:1;background:#efe8e8;height:8px"><i style="width:${v*20}%;background:#111"></i></div><b>${v}</b></div>`).join("")}
+    <div class="muted" style="margin-top:10px">الأعضاء بيقيّموا مدربهم مرة في الشهر من تطبيقهم، والتقييم سري.</div></div>
+   <div class="card"><h3>آراء الأعضاء</h3><div class="list">${R.comments.map(x=>`<div class="it"><div class="f1"><div style="color:#d9822b">${"★".repeat(x[0])}</div><div>${x[1]}</div><div class="muted">${x[2]}</div></div></div>`).join("")}</div>
+    <h3 style="margin-top:14px">آخر 4 شهور</h3><div class="list">${R.trend.map(x=>`<div class="it"><b class="f1">${x[0]}</b><span style="color:#d9822b">${x[1]} ★</span></div>`).join("")}</div></div></div>`;
+  if(t==="incent") body=`<div class="grid g2"><div class="card"><h3>حوافز ${MONTH}<span class="sp"></span><button class="btn sm ghost" onclick="state.permTab='incent';go('users')">⚙️ قواعد البرنامج</button></h3><div class="tbl-wrap"><table><tr><th>المؤشر</th><th>الهدف</th><th>الفعلي</th><th></th><th>المبلغ</th></tr>
+    ${inc.rows.map(r=>`<tr><td><b>${r.n}</b></td><td class="muted">${r.tgtTxt}</td><td><b>${r.val}${r.u==='%'?'%':' '+r.u}</b></td><td>${r.per?'':r.ok?'<span class="badge b-green">✓ اتحقق</span>':'<span class="badge b-gray">لسه</span>'}</td><td style="color:${r.earn<0?'var(--red)':r.earn?'#137a3f':'inherit'};font-weight:800">${r.earn>0?'+':''}${r.earn} ج</td></tr>`).join("")}
+    <tr><td colspan="4"><b>الإجمالي</b>${inc.capped?' <span class="muted">(وصل للحد الأقصى)</span>':''}</td><td><b style="font-size:18px">${inc.total.toLocaleString('en-US')} ج</b></td></tr></table></div>
+    <div class="muted" style="margin-top:8px">كل الأرقام بتتحسب تلقائي من السيستم: الحضور والتجديد من الاشتراكات، والتقييم من الأعضاء، والتسجيل من تطبيق المدرب.</div></div>
+   <div><div class="card" style="text-align:center"><div class="muted">حافز الشهر المتوقع</div><div style="font-size:34px;font-weight:800;color:var(--brand2)">${inc.total.toLocaleString('en-US')} ج</div><div class="bar" style="background:#efe8e8;height:8px;margin:8px 0"><i style="width:${Math.min(100,inc.total/INCCAP*100)}%;background:var(--brand2)"></i></div><div class="muted">من حد أقصى ${INCCAP.toLocaleString('en-US')} ج · بيتصرف مع مرتب أول الشهر</div></div>
+    <div class="card" style="margin-top:16px"><h3>الشهور اللي فاتت</h3><div class="list">${[["سبتمبر 2026",inc.total-200],["أغسطس 2026",inc.total+300],["يوليو 2026",inc.total-500]].map(m=>`<div class="it"><b class="f1">${m[0]}</b><b>${Math.max(0,m[1]).toLocaleString('en-US')} ج</b><span class="badge b-green">اتصرف</span></div>`).join("")}</div></div></div></div>`;
+  return `<div style="margin-bottom:12px"><button class="btn sm ghost" onclick="state.permTab='coaches';go('users')">→ رجوع للمدربين</button></div>
+  <div class="card"><div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center"><div class="avatar" style="width:64px;height:64px;font-size:26px">${ini(c.n.replace(/^(كابتن|د\.)\s*/,''))}</div>
+   <div class="f1" style="min-width:220px"><h2 style="font-size:22px">${c.n}</h2><div class="muted">${c.spec} · ${c.br.join("، ")} · 0111 234 5678</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${gs.map(([g,r])=>`<span class="badge b-gray">${g.name} · ${r}</span>`).join("")}<span class="badge ${c.act?'b-green':'b-red'}">${c.act?'نشط':'موقوف'}</span></div></div>
+   <div style="display:flex;gap:8px"><button class="btn ghost" onclick="coachDrawer(${i})">تعديل الجروبات</button><button class="btn wa" onclick="toast('فتح واتساب')">💬 واتساب</button></div></div></div>
+  <div class="grid g4" style="margin-top:16px">${isN?kpi("برامج اتبعتت",[12,9,7][i%3],"الشهر ده")+kpi("متابعات اتسجلت",[34,28,40][i%3],"9 مستحقة"):kpi("حصص الشهر",gs.reduce((s,[g])=>s+g.days.length*4,0)-1,"من "+gs.reduce((s,[g])=>s+g.days.length*4,0)+" مخططة")+kpi("ماتشات سجّلها",[41,36,28,33][i%4],"آخر واحد النهارده")}${kpi("حضور جروباته",incVal(i,"att")+"%","آخر 4 أسابيع")}${kpi("تقييم الأعضاء",R.avg+" ★",R.n+" تقييم")}</div>
+  <div class="grid g4" style="margin-top:16px">${kpi("تجديد الاشتراكات",incVal(i,"ren")+"%","في جروباته")}${kpi("تسجيل في الميعاد",incVal(i,"log")+"%","حضور وماتشات")}${kpi("تقييمات اللاعيبة",incVal(i,"eval")+"%","في ميعادها")}${kpi("حافز الشهر",inc.total.toLocaleString('en-US')+" ج","متوقع")}</div>
+  <div class="tabs" style="margin-top:16px">${[["activity","📋 الأنشطة والجروبات"],["ratings","⭐ تقييمات الأعضاء"],["incent","🎁 الحوافز"]].map(([k,l])=>`<button class="${t===k?'on':''}" onclick="state.ctab='${k}';render()">${l}</button>`).join("")}</div>${body}`;
+},
+
+group(){
+  const g=GROUPS.find(x=>x.id===state.gid),ps=PLAYERS.filter(p=>p.g===g.id),n=ps.length||1;
+  const att=Math.round(ps.reduce((s,p)=>s+p.att,0)/n),late=ps.filter(p=>p.st==="متأخر"),soon=ps.filter(p=>p.st==="ينتهي قريباً"),avg=(ps.reduce((s,p)=>s+p.lvl,0)/n).toFixed(1);
+  const top=[...ps].sort((a,b)=>(b.goals*2+b.ast)-(a.goals*2+a.ast)).slice(0,5),risk=ps.filter(p=>p.att<60).slice(0,5),goals=ps.reduce((s,p)=>s+p.goals,0);
+  const prog=ASSIGN.find(a=>a[1]==="جروب"&&a[2].includes(g.name));
+  const kpi=(l,v,d,c)=>`<div class="card kpi"><div class="l">${l}</div><div class="v" ${c?`style="color:${c}"`:''}>${v}</div>${d?`<div class="d muted">${d}</div>`:''}</div>`;
+  return `<div style="margin-bottom:12px"><button class="btn sm ghost" onclick="go('groups')">→ رجوع للجروبات والمواعيد</button></div>
+  <div class="card"><div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+   <div class="f1" style="min-width:240px"><h2 style="font-size:22px">${g.name}</h2><div class="muted">📍 ${g.br} · مستوى ${g.lvl} · ${g.days.map(d=>DAYS[d]).join("، ")} · ${g.time}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">${g.coaches.map(c=>`<span class="badge ${c[1]==='رئيسي'?'b-blue':c[1]==='تغذية'?'b-or':'b-gray'}" style="cursor:pointer" onclick="openCoach(COACHES.findIndex(x=>x.n==='${c[0]}'))">${c[0]} · ${c[1]}</span>`).join("")}<button class="btn sm ghost" style="padding:1px 8px" onclick="state.permTab='coaches';go('users')">تعديل المدربين</button></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px"><div class="cap ${ps.length>=g.cap?'full':''}" style="width:180px"><i style="width:${Math.min(100,ps.length/g.cap*100)}%"></i></div><b>${ps.length}/${g.cap}</b>${g.wait?`<span class="badge b-or">${g.wait} في الانتظار</span>`:''}</div></div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="addToGroup(${g.id})">+ إضافة لاعب</button><button class="btn ghost" onclick="tbGroup(${g.id},1);state.matchTab='teams';go('matches')">⚡ تقسيم</button><button class="btn ghost" onclick="state.rg=${g.id};state.matchTab='rating';go('matches')">⭐ تقييم</button><button class="btn wa" onclick="toast('رسالة لـ ${ps.length} عضو')">💬 رسالة للجروب</button></div></div></div>
+  <div class="grid g4" style="margin-top:16px">${kpi("الأعضاء",ps.length+" / "+g.cap,g.wait?g.wait+" في قائمة الانتظار":"فيه "+(g.cap-ps.length)+" أماكن فاضية")}${kpi("نسبة الحضور",att+"%","آخر 4 أسابيع")}${kpi("المتأخرين في الدفع",late.length,"مستحق "+(late.length*900).toLocaleString('en-US')+" ج",late.length?"var(--red)":"")}${kpi("متوسط المستوى",avg+" ★","من تقييم اللاعبين")}</div>
+  <div class="grid g4" style="margin-top:16px">${kpi("إيراد الشهر",((ps.length-late.length)*900).toLocaleString('en-US')+" ج",soon.length+" اشتراك بيخلص الأسبوع ده")}${kpi("ماتشات الشهر",g.days.length*4*2,"الحصة فيها ماتشين في المتوسط")}${kpi("أهداف الموسم",goals,"متوسط "+(goals/n).toFixed(1)+" للاعب")}${kpi("التزام التغذية",prog?"74%":"—",prog?prog[0]:"مفيش برنامج متعيّن")}</div>
+  <div class="grid g2e" style="margin-top:16px"><div class="card"><h3>الحضور آخر 8 أسابيع</h3><div class="ch" style="height:210px"><canvas id="c8"></canvas></div></div><div class="card"><h3>توزيع المستويات</h3><div class="ch" style="height:210px"><canvas id="c9"></canvas></div></div></div>
+  <div class="grid g2" style="margin-top:16px">
+   <div class="card"><h3>أعضاء الجروب<span class="sp"></span><span class="muted">اضغط على أي عضو تفتح ملفه</span></h3><div class="tbl-wrap" style="max-height:520px;overflow:auto"><table><tr><th>العضو</th><th>الحالة</th><th>الحضور</th><th>المستوى</th><th>⚽ / 🅰️</th><th>الدفع</th></tr>
+    ${ps.map(p=>`<tr class="click" onclick="memberDrawer('${p.n}')"><td><b>${p.n}</b> <span class="pos ${p.pos==='حارس'?'gk':''}">${p.pos}</span></td><td><span class="badge ${stB(p.st)}">${p.st}</span></td><td style="color:${p.att<60?'var(--red)':'inherit'}">${p.att}%</td><td style="color:#d9822b;white-space:nowrap">${"★".repeat(p.lvl)}</td><td>${p.goals} / ${p.ast}</td><td>${p.pay.includes("متأخر")?`<span class="badge b-red">${p.pay}</span>`:p.pay}</td></tr>`).join("")}</table></div></div>
+   <div>
+    <div class="card"><h3>⚽ هدافين الجروب</h3><div class="list">${top.map((x,i)=>`<div class="it"><div class="mini">${i+1}</div><b class="f1">${x.n}</b><span>⚽ ${x.goals}</span><span class="muted">🅰️ ${x.ast}</span></div>`).join("")}</div></div>
+    <div class="card" style="margin-top:16px"><h3>🔥 مهددين بالانسحاب</h3>${risk.length?`<div class="list">${risk.map(x=>`<div class="it"><b class="f1">${x.n}</b><span class="badge b-red">حضور ${x.att}%</span></div>`).join("")}</div>`:'<div class="muted">مفيش 🎉</div>'}</div>
+    <div class="card" style="margin-top:16px"><h3>🥗 التغذية</h3>${prog?`<b>${prog[0]}</b><div class="muted">من ${prog[3]} · ${prog[4]} · اتفتح ${prog[5]}</div>`:'<div class="muted">مفيش برنامج متعيّن على الجروب.</div>'}<button class="btn sm ghost" style="margin-top:8px" onclick="modal(sendProg())">${prog?'تغيير البرنامج':'تعيين برنامج'}</button></div>
+    <div class="card" style="margin-top:16px"><h3>📅 الحصص الجاية</h3><div class="list">${g.days.slice(0,3).map(d=>`<div class="it"><b class="f1">${DAYS[d]} · ${g.time}</b><span class="muted">${g.coaches[0]?g.coaches[0][0]:''}</span></div>`).join("")}</div></div>
+   </div></div>`;
+},
+group_after(){
+  const ps=PLAYERS.filter(p=>p.g===state.gid);
+  chart("c8",{type:"line",data:{labels:["أ1","أ2","أ3","أ4","أ5","أ6","أ7","أ8"],datasets:[{label:"الحضور %",data:[72,78,75,81,84,79,86,83].map(v=>v-(state.gid%3)*4),borderColor:"#e01f26",backgroundColor:"rgba(224,31,38,.12)",fill:true,tension:.35}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,max:100}}}});
+  chart("c9",{type:"bar",data:{labels:["★","★★","★★★","★★★★","★★★★★"],datasets:[{label:"عدد اللاعبين",data:[1,2,3,4,5].map(l=>ps.filter(p=>p.lvl===l).length),backgroundColor:"#2b2b2b",borderRadius:6}]},options:{plugins:{legend:{display:false}}}});
+},
+
+apps(){
+  const A=[["👤","تطبيق العضو","اشتراكه وحصصه، QR الحضور، «مش هقدر آجي»، طلب تعويض أو تجميد، الإحصائيات والترتيب والتصويت، وجبات النهارده والمية والوزن، والدفع والإيصالات."],["🏃","تطبيق المدرب","حصص النهارده، الحضور والضيوف، التقسيمة في ثانية، تسجيل الماتش والأهداف، تقييم اللاعيبة بالجروب، وملفاتهم."],["🗂️","تطبيق مدير الفرع","ملخص الفرع، التحصيل والإيصالات، الأعضاء وإجراءاتهم، الموافقات على الطلبات، ونقل وإلغاء الحصص."]];
+  return `<div class="card" style="text-align:center;padding:28px"><div style="font-size:40px">📱</div><h2 style="font-size:22px;margin:6px 0">تطبيقات الموبايل</h2><div class="muted" style="max-width:560px;margin:0 auto 16px">لوحة التحكم دي للإدارة من الكمبيوتر. التطبيقات التلاتة مربوطة بنفس البيانات: أي طلب من العضو بيوصل لمدير الفرع، وأي حضور أو ماتش من المدرب بيظهر هنا.</div><a class="btn" style="text-decoration:none;display:inline-block;font-size:15px;padding:11px 22px" href="${"'+URL+'"}" target="_blank" rel="noopener">افتح التطبيقات ←</a></div>
+  <div class="grid g3" style="margin-top:16px">${A.map(a=>`<div class="card"><h3>${a[0]} ${a[1]}</h3><div class="muted">${a[2]}</div></div>`).join("")}</div>`;
+}
+};
+
+function render(){
+  charts.splice(0).forEach(c=>c.destroy());
+  $("nav").innerHTML=navHTML();
+  const lbl=NAV.flatMap(x=>x[1]).find(x=>x[0]===state.page);
+  $("title").textContent=state.page==="group"?gName(state.gid):state.page==="coach"?COACHES[state.cid].n:lbl[2];
+  $("content").innerHTML=PAGES[state.page]();
+  const a=PAGES[state.page+"_after"];if(a)a();
+}
+function filterMem(q){document.querySelectorAll("#memT tr[data-n]").forEach(r=>r.style.display=r.dataset.n.includes(q)?"":"none")}
+function memberDrawer(n){
+  const x=MEM.find(m=>m.n===n)||(q=>Object.assign({br:GROUPS.find(g=>g.id===q.g).br,end:q.st==="متأخر"?"27 سبتمبر":"25 أكتوبر"},q))(PLAYERS.find(q=>q.n===n));
+  $("drawer").innerHTML=`<button class="x" onclick="closeAll()">×</button>
+  <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px"><div class="avatar" style="width:56px;height:56px;font-size:22px">${ini(x.n)}</div><div><h2 style="font-size:20px">${x.n}</h2><div class="muted">${gName(x.g)} · ${x.br} · 0101 234 5678</div><span class="badge ${stB(x.st)}">${x.st}</span></div></div>
+  <div class="grid g2e" style="gap:10px;margin-bottom:14px">
+   <div class="card" style="padding:12px"><div class="muted">الاشتراك</div><b>شهري · ينتهي ${x.end}</b></div>
+   <div class="card" style="padding:12px"><div class="muted">الدفع</div><b>${x.pay}</b></div>
+   <div class="card" style="padding:12px"><div class="muted">الحضور آخر شهر</div><b>${x.att}%</b></div>
+   <div class="card" style="padding:12px"><div class="muted">المستوى (تقييم المدرب)</div><b>${"★".repeat(x.lvl)}${"☆".repeat(5-x.lvl)}</b></div></div>
+  <div class="card" style="margin-bottom:14px"><h3>إحصائيات الكورة <span class="star">✦</span></h3><div style="display:flex;justify-content:space-around;text-align:center"><div><b style="font-size:22px">${x.goals}</b><div class="muted">أهداف</div></div><div><b style="font-size:22px">${x.ast}</b><div class="muted">أسيست</div></div><div><b style="font-size:22px">${x.mvp}</b><div class="muted">MVP</div></div></div></div>
+  <div class="card" style="margin-bottom:14px"><h3>آخر المدفوعات</h3><div class="list"><div class="it"><div class="f1">تجديد شهري · إنستاباي</div><b>900 ج</b></div><div class="it"><div class="f1">تجديد شهري · كاش</div><b>900 ج</b></div></div></div>
+  <div class="card" style="margin-bottom:14px"><h3>🥗 برنامج التغذية<span class="sp"></span><button class="btn sm ghost" onclick="closeAll();state.nutTab='builder';go('nutrition')">برنامج فردي</button></h3><div class="muted">برنامج الجروب: تنشيف · 1800 سعر (من جروب ${gName(x.g)})</div></div><div class="card" style="margin-bottom:14px"><h3>ملاحظات المدرب</h3><div class="muted">محتاج يشتغل على اللياقة في الشوط التاني. ملتزم جداً بالمواعيد.</div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="closeAll();state.billTab='collect';go('billing')">تحصيل</button><button class="btn ghost" onclick="toast('اتنقل لجروب تاني')">نقل جروب</button><button class="btn ghost" onclick="toast('اتعمل تجميد 14 يوم')">تجميد</button><button class="btn wa" onclick="toast('فتح واتساب')">واتساب</button></div>`;
+  $("drawer").classList.add("show");$("ov").classList.add("show");
+}
+function coachTxt(g){return g.coaches.map(c=>c[0]).join(" + ")}
+function coachCell(g){return g.coaches.map(c=>`<div style="display:flex;gap:6px;align-items:center;margin:2px 0"><span>${c[0]}</span><span class="badge ${c[1]==='رئيسي'?'b-blue':'b-gray'}" style="font-size:10.5px">${c[1]}</span></div>`).join("")}
+
+/* ---------- players per group ---------- */
+const FN=["أحمد","محمد","محمود","عمر","يوسف","كريم","مصطفى","خالد","حسن","علي","إبراهيم","طارق","هشام","ياسر","سامح","رامي","وليد","شريف","أيمن","تامر","باسم","نادر","مازن","زياد","سيف","آدم","حمزة","مروان","عمرو","إسلام","أنس","معاذ","فارس","جمال","سليم"];
+const LN=["سامي","عادل","طارق","حسن","خالد","إبراهيم","فؤاد","ممدوح","نبيل","رضا","علاء","وليد","منير","حمدي","جمال","سعيد","عاطف","سمير","شوقي","فتحي","عزت","كمال","ماهر","جلال","ناجي","الشاذلي","عبدالله","رأفت","صبري","مجدي","حلمي","يسري","البنا","زكي","شاكر"];
+const POSL=["هجوم","وسط","دفاع","وسط","هجوم","دفاع","وسط","دفاع"];
+const PLAYERS=[];
+(function(){const used=new Set();let s=7;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280};
+ GROUPS.forEach(g=>{MEM.filter(m=>m.g===g.id).forEach(m=>{used.add(m.n);PLAYERS.push({n:m.n,g:g.id,lvl:m.lvl,pos:POSL[Math.floor(rnd()*8)],goals:m.goals,ast:m.ast,mvp:m.mvp,att:m.att,st:m.st,pay:m.pay})});
+  while(PLAYERS.filter(p=>p.g===g.id).length<g.n){let n;do{n=FN[Math.floor(rnd()*FN.length)]+" "+LN[Math.floor(rnd()*LN.length)]}while(used.has(n));used.add(n);
+   const k=PLAYERS.filter(p=>p.g===g.id).length,lvl=1+Math.floor(rnd()*5),r=rnd(),st=r<.12?"متأخر":r<.22?"ينتهي قريباً":"نشط";
+   PLAYERS.push({n,g:g.id,lvl,pos:(k===2||k===9)?"حارس":POSL[Math.floor(rnd()*8)],goals:Math.round(rnd()*lvl*4),ast:Math.round(rnd()*lvl*3),mvp:Math.round(rnd()*lvl/1.5),att:Math.round(45+rnd()*53),st,pay:st==="متأخر"?"متأخر 900 ج":"مدفوع"})}});})();
+function pool(gid){return PLAYERS.filter(p=>p.g===gid||p.visit===gid)}
+function defPresent(gid){return pool(gid).filter((p,i)=>i%5!==4).map(p=>p.n)}
+function groupSelect(cur,fn){return `<select class="sel" onchange="${fn}(+this.value)">${BR.filter(b=>state.branch==="all"||b===state.branch).map(b=>`<optgroup label="📍 ${b}">${GROUPS.filter(g=>g.br===b).map(g=>`<option value="${g.id}" ${g.id===cur?'selected':''}>${g.name} · ${g.time} (${PLAYERS.filter(p=>p.g===g.id).length})</option>`).join("")}</optgroup>`).join("")}</select>`}
+function openGroup(id){state.gid=id;go('group')}
+
+/* ---------- rating ---------- */
+const CRIT=["اللياقة","التحكم والمهارة","التمرير","التسديد والإنهاء","الدفاع والتمركز"];
+const RW={c:50,p:35,v:15};
+const RATE={};
+PLAYERS.forEach((p,i)=>{const c=CRIT.map((_,j)=>Math.max(1,Math.min(5,p.lvl+(j%2?((i+j)%3)-1:0))));const m=i%7===6?3:6+((i*5)%14);const wr=Math.max(20,Math.min(80,30+p.lvl*9+((i*13)%15)-7));const perf=Math.round(Math.max(15,Math.min(95,wr*.6+p.lvl*7+((i*7)%10))));const peer=Math.round(Math.max(20,Math.min(95,p.lvl*17+((i*11)%15)-5)));const g=GROUPS.find(x=>x.id===p.g);
+ RATE[p.n]={c,gk:p.pos==="حارس"?Math.min(5,3+(i%3)):(i%6===0?2:null),m,wr,perf,peer,trend:((i*3)%5)-2,by:g.coaches[0][0],at:["12 سبتمبر","20 سبتمبر","1 أكتوبر"][i%3]}});
+function coachAvg(n){const c=RATE[n].c;return c.reduce((a,b)=>a+b,0)/c.length}
+function finalScore(n){const r=RATE[n],ca=coachAvg(n)*20;if(r.m<5)return Math.round(ca);const t=(RW.c+RW.p+RW.v)||1;return Math.round((ca*RW.c+r.perf*RW.p+r.peer*RW.v)/t)}
+function syncLvl(){PLAYERS.forEach(p=>{p.lvl=Math.max(1,Math.min(5,Math.round(finalScore(p.n)/20)))})}
+syncLvl();
+function setW(k,v){RW[k]=+v;syncLvl();render()}
+function rgSet(id){state.rg=id;render()}
+function ratingTab(){
+ const gid=state.rg,g=GROUPS.find(x=>x.id===gid),rows=PLAYERS.filter(p=>p.g===gid).map(p=>({p,r:RATE[p.n],f:finalScore(p.n)})).sort((a,b)=>b.f-a.f);
+ const due=rows.filter(({r})=>r.at==="12 سبتمبر").length;
+ const src=(k,num,title,badge,desc)=>`<div class="card"><h3>${num}. ${title} <span class="badge ${badge}">${RW[k]}%</span></h3><div class="muted" style="min-height:60px">${desc}</div><label class="muted" style="display:block;margin-top:10px">الوزن في التقييم النهائي</label><input type="range" min="0" max="100" step="5" value="${RW[k]}" onchange="setW('${k}',this.value)" style="width:100%;accent-color:#e01f26"></div>`;
+ return `<div class="card"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>الجروب:</b>${groupSelect(gid,"rgSet")}<span class="muted">${g.coaches.filter(c=>c[1]!=='تغذية').map(c=>c[0]+" ("+c[1]+")").join("، ")}</span><span class="sp f1"></span>${due?`<span class="badge b-or">${due} لاعب محتاج مراجعة شهرية</span>`:''}<button class="btn sm" onclick="addToGroup(${gid})">+ إضافة لاعب للجروب</button></div></div>
+ <div class="card" style="margin-top:16px"><h3>تقييمات ${g.name} <span class="badge b-gray">${rows.length} لاعب</span><span class="sp"></span><span class="muted">🔒 اللاعب بيشوف تقييمه هو بس</span></h3><div class="tbl-wrap"><table><tr><th>اللاعب</th><th>المركز</th><th>المدرب /5</th><th>🧤 حراسة</th><th>ماتشات</th><th>الأداء /100</th><th>الزملاء /100</th><th>النهائي /100</th><th>المستوى</th><th>آخر تقييم</th><th></th></tr>
+ ${rows.map(({p,r,f})=>{const prov=r.m<5;return `<tr><td><b>${p.n}</b>${prov?' <span class="badge b-or">جديد</span>':''}</td><td><span class="pos ${p.pos==='حارس'?'gk':''}">${p.pos}</span></td><td>${coachAvg(p.n).toFixed(1)}</td><td>${r.gk!=null?r.gk+' / 5':'<span class="muted">—</span>'}</td><td>${r.m}</td><td>${prov?'—':r.perf}</td><td>${prov?'—':r.peer}</td><td><b>${f}</b> <span class="${r.trend>0?'up':r.trend<0?'down':'muted'}" style="font-size:12px">${r.trend>0?'▲':r.trend<0?'▼':'•'}</span></td><td style="color:#d9822b;white-space:nowrap">${"★".repeat(p.lvl)}<span style="color:#ddd">${"★".repeat(5-p.lvl)}</span></td><td class="muted" style="white-space:nowrap">${r.at}</td><td><button class="btn sm ghost" onclick="modal(rateModal('${p.n}'))">قيّم</button></td></tr>`}).join("")}</table></div></div>
+ <div class="alert o" style="margin-top:16px">🧮<div class="f1"><b>التقييم النهائي = المدرب × ${RW.c}% + الأداء × ${RW.p}% + الزملاء × ${RW.v}%</b><div class="muted">النتيجة من 100 وبتتحول لـ 1–5 نجوم، ودي اللي التقسيمة بتوازن بيها. اللاعب الجديد بيتقسم بتقييم المدرب بس لحد ما يلعب 5 ماتشات. تقييم الحراسة اختياري ومش بيدخل في المتوسط، بيستخدم بس لاختيار الحارس في التقسيمة.</div></div></div>
+ <div class="grid g3" style="margin-top:16px">
+  ${src("c",1,"تقييم المدرب","b-blue","المدرب الرئيسي يقيّم لاعيبة جروبه أول ما يشتركوا ويراجعهم مرة كل شهر: 5 معايير من 1 لـ 5، وحراسة المرمى لو بيلعب حارس. ومدرب اللياقة بيقيّم معيار اللياقة.")}
+  ${src("p",2,"الأداء في الماتشات ✦","b-red","بيتحسب تلقائي من كل ماتش بيتسجل: فريقه كسب ولا خسر مقارنة بالمتوقع، وأهدافه وأسيستاته والـ MVP. ده اللي بيصلّح أي تقييم غلط مع الوقت.")}
+  ${src("v",3,"تصويت الزملاء","b-gray","بعد الماتش كل لاعب بيختار أحسن 3 في الماتش من بوابته، بشكل سري ومن غير ما يصوّت لنفسه. وزنه قليل عشان المجاملات.")}
+ </div>`;
+}
+function rateModal(n){const r=RATE[n],p=PLAYERS.find(x=>x.n===n),chips=(cur,attr)=>`<div style="display:flex;gap:4px" ${attr}>${[1,2,3,4,5].map(v=>`<button class="pchip ${v===cur?'on':''}" style="padding:4px 11px" onclick="this.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));this.classList.add('on')">${v}</button>`).join("")}</div>`;
+ return `<h3 style="margin-bottom:4px">تقييم ${n}</h3><div class="muted" style="margin-bottom:12px">${gName(p.g)} · آخر تقييم: ${r.by} · ${r.at}</div>
+${CRIT.map((c,ci)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f3eeee"><span class="f1"><b>${c}</b>${ci===0?' <span class="muted">(مدرب اللياقة)</span>':''}</span>${chips(r.c[ci],`data-ci="${ci}"`)}</div>`).join("")}
+<div style="margin-top:12px;padding:10px;border:1px dashed #d9cfcf;border-radius:12px"><div style="display:flex;align-items:center;gap:8px"><span class="f1"><b>🧤 حراسة المرمى</b> <span class="muted">(اختياري)</span></span><button class="toggle ${r.gk!=null?'on':''}" id="gkT" onclick="this.classList.toggle('on');$('gkR').style.display=this.classList.contains('on')?'flex':'none'"></button></div>
+<div id="gkW" style="margin-top:8px">${chips(r.gk||3,`id="gkR" style="display:${r.gk!=null?'flex':'none'};gap:4px"`)}</div><div class="muted" style="font-size:11.5px;margin-top:6px">فعّله للي بيلعب حارس أو بيقف في الجون ساعات. مش بيدخل في متوسط المستوى.</div></div>
+<div class="field" style="margin-top:12px"><label>المركز المفضل</label><select id="rpos">${["حارس","دفاع","وسط","هجوم"].map(x=>`<option ${x===p.pos?'selected':''}>${x}</option>`).join("")}</select></div>
+<div class="field"><label>ملاحظة للاعب (بتظهر في بوابته)</label><textarea rows="2" placeholder="مثال: محتاج يشتغل على اللياقة في الشوط التاني"></textarea></div>
+<label style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><input type="checkbox"> قفل المستوى يدوياً (مايتأثرش بالماتشات)</label>
+<button class="btn" onclick="saveRate('${n}')">حفظ التقييم</button>`}
+function saveRate(n){const r=RATE[n];document.querySelectorAll('#modal [data-ci]').forEach(d=>{const on=d.querySelector('.on');if(on)r.c[+d.dataset.ci]=+on.textContent});
+ const gkOn=$("gkT").classList.contains("on"),gkv=document.querySelector("#gkR .on");r.gk=gkOn?(gkv?+gkv.textContent:3):null;
+ PLAYERS.find(x=>x.n===n).pos=$("rpos").value;r.by="كابتن محمود";r.at="2 أكتوبر";syncLvl();closeAll();render();toast("التقييم اتحفظ والمستوى اتحدث في التقسيمة")}
+
+/* ---------- monthly board, league, archive ---------- */
+const MONTH="أكتوبر 2026";
+function brdPts(p){return p.goals*2+p.ast+p.mvp*3}
+function boardTab(){
+  const m=state.bm||MONTH,g=state.bg||0,cur=m===MONTH;
+  const rows=cur?PLAYERS.filter(p=>!p.guest&&(g?p.g===g:fb(GROUPS).some(x=>x.id===p.g))).sort((a,b)=>brdPts(b)-brdPts(a)).slice(0,20).map(p=>[p.n,gName(p.g),p.goals,p.ast,p.mvp,brdPts(p)]):(ARCH.find(a=>a.m===m)||ARCH[0]).top.filter(r=>!g||r[1]===gName(g));
+  const aw=cur?curAwards():ARCH.find(a=>a.m===m);
+  return `<div class="card"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>الشهر:</b><select class="sel" onchange="state.bm=this.value;render()">${[MONTH].concat(ARCH.map(a=>a.m)).map(x=>`<option ${x===m?'selected':''}>${x}${x===MONTH?' (الحالي)':''}</option>`).join("")}</select><b>الجروب:</b><select class="sel" onchange="state.bg=+this.value;render()"><option value="0">كل الجروبات</option>${fb(GROUPS).map(x=>`<option value="${x.id}" ${x.id===g?'selected':''}>${x.name}</option>`).join("")}</select><span class="f1"></span>${cur?`<button class="btn sm" onclick="state.matchTab='archive';render()">🔒 اقفل الشهر وسجّله</button>`:'<span class="badge b-gray">🔒 شهر مقفول</span>'}</div></div>
+  ${awardsGrid(aw)}
+  <div class="card" style="margin-top:16px"><h3>ترتيب ${m}</h3><div class="tbl-wrap"><table><tr><th>#</th><th>اللاعب</th><th>الجروب</th><th>⚽</th><th>🅰️</th><th>⭐</th><th>النقاط</th></tr>${rows.map((r,i)=>`<tr><td>${i<3?["🥇","🥈","🥉"][i]:i+1}</td><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td><b>${r[5]}</b></td></tr>`).join("")||'<tr><td colspan="7" class="muted">مفيش بيانات</td></tr>'}</table></div><div class="muted" style="margin-top:8px">النقاط = الهدف ×2 + الأسيست + MVP ×3. كل عضو بيشوف ترتيبه في تطبيقه.</div></div>`;
+}
+function awardsGrid(a){const it=[["🏆","بطل الدوري",a.champ,a.champSub],["⚽","هداف الشهر",a.scorer[0],a.scorer[1]+" جون"],["🅰️","صانع الألعاب",a.ast[0],a.ast[1]+" أسيست"],["⭐","لاعب الشهر",a.mvp[0],a.mvp[1]],["🧤","أحسن حارس",a.gk[0],a.gk[1]],["🔥","الأكتر التزاماً",a.att[0],"حضور "+a.att[1]],["👨‍🏫","مدرب الشهر",a.coach[0],a.coach[1]]];
+ return `<div class="grid g4" style="margin-top:16px">${it.map(x=>`<div class="card" style="text-align:center"><div style="font-size:26px">${x[0]}</div><div class="muted">${x[1]}</div><b style="font-size:15px">${x[2]}</b><div class="muted">${x[3]}</div></div>`).join("")}</div>`}
+function curAwards(){const ps=PLAYERS.filter(p=>!p.guest),mx=f=>ps.slice().sort((a,b)=>f(b)-f(a))[0],st=lgStand(),gk=ps.filter(p=>RATE[p.n].gk!=null).sort((a,b)=>RATE[b.n].gk-RATE[a.n].gk)[0],bc=COACHES.map((c,i)=>[c,coachRating(i).avg]).sort((a,b)=>b[1]-a[1])[0];
+ const s=mx(p=>p.goals),a=mx(p=>p.ast),v=mx(brdPts),t=mx(p=>p.att);
+ return {champ:st[0]?st[0].g.name:"—",champSub:st[0]?"متصدر · "+st[0].pts+" نقطة":"",scorer:[s.n,s.goals],ast:[a.n,a.ast],mvp:[v.n,brdPts(v)+" نقطة"],gk:[gk?gk.n:"—",gk?"تقييم حراسة "+RATE[gk.n].gk+"/5":""],att:[t.n,t.att+"%"],coach:[bc[0].n,bc[1]+" ★"]};}
+const ARCH=[
+ {m:"سبتمبر 2026",champ:"جروب المغرب A",champSub:"4 فوز · 1 تعادل",scorer:["يوسف حسن",17],ast:["مازن رضا",12],mvp:["يوسف حسن","61 نقطة"],gk:["محمود ناجي","8 كلين شيت"],att:["أحمد سامي","100%"],coach:["كابتن شريف","4.8 ★"],top:[["يوسف حسن","جروب المغرب A",17,4,5,61],["أحمد سامي","جروب الصبح A",14,6,3,43],["مازن رضا","جروب الليل",6,12,3,33],["هشام فؤاد","جروب المغرب",11,9,4,43],["عبدالرحمن نبيل","جروب الليل",12,5,2,35]]},
+ {m:"أغسطس 2026",champ:"جروب الليل",champSub:"3 فوز · 2 تعادل",scorer:["أحمد سامي",15],ast:["كريم عادل",11],mvp:["أحمد سامي","54 نقطة"],gk:["حمزة سعيد","6 كلين شيت"],att:["مازن رضا","98%"],coach:["كابتن ياسر","4.7 ★"],top:[["أحمد سامي","جروب الصبح A",15,5,3,44],["كريم عادل","جروب الصبح A",9,11,2,35],["يوسف حسن","جروب المغرب A",12,3,4,39]]},
+ {m:"يوليو 2026",champ:"جروب الصبح A",champSub:"4 فوز",scorer:["هشام فؤاد",13],ast:["مازن رضا",10],mvp:["هشام فؤاد","47 نقطة"],gk:["محمود ناجي","7 كلين شيت"],att:["يوسف حسن","96%"],coach:["كابتن محمود","4.6 ★"],top:[["هشام فؤاد","جروب المغرب",13,7,3,42],["مازن رضا","جروب الليل",5,10,2,26]]}];
+function archiveTab(){const a=curAwards();
+ return `<div class="card"><h3>📚 سجل الشهور<span class="sp"></span><button class="btn" onclick="modal(closeMonthM())">🔒 اقفل ${MONTH} وسجّله</button></h3><div class="muted">آخر كل شهر بتقفل الشهر: الترتيب والدوري والجوايز بيتحفظوا هنا ويفضلوا مرجع، والأرقام بتبدأ من الصفر للشهر الجديد. الأعضاء بيوصلهم ملخص الشهر على الواتساب.</div></div>
+ ${ARCH.map(x=>`<div class="card" style="margin-top:16px"><h3>${x.m}<span class="sp"></span><button class="btn sm ghost" onclick="state.bm='${x.m}';state.matchTab='board';render()">الترتيب الكامل</button><button class="btn sm ghost" onclick="toast('اتصدر PDF')">PDF</button></h3>${awardsGrid(x).replace('style="margin-top:16px"','')}</div>`).join("")}`;}
+function closeMonthM(){const a=curAwards();return `<h3 style="margin-bottom:6px">قفل ${MONTH}</h3><div class="muted" style="margin-bottom:12px">ده اللي هيتسجل. تقدر تعدّل أي جايزة قبل الحفظ.</div>
+ ${[["🏆 بطل الدوري",a.champ],["⚽ هداف الشهر",a.scorer[0]+" ("+a.scorer[1]+")"],["🅰️ صانع الألعاب",a.ast[0]],["⭐ لاعب الشهر",a.mvp[0]],["🧤 أحسن حارس",a.gk[0]],["🔥 الأكتر التزاماً",a.att[0]],["👨‍🏫 مدرب الشهر",a.coach[0]]].map(r=>`<div class="field"><label>${r[0]}</label><input value="${r[1]}"></div>`).join("")}
+ <label style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input type="checkbox" checked> ابعت ملخص الشهر للأعضاء على الواتساب</label>
+ <label style="display:flex;gap:8px;align-items:center;margin-bottom:14px"><input type="checkbox" checked> طبّق جايزة البطل (خصم 10% على تجديد لاعيبة الجروب)</label>
+ <button class="btn" onclick="ARCH.unshift(Object.assign({m:MONTH,top:PLAYERS.filter(p=>!p.guest).sort((a,b)=>brdPts(b)-brdPts(a)).slice(0,20).map(p=>[p.n,gName(p.g),p.goals,p.ast,p.mvp,brdPts(p)])},curAwards()));closeAll();render();toast('${MONTH} اتسجل في السجل')">تأكيد وتسجيل الشهر</button>`}
+const LG={groups:[1,2,4,5,6],scope:"all",day:"الجمعة · 8 م",squad:8,prize:"خصم 10% على التجديد",fx:null};
+const LGRES=[[3,1,["يوسف حسن","يوسف حسن","حمزة سعيد"]],[2,2,["أحمد سامي","هشام فؤاد"]],[1,0,["مازن رضا"]],[4,2,["يوسف حسن","شريف يسري"]]];
+function lgBuild(){const ids=LG.groups.slice();if(ids.length%2)ids.push(0);const n=ids.length,fx=[],dates=["2 أكتوبر","9 أكتوبر","16 أكتوبر","23 أكتوبر","30 أكتوبر","6 نوفمبر","13 نوفمبر"];
+ for(let r=0;r<n-1;r++){for(let i=0;i<n/2;i++){const a=ids[i],b=ids[n-1-i];if(a&&b)fx.push({r:r+1,d:dates[r]||"",a,b,s:null,sc:[]})}ids.splice(1,0,ids.pop())}
+ fx.forEach((f,i)=>{if(LGRES[i]){f.s=[LGRES[i][0],LGRES[i][1]];f.sc=LGRES[i][2]}});LG.fx=fx}
+function lgStand(){if(!LG.fx)lgBuild();const T={};LG.groups.forEach(id=>T[id]={g:GROUPS.find(x=>x.id===id),p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0});
+ LG.fx.filter(f=>f.s&&T[f.a]&&T[f.b]).forEach(f=>{const A=T[f.a],B=T[f.b],[x,y]=f.s;A.p++;B.p++;A.gf+=x;A.ga+=y;B.gf+=y;B.ga+=x;if(x>y){A.w++;B.l++;A.pts+=3}else if(x<y){B.w++;A.l++;B.pts+=3}else{A.d++;B.d++;A.pts++;B.pts++}});
+ return Object.values(T).sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf)}
+function leagueTab(){const st=lgStand(),sc={};LG.fx.forEach(f=>f.sc.forEach(n=>sc[n]=(sc[n]||0)+1));const top=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,5);
+ const steps=[["👥","كل جروب = فريق","المدرب الرئيسي بيختار تشكيلة "+LG.squad+" لاعيبة من جروبه. السيستم بيقترح الأعلى تقييماً والأكتر التزاماً."],["📅","جدول تلقائي","كل جروب بيقابل الكل مرة. ماتش كل "+LG.day+" في الملعب الرئيسي، والمواعيد بتتبعت للاعيبة على الواتساب."],["⚽","النتيجة من الملعب","الحَكَم أو المدرب بيسجل الجون والأسيست من تطبيق المدرب، والترتيب بيتحدث لوحده: فوز 3، تعادل 1."],["🏆","آخر الشهر","البطل والهداف بيتسجلوا في سجل الشهور، والبطل ياخد "+LG.prize+"، والدوري الجديد بيبدأ."]];
+ return `<div class="card"><h3>إزاي الدوري شغال</h3><div class="grid g4" style="gap:10px">${steps.map((s,i)=>`<div style="border:1px solid var(--line);border-radius:12px;padding:12px"><div style="display:flex;gap:8px;align-items:center"><span class="mini" style="background:var(--brand2);color:#fff">${i+1}</span><b>${s[0]} ${s[1]}</b></div><div class="muted" style="margin-top:6px">${s[2]}</div></div>`).join("")}</div></div>
+ <div class="grid g2" style="margin-top:16px"><div class="card"><h3>جدول الترتيب · ${MONTH}</h3><div class="tbl-wrap"><table><tr><th>#</th><th>الجروب</th><th>لعب</th><th>ف</th><th>ت</th><th>خ</th><th>له/عليه</th><th>نقاط</th></tr>${st.map((r,i)=>`<tr><td>${i===0&&r.p?'🏆':i+1}</td><td><b>${r.g.name}</b><div class="muted">${r.g.br}</div></td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gf}/${r.ga}</td><td><b>${r.pts}</b></td></tr>`).join("")}</table></div></div>
+  <div><div class="card"><h3>⚽ هدافين الدوري</h3>${top.length?`<div class="list">${top.map((x,i)=>`<div class="it"><div class="mini">${i+1}</div><b class="f1">${x[0]}</b><b>${x[1]}</b></div>`).join("")}</div>`:'<div class="muted">لسه</div>'}</div>
+   <div class="card" style="margin-top:16px"><h3>⚙️ إعدادات الدوري</h3>
+    <div class="field"><label>الجروبات المشاركة</label><div class="chips">${GROUPS.map(g=>`<button class="pchip ${LG.groups.includes(g.id)?'on':''}" onclick="lgTg(${g.id})">${g.name} · ${g.br}</button>`).join("")}</div></div>
+    <div class="grid g2e" style="gap:10px"><div class="field"><label>يوم الماتشات</label><select onchange="LG.day=this.value;render()">${["الجمعة · 8 م","الخميس · 10 م","آخر حصة في الأسبوع"].map(x=>`<option ${x===LG.day?'selected':''}>${x}</option>`).join("")}</select></div><div class="field"><label>التشكيلة</label><select onchange="LG.squad=+this.value;render()">${[6,7,8,10].map(x=>`<option value="${x}" ${x===LG.squad?'selected':''}>${x} لاعيبة</option>`).join("")}</select></div></div>
+    <div class="field"><label>جايزة البطل</label><select onchange="LG.prize=this.value;render()">${["خصم 10% على التجديد","شهر مجاني لأحسن لاعب","كاس وميداليات"].map(x=>`<option ${x===LG.prize?'selected':''}>${x}</option>`).join("")}</select></div>
+    <button class="btn ghost" onclick="LG.fx=null;lgBuild();render();toast('الجدول اتعمل من جديد')">🔄 اعمل الجدول من جديد</button></div></div></div>
+ <div class="card" style="margin-top:16px"><h3>الماتشات</h3><div class="tbl-wrap"><table><tr><th>الجولة</th><th>الميعاد</th><th>الماتش</th><th>النتيجة</th><th>الهدافين</th><th></th></tr>${LG.fx.map((f,i)=>{const A=GROUPS.find(x=>x.id===f.a),B=GROUPS.find(x=>x.id===f.b);return `<tr><td>${f.r}</td><td>${f.d} · ${LG.day.split(' · ')[1]||''}</td><td><b>${A.name}</b> <span class="muted">×</span> <b>${B.name}</b></td><td>${f.s?`<b style="font-size:16px">${f.s[0]} - ${f.s[1]}</b>`:'<span class="badge b-gray">لسه</span>'}</td><td class="muted">${f.sc.join("، ")||'—'}</td><td><button class="btn sm ${f.s?'ghost':''}" onclick="modal(lgResM(${i}))">${f.s?'تعديل':'سجّل النتيجة'}</button></td></tr>`}).join("")}</table></div></div>
+ <div class="card" style="margin-top:16px"><h3>تشكيلات الجروبات</h3><div class="grid g3">${LG.groups.map(id=>{const g=GROUPS.find(x=>x.id===id),sq=PLAYERS.filter(p=>p.g===id).sort((a,b)=>finalScore(b.n)+b.att/10-finalScore(a.n)-a.att/10).slice(0,LG.squad);return `<div style="border:1px solid var(--line);border-radius:12px;padding:12px"><b>${g.name}</b><div class="muted" style="margin-bottom:6px">اختيار ${g.coaches[0]?g.coaches[0][0]:'—'}</div>${sq.map(p=>`<div style="display:flex;gap:6px;padding:3px 0"><span class="f1">${p.n}</span>${RATE[p.n].gk!=null?'<span class="pos gk">🧤</span>':''}<span style="color:#d9822b;font-size:12px">${"★".repeat(p.lvl)}</span></div>`).join("")}</div>`}).join("")}</div></div>`;}
+function lgTg(id){const i=LG.groups.indexOf(id);if(i>=0){if(LG.groups.length<=3){toast("لازم 3 جروبات على الأقل");return}LG.groups.splice(i,1)}else LG.groups.push(id);LG.fx=null;lgBuild();render()}
+function lgResM(i){const f=LG.fx[i],A=GROUPS.find(x=>x.id===f.a),B=GROUPS.find(x=>x.id===f.b),pl=PLAYERS.filter(p=>p.g===f.a||p.g===f.b);
+ return `<h3 style="margin-bottom:12px">${A.name} × ${B.name}</h3><div class="grid g2e" style="gap:10px"><div class="field"><label>${A.name}</label><input id="lrA" type="number" min="0" value="${f.s?f.s[0]:0}"></div><div class="field"><label>${B.name}</label><input id="lrB" type="number" min="0" value="${f.s?f.s[1]:0}"></div></div>
+ <div class="field"><label>الهدافين (اضغط مرة لكل جون)</label><div class="muted" id="lrS" style="margin-bottom:6px">${f.sc.join("، ")||"—"}</div><div class="chips" style="max-height:150px;overflow:auto">${pl.map(p=>`<button class="pchip" onclick="LGT.push('${p.n}');$('lrS').textContent=LGT.join('، ')">${p.n}</button>`).join("")}</div><button class="btn sm ghost" style="margin-top:6px" onclick="LGT.length=0;$('lrS').textContent='—'">مسح الهدافين</button></div>
+ <button class="btn" onclick="LG.fx[${i}].s=[+$('lrA').value,+$('lrB').value];LG.fx[${i}].sc=LGT.slice();closeAll();render();toast('النتيجة اتسجلت والترتيب اتحدث')">حفظ</button>`}
+let LGT=[];
+
+/* ---------- coach profile data & incentives ---------- */
+function openCoach(i){if(i<0)return;state.cid=i;state.ctab="activity";go('coach')}
+function coachRating(i){const avg=[4.6,4.8,4.3,4.5,4.4,4.2,4.7,3.9,4.6,4.5][i%10],n=22+(i*7)%19;
+ const d5=Math.round((avg-3.5)*55),d4=Math.max(5,85-d5-10),dist=[d5,d4,Math.max(3,100-d5-d4-4),3,1].map(v=>Math.max(0,Math.min(95,v)));
+ const crit=[["الالتزام بالمواعيد",0.1],["الشرح والتدريب",0],["التحفيز",0.2],["التعامل والاحترام",0.1],["تنظيم الحصة والتقسيمة",-0.3]].map(([n,o])=>[n,Math.min(5,+(avg+o-(i%3)*0.1).toFixed(1))]);
+ return {avg,n,dist,crit,month:"سبتمبر",comments:[[5,"أحسن كابتن، بيظبط التقسيمة بسرعة وبيشجعنا.","سبتمبر · عضو في جروب الصبح A"],[4,"ممتاز بس ياريت التسخين يبقى أطول شوية.","سبتمبر"],[5,"ملتزم جداً بالمواعيد ومحترم.","أغسطس"],[avg<4.4?3:4,"أحياناً بيتأخر في تسجيل النتيجة.","أغسطس"]],trend:[["سبتمبر",avg],["أغسطس",+(avg-0.1).toFixed(1)],["يوليو",+(avg-0.2).toFixed(1)],["يونيو",+(avg-0.1).toFixed(1)]]}}
+function coachLog(c){if(c.spec==="أخصائي تغذية")return [["النهارده 10:00 ص","🥗","بعتت برنامج «تنشيف 1800» لجروب الصبح A","18 عضو"],["امبارح","📈","سجّلت 6 متابعات",""],["امبارح","💬","ردت على 4 أسئلة من الأعضاء",""],["30 سبتمبر","👤","عملت برنامج فردي ليوسف حسن",""],["28 سبتمبر","📋","أضافت 3 أصناف لمكتبة الأكل",""]];
+ const g=coachGroups(c.n)[0],gn=g?g[0].name:"";return [["النهارده 7:05 ص","✅","سجّل حضور "+gn,"15 من 18"],["النهارده 7:12 ص","⚡","قسّم الفرق","3 فرق · متوازن"],["النهارده 8:10 ص","⚽","سجّل 3 ماتشات","11 جون"],["النهارده 8:20 ص","💬","بعت التقسيمة والنتايج لجروب الواتساب",""],["امبارح","⭐","قيّم 4 لاعيبة",""],["امبارح","🔁","استقبل لاعب تعويض","من جروب المغرب"],["30 سبتمبر","📝","كتب ملاحظة لأحمد سامي",""],["29 سبتمبر","🏆","سجّل نتيجة ماتش الدوري",""]]}
+let INCCAP=2500;
+const INC=[{k:"att",n:"متوسط حضور جروباته",tgt:85,u:"%",amt:500,on:1},{k:"ren",n:"نسبة تجديد اشتراكات جروباته",tgt:80,u:"%",amt:700,on:1},{k:"rate",n:"تقييم الأعضاء ليه",tgt:4.5,u:"★",amt:500,on:1},{k:"log",n:"تسجيل الحضور والماتشات في ميعادها",tgt:95,u:"%",amt:300,on:1},{k:"eval",n:"تقييمات اللاعيبة الشهرية في ميعادها",tgt:90,u:"%",amt:200,on:1},{k:"ref",n:"عضو جديد عن طريقه",tgt:0,u:"عضو",amt:100,per:1,on:1},{k:"late",n:"تأخير عن الحصة",tgt:0,u:"مرة",amt:-100,per:1,on:1}];
+const INCV={att:[84,91,88,86,80,83,87,76,85,82],ren:[82,88,79,85,74,80,83,70,84,81],log:[96,100,92,98,85,94,97,80,99,95],eval:[90,95,80,100,75,88,92,70,100,90],ref:[3,1,2,0,4,1,2,0,1,0],late:[1,0,0,2,1,0,0,3,0,1]};
+function incVal(i,k){return k==="rate"?coachRating(i).avg:INCV[k][i%10]}
+function incCalc(i){const rows=INC.filter(r=>r.on).map(r=>{const val=incVal(i,r.k),ok=r.per?true:val>=r.tgt,earn=r.per?val*r.amt:(ok?r.amt:0);return Object.assign({},r,{val,ok,earn,tgtTxt:r.per?(r.amt>0?"+":"")+r.amt+" ج لكل "+(r.k==="ref"?"عضو":"مرة"):"≥ "+r.tgt+(r.u==="%"?"%":" "+r.u)})});
+ let total=rows.reduce((s,r)=>s+r.earn,0),capped=total>INCCAP;total=Math.max(0,Math.min(INCCAP,total));return {rows,total,capped}}
+function incentTab(){const L=COACHES.map((c,i)=>({c,i,t:incCalc(i).total})).filter(x=>x.c.act).sort((a,b)=>b.t-a.t);
+ return `<div class="grid g2"><div class="card"><h3>🎁 قواعد برنامج الحوافز<span class="sp"></span><button class="btn sm" onclick="toast('القواعد اتحفظت')">حفظ</button></h3><div class="muted" style="margin-bottom:10px">الحافز بيتحسب تلقائي آخر الشهر من أرقام السيستم، ويظهر لكل مدرب في بروفايله وفي تطبيقه.</div>
+  <div class="tbl-wrap"><table><tr><th>مفعّل</th><th>المؤشر</th><th>الهدف</th><th>المبلغ (ج)</th></tr>${INC.map((r,k)=>`<tr><td><button class="toggle ${r.on?'on':''}" onclick="INC[${k}].on=!INC[${k}].on;render()"></button></td><td><b>${r.n}</b>${r.per?'<div class="muted">لكل '+(r.k==="ref"?"عضو":"مرة")+'</div>':''}</td><td>${r.per?'—':`<input type="number" step="${r.u==='★'?0.1:1}" value="${r.tgt}" style="width:80px;border:1px solid var(--line);border-radius:8px;padding:5px" onchange="INC[${k}].tgt=+this.value;render()"> ${r.u}`}</td><td><input type="number" step="50" value="${r.amt}" style="width:90px;border:1px solid var(--line);border-radius:8px;padding:5px" onchange="INC[${k}].amt=+this.value;render()"></td></tr>`).join("")}</table></div>
+  <div class="grid g2e" style="gap:10px;margin-top:12px"><div class="field"><label>الحد الأقصى للحافز الشهري</label><input type="number" step="250" value="${INCCAP}" onchange="INCCAP=+this.value;render()"></div><div class="field"><label>الصرف</label><select><option>مع مرتب أول الشهر</option><option>كل 3 شهور</option></select></div></div></div>
+  <div class="card"><h3>حوافز ${MONTH} المتوقعة</h3><div class="list">${L.map((x,k)=>`<div class="it" style="cursor:pointer" onclick="openCoach(${x.i})"><div class="mini">${k+1}</div><div class="f1"><b>${x.c.n}</b><div class="muted">${x.c.spec} · ${coachRating(x.i).avg} ★</div></div><b style="color:var(--brand2)">${x.t.toLocaleString('en-US')} ج</b></div>`).join("")}</div><div class="muted" style="margin-top:8px">إجمالي متوقع: ${L.reduce((s,x)=>s+x.t,0).toLocaleString('en-US')} ج</div></div></div>`}
+
+/* ---------- add player to group (anytime) ---------- */
+let ATG={gid:1,mode:"other",perm:"perm",pick:null,lvl:3,q:""};
+function addToGroup(gid,today){ATG={gid,mode:"other",perm:today?"today":"perm",pick:null,lvl:3,q:""};modal(atgHTML())}
+function atgSet(k,v){ATG[k]=v;modal(atgHTML())}
+function atgChips(){const l=PLAYERS.filter(p=>!p.guest&&p.g!==ATG.gid&&(!ATG.q||p.n.includes(ATG.q))).slice(0,40);return l.map(p=>`<button class="pchip ${ATG.pick===p.n?'on':''}" onclick="ATG.pick='${p.n}';atgList()">${p.n} <small>${gName(p.g)}</small></button>`).join("")||'<span class="muted">مفيش نتايج</span>'}
+function atgList(){$("atgL").innerHTML=atgChips()}
+function lvlChips(){return `<div style="display:flex;gap:4px">${[1,2,3,4,5].map(v=>`<button class="pchip ${v===ATG.lvl?'on':''}" onclick="ATG.lvl=${v};this.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));this.classList.add('on')">${"★".repeat(v)}</button>`).join("")}</div>`}
+function atgHTML(){const g=GROUPS.find(x=>x.id===ATG.gid),cnt=PLAYERS.filter(p=>p.g===g.id).length;
+ const tabs=[["other","🔁 من جروب تاني"],["new","➕ عضو جديد"],["guest","🎟️ ضيف / تجربة"]];
+ let b="";
+ if(ATG.mode==="other") b=`<input class="sel" style="width:100%;margin-bottom:8px" placeholder="🔍 ابحث بالاسم" value="${ATG.q}" oninput="ATG.q=this.value;atgList()"><div class="chips" id="atgL" style="max-height:170px;overflow:auto">${atgChips()}</div>
+  <div class="field" style="margin-top:12px"><label>نوع الإضافة</label><div class="tabs" style="margin-bottom:4px"><button class="${ATG.perm==='perm'?'on':''}" onclick="atgSet('perm','perm')">نقل دائم للجروب</button><button class="${ATG.perm==='today'?'on':''}" onclick="atgSet('perm','today')">النهارده بس (تعويض / زيارة)</button></div><div class="muted">${ATG.perm==='today'?'بيتسجل حضوره هنا ويدخل التقسيمة، والحصة بتتخصم من اشتراكه الأصلي.':'اشتراكه وإحصائياته بينتقلوا معاه، ومكانه في جروبه القديم بيفضى.'}</div></div>`;
+ else b=`<div class="field"><label>الاسم</label><input id="atgN"></div><div class="field"><label>الموبايل (واتساب)</label><input dir="ltr" placeholder="01xxxxxxxxx"></div>
+  <div class="grid g2e" style="gap:10px"><div class="field"><label>المركز</label><select id="atgP"><option>هجوم</option><option>وسط</option><option>دفاع</option><option>حارس</option></select></div><div class="field"><label>${ATG.mode==='guest'?'رسوم الحصة':'الباقة'}</label><select>${ATG.mode==='guest'?'<option>120 ج (تتحصل دلوقتي)</option><option>مجاناً (حصة تجربة)</option>':'<option>شهري · 900 ج</option><option>3 شهور · 2,400 ج</option>'}</select></div></div>
+  <div class="field"><label>تقدير مبدئي للمستوى (من المدرب)</label>${lvlChips()}<div class="muted">بيتقسم بيه لحد ما يلعب 5 ماتشات.</div></div>
+  <label style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input type="checkbox" id="atgK"> بيلعب حارس</label>`;
+ return `<h3 style="margin-bottom:4px">إضافة لاعب لـ ${g.name}</h3><div class="muted" style="margin-bottom:12px">${g.br} · ${cnt}/${g.cap} لاعب</div>
+ <div class="tabs">${tabs.map(([k,l])=>`<button class="${ATG.mode===k?'on':''}" onclick="atgSet('mode','${k}')">${l}</button>`).join("")}</div>${b}
+ ${cnt>=g.cap&&!(ATG.mode==="other"&&ATG.perm==="today")&&ATG.mode!=="guest"?`<div class="alert o">⚠️<div class="f1">الجروب كامل (${cnt}/${g.cap}). الإضافة هتعدّي السعة، أو ممكن تحطه في قائمة الانتظار.</div></div>`:''}
+ <button class="btn" style="margin-top:6px" onclick="atgSave()">إضافة</button>`}
+function atgSave(){const gid=ATG.gid;let msg;
+ if(ATG.mode==="other"){const p=PLAYERS.find(x=>x.n===ATG.pick);if(!p){toast("اختار لاعب الأول");return}
+  if(ATG.perm==="perm"){msg=`${p.n} اتنقل من ${gName(p.g)}`;p.g=gid;p.visit=null}else{p.visit=gid;msg=`${p.n} اتضاف للنهارده بس`}
+  if(TB.gid===gid)TB.present.add(p.n)}
+ else{const n=($("atgN").value||"").trim();if(!n){toast("اكتب الاسم");return}if(PLAYERS.some(p=>p.n===n)){toast("الاسم موجود قبل كده");return}
+  const guest=ATG.mode==="guest";PLAYERS.push({n,g:guest?0:gid,visit:guest?gid:null,guest,lvl:ATG.lvl,pos:$("atgP").value,goals:0,ast:0,mvp:0,att:100,st:"نشط",pay:guest?"حصة واحدة":"مدفوع"});
+  RATE[n]={c:CRIT.map(()=>ATG.lvl),gk:($("atgK").checked||$("atgP").value==="حارس")?ATG.lvl:null,m:0,wr:0,perf:0,peer:0,trend:0,by:"تقدير مبدئي",at:"2 أكتوبر"};
+  if(TB.gid===gid)TB.present.add(n);msg=guest?`${n} اتضاف كضيف للنهارده`:`${n} اتسجل في ${gName(gid)}`}
+ syncLvl();closeAll();render();toast(msg)}
+
+/* ---------- team builder ---------- */
+const BIBS=[["أحمر","#e01f26","#fff"],["أسود","#111","#fff"],["أبيض","#fff","#111"],["أصفر","#f5c518","#111"]];
+const TB={gid:1,present:null,size:"auto",gk:true,avoid:true,teams:null,sel:null,mins:8};
+TB.present=new Set(defPresent(1));
+function tbGroup(id,keep){TB.gid=id;TB.present=new Set(defPresent(id));TB.teams=null;if(!keep)render()}
+function teamsTab(){
+  const ps=pool(TB.gid),n=TB.present.size;
+  return `<div class="card" style="margin-bottom:16px"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>الجروب:</b>${groupSelect(TB.gid,"tbGroup")}<span class="muted">حصة النهارده</span></div></div>
+  <div class="grid g2">
+  <div class="card"><h3>الحاضرين النهارده <span class="badge b-green">${n} من ${ps.length}</span><span class="sp"></span><button class="btn sm" onclick="addToGroup(TB.gid,true)">+ إضافة لاعب</button><button class="btn sm ghost" onclick="tbAll(1)">الكل</button><button class="btn sm ghost" onclick="tbAll(0)">مسح</button></h3>
+   <div class="muted" style="margin-bottom:10px">بيتملوا تلقائي من الحضور اللي المدرب سجله. اضغط على الاسم تشيله أو تضيفه، وأي حد جاي من جروب تاني أو ضيف ضيفه من «+ إضافة لاعب».</div>
+   <div class="chips">${ps.map(p=>`<button class="pchip ${TB.present.has(p.n)?'on':''}" onclick="tbToggle('${p.n}')">${p.n} <small>${"★".repeat(p.lvl)} · ${p.pos}${RATE[p.n].gk!=null?' · 🧤':''}${p.visit===TB.gid?(p.guest?' · ضيف':' · زائر'):''}</small></button>`).join("")}</div></div>
+  <div class="card"><h3>إعدادات التقسيمة <span class="star">✦</span></h3>
+   <div class="field"><label>عدد اللاعبين في الفريق</label><select onchange="TB.size=this.value;tbBuild()">${[["auto","تلقائي حسب العدد"],["5","5 لاعيبة"],["6","6 لاعيبة"],["7","7 لاعيبة"],["8","8 لاعيبة"]].map(([v,l])=>`<option value="${v}" ${TB.size===v?'selected':''}>${l}</option>`).join("")}</select></div>
+   <div class="field"><label>مدة الماتش (للتبديل بين الفرق)</label><select onchange="TB.mins=+this.value;tbBuild()">${[6,8,10,12].map(m=>`<option value="${m}" ${TB.mins===m?'selected':''}>${m} دقايق أو هدفين</option>`).join("")}</select></div>
+   <div class="list">
+    <div class="it"><div class="f1"><b>حارس في كل فريق</b><div class="muted">بيختار أعلى تقييم حراسة 🧤، ولو الحراس أقل من الفرق الحراسة بالتبادل</div></div><button class="toggle ${TB.gk?'on':''}" onclick="TB.gk=!TB.gk;this.classList.toggle('on');tbBuild()"></button></div>
+    <div class="it"><div class="f1"><b>متكررش تقسيمة الحصة اللي فاتت</b><div class="muted">يفرّق اللي لعبوا مع بعض آخر مرة</div></div><button class="toggle ${TB.avoid?'on':''}" onclick="TB.avoid=!TB.avoid;this.classList.toggle('on')"></button></div>
+   </div>
+   <button class="btn big" style="margin-top:12px" onclick="tbBuild(true)">⚡ قسّم في ثانية</button>
+   <div class="muted" style="margin-top:8px">النجوم جاية من التقييم النهائي لكل لاعب. <a href="#" onclick="state.rg=TB.gid;state.matchTab='rating';render();return false" style="color:var(--brand2);font-weight:700">إزاي بيتحسب؟</a></div></div></div>
+  <div id="tbOut" style="margin-top:16px"></div>`;
+}
+function tbToggle(n){TB.present.has(n)?TB.present.delete(n):TB.present.add(n);render()}
+function tbAll(v){TB.present=new Set(v?pool(TB.gid).map(p=>p.n):[]);render()}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function tbBuild(anim){
+  const ps=pool(TB.gid).filter(p=>TB.present.has(p.n)),n=ps.length;
+  if(n<4){TB.teams=null;tbRender();return}
+  let k=TB.size==="auto"?(n<=14?2:n<=21?3:4):Math.max(2,Math.min(4,Math.round(n/+TB.size)));
+  if(n<k*3)k=2;
+  const teams=Array.from({length:k},(_,i)=>({bib:BIBS[i],pl:[],gk:null}));
+  const str=t=>t.pl.reduce((s,p)=>s+p.lvl,0);
+  let rest=shuffle(ps);
+  if(TB.gk){const gks=rest.filter(p=>RATE[p.n].gk!=null).sort((a,b)=>RATE[b.n].gk-RATE[a.n].gk).slice(0,k);gks.forEach((g,i)=>{teams[k-1-i].pl.push(g);teams[k-1-i].gk=g.n});rest=rest.filter(p=>!gks.includes(p))}
+  rest.sort((a,b)=>b.lvl-a.lvl);
+  rest.forEach(p=>{const minLen=Math.min(...teams.map(t=>t.pl.length));let best=null,bs=1e9;teams.forEach(t=>{if(t.pl.length!==minLen)return;const s=str(t)+t.pl.filter(x=>x.pos===p.pos).length*1.6+Math.random()*.4;if(s<bs){bs=s;best=t}});best.pl.push(p)});
+  TB.teams=teams;TB.sel=null;tbRender();if(anim)toast(`اتقسموا ${n} لاعب على ${k} فرق`);
+}
+function tbRender(){
+  const el=$("tbOut");if(!el)return;
+  if(!TB.teams){el.innerHTML=`<div class="card muted">محتاج 4 لاعيبة على الأقل.</div>`;return}
+  const T=TB.teams,k=T.length,str=t=>t.pl.reduce((s,p)=>s+p.lvl,0),ss=T.map(str),diff=Math.max(...ss)-Math.min(...ss),sizes=T.map(t=>t.pl.length);
+  const absent=pool(TB.gid).filter(p=>!TB.present.has(p.n)),uneven=Math.max(...sizes)!==Math.min(...sizes),noGk=T.filter(t=>!t.gk).length;
+  let rot=k===2?`ماتش واحد طول الحصة، و${uneven?"الفريق الأكتر عدد بيبدّل لاعب كل "+TB.mins+" دقايق":"الفريقين متساويين"}.`:`<b>نظام الملك:</b> ${T[0].bib[0]} × ${T[1].bib[0]} الأول، والكسبان يكمل قصاد ${T[2].bib[0]}${k===4?` ثم ${T[3].bib[0]}`:""}. كل ماتش ${TB.mins} دقايق أو هدفين، والتعادل يخرّج الفريق اللي لعب أكتر.`;
+  el.innerHTML=`<div class="card"><h3>التقسيمة<span class="sp"></span><button class="btn sm ghost" onclick="tbBuild(true)">🔀 قسّم تاني</button><button class="btn sm ghost" onclick="toast('التقسيمة اتشاركت مع لاعيبة الجروب')">👥 شارك التقسيمة</button><button class="btn sm" onclick="state.matchTab='record';render()">اعتماد وابدأ التسجيل ←</button></h3>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><span class="badge b-gray">${TB.present.size} لاعب ← ${k} فرق (${sizes.join(" - ")})</span><span class="badge ${diff<=1?'b-green':diff<=3?'b-or':'b-red'}">فرق القوة: ${diff} ${diff<=1?"متوازن جداً":diff<=3?"مقبول":"قسّم تاني"}</span>${TB.gk&&noGk?`<span class="badge b-or">🧤 ${noGk} فريق من غير حارس: الحراسة بالتبادل</span>`:''}</div>
+  ${TeamCards.render(T,{action:(ti,pi)=>`tbPick(${ti},${pi})`,drag:'tbDrop',selected:(ti,pi)=>TB.sel&&TB.sel[0]===ti&&TB.sel[1]===pi,header:(t,ti)=>TB.sel&&TB.sel[0]!==ti?`<button class="btn sm ghost" onclick="event.stopPropagation();tbMove(${ti})">انقله هنا</button>`:''})}
+  <div class="muted" style="margin-top:10px">✋ اسحب اللاعب من ⠿ وسيبه على أي فريق تاني. أو اضغط على لاعب وبعدين لاعب في فريق تاني عشان تبدّلهم.</div>
+  <div class="alert o" style="margin-top:12px">🔁<div class="f1">${rot}</div></div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px"><b>لاعب وصل متأخر:</b><select class="sel" id="late">${absent.map(p=>`<option>${p.n}</option>`).join("")||"<option>مفيش</option>"}</select><button class="btn sm ghost" onclick="tbLate()">ضيفه للفريق الأضعف</button><button class="btn sm ghost" onclick="addToGroup(TB.gid,true)">+ لاعب من برة الجروب</button></div></div>`;
+}
+function tbPick(ti,pi){
+  if(!TB.sel||TB.sel[0]===ti){TB.sel=TB.sel&&TB.sel[0]===ti&&TB.sel[1]===pi?null:[ti,pi];tbRender();return}
+  const [a,b]=TB.sel,A=TB.teams[a],B=TB.teams[ti],pa=A.pl[b],pb=B.pl[pi];A.pl[b]=pb;B.pl[pi]=pa;
+  if(A.gk===pa.n)A.gk=pb.n;if(B.gk===pb.n)B.gk=pa.n;TB.sel=null;tbRender();toast("اتبدلوا");
+}
+
+/* ---------- drag & drop between teams ---------- */
+const GRIP='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.7"/><circle cx="15" cy="6" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="18" r="1.7"/><circle cx="15" cy="18" r="1.7"/></svg>';
+let DR=null;
+function dragStart(e,ti,pi,fn){e.preventDefault();e.stopPropagation();const row=e.target.closest('.pl');DR={ti,pi,fn,row,x0:e.clientX,y0:e.clientY,x:e.clientX,y:e.clientY,go:false,g:null,tgt:null,raf:0};
+ window.addEventListener('pointermove',dragMove);window.addEventListener('pointerup',dragEnd);window.addEventListener('pointercancel',dragEnd)}
+function dragHit(){document.querySelectorAll('.drop-on').forEach(x=>x.classList.remove('drop-on'));DR.tgt=null;const el=document.elementFromPoint(DR.x,DR.y),t=el&&el.closest('[data-ti]');if(t&&+t.dataset.ti!==DR.ti){t.classList.add('drop-on');DR.tgt=+t.dataset.ti}}
+function dragMove(e){if(!DR)return;DR.x=e.clientX;DR.y=e.clientY;
+ if(!DR.go){if(Math.hypot(DR.x-DR.x0,DR.y-DR.y0)<5)return;DR.go=true;const r=DR.row.getBoundingClientRect(),g=DR.row.cloneNode(true);g.className='drag-ghost';g.style.width=r.width+'px';document.body.appendChild(g);DR.g=g;DR.dx=DR.x-r.left;DR.dy=DR.y-r.top;DR.row.classList.add('drag-src');document.body.classList.add('dragging');dragScroll()}
+ DR.g.style.left=(DR.x-DR.dx)+'px';DR.g.style.top=(DR.y-DR.dy)+'px';dragHit()}
+function dragScroll(){if(!DR||!DR.go)return;const v=DRAG_SC();let top=0,bot=innerHeight;if(v!==window){const r=v.getBoundingClientRect();top=r.top;bot=r.bottom}
+ const sp=DR.y<top+80?-12:DR.y>bot-80?12:0;if(sp){v===window?window.scrollBy(0,sp):(v.scrollTop+=sp);dragHit()}DR.raf=requestAnimationFrame(dragScroll)}
+function dragEnd(){window.removeEventListener('pointermove',dragMove);window.removeEventListener('pointerup',dragEnd);window.removeEventListener('pointercancel',dragEnd);if(!DR)return;cancelAnimationFrame(DR.raf);const d=DR;DR=null;
+ document.body.classList.remove('dragging');document.querySelectorAll('.drop-on').forEach(x=>x.classList.remove('drop-on'));if(d.g)d.g.remove();if(d.row)d.row.classList.remove('drag-src');
+ if(d.go&&d.tgt!=null)window[d.fn](d.ti,d.pi,d.tgt);else if(d.go)toast('سيبه على فريق تاني عشان يتنقل')}
+const DRAG_SC=()=>window;
+function tbDrop(ti,pi,to){TB.sel=[ti,pi];tbMove(to)}
+function tbMove(to){const [a,b]=TB.sel,A=TB.teams[a],p=A.pl.splice(b,1)[0];if(A.gk===p.n)A.gk=null;TB.teams[to].pl.push(p);TB.sel=null;tbRender();toast(p.n+' اتنقل للـ'+TB.teams[to].bib[0])}
+function tbLate(){
+  const n=$("late").value,p=PLAYERS.find(x=>x.n===n);if(!p||!TB.teams)return;
+  TB.present.add(n);const str=t=>t.pl.reduce((s,q)=>s+q.lvl,0);
+  const t=TB.teams.slice().sort((x,y)=>x.pl.length-y.pl.length||str(x)-str(y))[0];t.pl.push(p);
+  document.querySelectorAll(".pchip").forEach(c=>{if(c.textContent.startsWith(n))c.classList.add("on")});
+  tbRender();toast(`${n} اتضاف للـ${t.bib[0]}`);
+}
+
+/* ---------- match recording ---------- */
+const REC={a:0,b:1,ev:[],mvp:null,pend:null,done:[],q:[],tref:null};
+function recordTab(){
+  if(!TB.teams)tbBuild();
+  if(!TB.teams)return `<div class="card muted">قسّم الفرق الأول من تاب «تقسيم الفرق».</div>`;
+  const T=TB.teams,k=T.length;
+  if(REC.tref!==T){Object.assign(REC,{tref:T,a:0,b:1,q:[...Array(k).keys()].slice(2),ev:[],done:[],mvp:null,pend:null})}
+  const side=[REC.a,REC.b],sc=[0,1].map(s=>REC.ev.filter(e=>e.s===s).length);
+  const col=s=>{const t=T[side[s]],pend=REC.pend&&REC.pend.s===s;
+   return `<div class="tcard"><div class="hd" style="background:${t.bib[1]};color:${t.bib[2]};${t.bib[1]==='#fff'?'border-bottom:1px solid var(--line)':''}">🎽 ${t.bib[0]}<span class="f1"></span><span style="font-size:26px">${sc[s]}</span></div>
+   ${pend?`<div style="padding:12px;background:#fff8e6;border-bottom:1px solid var(--line)"><b>⚽ جون ${REC.pend.n}</b> — مين عمل الأسيست؟<div class="chips" style="margin-top:8px">${t.pl.filter(p=>p.n!==REC.pend.n).map(p=>`<button class="pchip" onclick="recAst('${p.n}')">🅰️ ${p.n}</button>`).join("")}<button class="pchip on" onclick="recAst(null)">بدون أسيست</button><button class="pchip" onclick="REC.pend=null;render()">إلغاء</button></div></div>`:''}
+   ${t.pl.map(p=>{const g=REC.ev.filter(e=>e.n===p.n).length,a=REC.ev.filter(e=>e.a===p.n).length;return `<div class="pl" style="cursor:default"><span class="f1"><b>${p.n}</b> ${t.gk===p.n?'<span class="pos gk">🧤</span>':''} ${g?`<span class="badge b-green">⚽ ${g}</span>`:''} ${a?`<span class="badge b-blue">🅰️ ${a}</span>`:''}</span><button class="btn sm" onclick="recGoal(${s},'${p.n}')">⚽ جون</button><button class="btn sm ghost" title="لاعب الماتش" style="${REC.mvp===p.n?'background:#f5c518;border-color:#f5c518':''}" onclick="REC.mvp=REC.mvp==='${p.n}'?null:'${p.n}';render()">⭐</button></div>`}).join("")}</div>`};
+  const opts=(cur,key)=>`<select class="sel" onchange="REC.${key}=+this.value;REC.ev=[];REC.pend=null;render()">${T.map((t,i)=>`<option value="${i}" ${i===cur?'selected':''}>🎽 ${t.bib[0]}</option>`).join("")}</select>`;
+  return `<div class="card"><h3>ماتش ${REC.done.length+1} · ${gName(TB.gid)}<span class="sp"></span>${opts(REC.a,"a")}<span class="muted">ضد</span>${opts(REC.b,"b")}</h3>
+  <div class="alert g">👆<div class="f1"><b>خطوتين بس لكل جون:</b> اضغط «⚽ جون» جنب اللي جابه، وبعدين اختار مين عمل الأسيست. النتيجة بتتحسب لوحدها، و«تراجع» لو حصل غلط.</div></div>
+  <div class="grid g2e">${col(0)}${col(1)}</div>
+  ${REC.ev.length?`<div style="margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:10px 12px"><b>أحداث الماتش</b><div class="list">${REC.ev.map((e,i)=>`<div class="it"><span class="f1">⚽ <b>${e.n}</b> ${e.a?`<span class="muted">(🅰️ ${e.a})</span>`:''} <span class="muted">· ${T[side[e.s]].bib[0]}</span></span><button class="btn sm ghost" onclick="REC.ev.splice(${i},1);render()">↶ تراجع</button></div>`).join("")}</div></div>`:''}
+  <div style="display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap"><button class="btn" onclick="recSave()">✔ إنهاء الماتش وحفظه</button><span class="muted">${REC.mvp?'⭐ لاعب الماتش: <b>'+REC.mvp+'</b>':'⭐ اختار لاعب الماتش (اختياري)'}</span></div></div>
+  <div class="card" style="margin-top:16px"><h3>ماتشات النهارده</h3>${REC.done.length?`<div class="list">${REC.done.map((m,i)=>`<div class="it"><b class="f1">ماتش ${i+1}: ${m.A} ${m.sa} - ${m.sb} ${m.B}</b><span class="muted">${m.g} جون</span>${m.mvp?`<span class="badge b-or">⭐ ${m.mvp}</span>`:''}</div>`).join("")}</div>`:'<div class="muted">لسه مفيش ماتشات اتسجلت النهارده.</div>'}
+  <div class="alert g" style="margin-top:10px">🗳️<div class="f1">بعد كل ماتش التقييمات والإحصائيات بتتحدث تلقائي، وبعد آخر ماتش كل لاعب حضر بيوصله تصويت سري لأحسن 3.</div></div></div>`;
+}
+function recGoal(s,n){REC.pend={s,n};render()}
+function recAst(a){REC.ev.push({s:REC.pend.s,n:REC.pend.n,a});REC.pend=null;render()}
+function recSave(){const T=TB.teams,sa=REC.ev.filter(e=>e.s===0).length,sb=REC.ev.filter(e=>e.s===1).length;
+ REC.done.push({A:T[REC.a].bib[0],B:T[REC.b].bib[0],sa,sb,g:sa+sb,mvp:REC.mvp});let msg="الماتش اتسجل";
+ if(T.length>2&&REC.q.length){const win=sa>=sb?REC.a:REC.b,lose=win===REC.a?REC.b:REC.a,nt=REC.q.shift();REC.q.push(lose);REC.a=win;REC.b=nt;msg=`اتسجل. الماتش الجاي: ${T[win].bib[0]} × ${T[nt].bib[0]}`}
+ REC.ev=[];REC.mvp=null;REC.pend=null;render();toast(msg)}
+
+/* ---------- nutrition data ---------- */
+const PROGS=[{n:"تنشيف · 1800 سعر",goal:"تنشيف",kcal:1800,m:[35,40,25],g:2,i:3},{n:"زيادة كتلة عضلية",goal:"تضخيم",kcal:2800,m:[30,50,20],g:0,i:4},{n:"قبل الماتش وبعده",goal:"أداء رياضي",kcal:2200,m:[25,55,20],g:5,i:0},{n:"ثبات الوزن",goal:"ثبات",kcal:2300,m:[30,45,25],g:1,i:2},{n:"رمضان والرياضة",goal:"موسمي",kcal:2100,m:[30,45,25],g:7,i:0}];
+const ASSIGN=[["تنشيف · 1800 سعر","جروب","جروب الصبح A (18)","كابتن محمود","1 أكتوبر","15 من 18"],["زيادة كتلة عضلية","فرد","يوسف حسن","كابتن شريف","28 سبتمبر","✓"],["تنشيف · 1800 سعر (معدّل)","فرد","أحمد سامي","كابتن حسام","25 سبتمبر","✓"],["قبل الماتش وبعده","جروب","كل جروبات الشيخ زايد (53)","كابتن حسام","20 سبتمبر","41 من 53"],["ثبات الوزن","فرد","مازن رضا","كابتن طارق","18 سبتمبر","لسه"],["زيادة كتلة عضلية","فرد","هشام فؤاد","كابتن عمرو","15 سبتمبر","✓"],["قبل الماتش وبعده","جروب","جروب المغرب (19)","كابتن عمرو","10 سبتمبر","12 من 19"]];
+const MEALS=[["الفطار","3 بيض + عيش بلدي سن + خيار"],["سناك","زبادي يوناني + حفنة مكسرات"],["الغدا","150 جم فراخ + رز + سلطة"],["قبل التمرين","موزة + توست بزبدة فول سوداني"],["العشا","تونة + خضار سوتيه"]];
+function tgt(b,k){b.parentNode.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('tg').style.display=k==='g'?'':'none';$('ti').style.display=k==='i'?'':'none'}
+
+/* ---------- nutrition (full) ---------- */
+const FOODS=[["فول مدمس","100 جم",110,7.6,18,0.5],["طعمية","قرص 30 جم",100,3.5,9,6],["بيض مسلوق","بيضة",75,6.3,0.6,5],["عيش بلدي","رغيف 90 جم",250,9,50,1.5],["عيش بلدي سن","رغيف 90 جم",220,9,44,2],["رز أبيض مطبوخ","100 جم",130,2.7,28,0.3],["مكرونة مطبوخة","100 جم",158,5.8,31,0.9],["صدور فراخ مشوية","100 جم",165,31,0,3.6],["لحمة مشوية","100 جم",250,26,0,15],["سمك بلطي مشوي","100 جم",128,26,0,2.7],["تونة مصفاة","علبة 120 جم",140,30,0,1.5],["جبنة قريش","100 جم",98,11,3.4,4.3],["زبادي","علبة 105 جم",65,3.6,5,3.2],["زبادي يوناني","100 جم",97,9,4,5],["لبن خالي الدسم","كوباية 240 مل",85,8.3,12,0.2],["شوفان","50 جم",190,6.5,33,3.4],["موز","موزة",105,1.3,27,0.4],["تفاح","تفاحة",95,0.5,25,0.3],["بطاطس مسلوقة","100 جم",87,1.9,20,0.1],["بطاطا مشوية","100 جم",90,2,21,0.2],["كشري","طبق 300 جم",500,15,85,10],["سلطة خضرا","طبق",35,1.5,7,0.2],["زبدة فول سوداني","معلقة 16 جم",95,4,3,8],["مكسرات مشكلة","حفنة 30 جم",175,5,7,15],["عسل نحل","معلقة 20 جم",60,0,17,0],["واي بروتين","سكوب 30 جم",120,24,3,1.5],["خضار سوتيه","طبق 150 جم",80,2.5,10,3.5],["عدس","طبق 250 جم",230,16,38,1]];
+const NB={target:"group",who:"جروب الصبح A",kcal:2000,mac:[35,40,25],day:"train",water:3,supp:"واي بروتين بعد التمرين، فيتامين د",notes:"قلل السكريات والمقليات، والوجبة قبل التمرين بساعتين.",
+ days:{train:[["الفطار",[[2,3],[4,1],[11,0.5]]],["سناك",[[13,1],[23,1]]],["الغدا",[[7,1.5],[5,1.5],[21,1]]],["قبل التمرين",[[16,1],[22,1]]],["بعد التمرين",[[25,1],[14,1]]],["العشا",[[10,1],[26,1]]]],
+       rest:[["الفطار",[[0,1.5],[2,2],[4,0.5]]],["سناك",[[12,1],[17,1]]],["الغدا",[[9,1.5],[18,1.5],[21,1]]],["العشا",[[11,1],[21,1]]]]}};
+let NCALC={kc:2000};
+function nbTot(it){return it.reduce((t,[f,q])=>{const F=FOODS[f];return [t[0]+F[2]*q,t[1]+F[3]*q,t[2]+F[4]*q,t[3]+F[5]*q]},[0,0,0,0])}
+const FCAT=["بقوليات","بقوليات","بروتين","نشويات","نشويات","نشويات","نشويات","بروتين","بروتين","بروتين","بروتين","ألبان","ألبان","ألبان","ألبان","نشويات","فاكهة","فاكهة","نشويات","نشويات","وجبات","خضار","دهون صحية","دهون صحية","سكريات","بروتين","خضار","بقوليات"];
+function alts(f){return FOODS.map((x,i)=>i).filter(i=>i!==f&&FCAT[i]===FCAT[f]).sort((a,b)=>Math.abs(FOODS[a][2]-FOODS[f][2])-Math.abs(FOODS[b][2]-FOODS[f][2])).slice(0,3)}
+function nutOverview(){
+  const steps=[["📋","الأخصائي يعمل البرنامج","وجبات بأصناف من مكتبة الأكل المصري، والسعرات والماكروز بتتحسب لوحدها. يوم تمرين ويوم راحة."],["🎯","يعيّنه على جروب أو فرد","برنامج الجروب بيوصل لكل الأعضاء. والعضو اللي محتاج حاجة مختلفة ياخد برنامج فردي بيغلب على برنامج الجروب."],["📱","العضو يتابع من بوابته","يشوف وجبات النهارده، يعلّم اللي أكله، يصوّر الوجبة، يبدّل صنف ببديل، ويسأل الأخصائي."],["📈","متابعة كل أسبوعين","وزن وقياسات ونسبة التزام، والأخصائي يعدّل السعرات حسب النتيجة."]];
+  const low=[...PLAYERS].filter(p=>!p.guest).sort((a,b)=>a.att-b.att).slice(0,5),noProg=GROUPS.filter(g=>!ASSIGN.some(a=>a[1]==="جروب"&&a[2].includes(g.name)));
+  return `<div class="card"><h3>إزاي التغذية شغالة</h3><div class="grid g4" style="gap:10px">${steps.map((s,i)=>`<div style="border:1px solid var(--line);border-radius:12px;padding:12px"><div style="display:flex;gap:8px;align-items:center"><span class="mini" style="background:var(--brand2);color:#fff">${i+1}</span><b>${s[0]} ${s[1]}</b></div><div class="muted" style="margin-top:6px">${s[2]}</div></div>`).join("")}</div></div>
+  <div class="grid g4" style="margin-top:16px">${[["أعضاء ليهم برنامج","142 / 248","94 جروب · 48 فردي"],["متوسط الالتزام","71%","من الوجبات المسجلة في البوابة"],["متابعات مستحقة","9","الأسبوع ده"],["برامج بتخلص","5","خلال 7 أيام"]].map(([l,v,d])=>`<div class="card kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="d muted">${d}</div></div>`).join("")}</div>
+  <div class="grid g2" style="margin-top:16px"><div class="card"><h3>الالتزام حسب الجروب</h3><div class="ch" style="height:260px"><canvas id="c11"></canvas></div></div>
+   <div><div class="card"><h3>محتاجين متابعة<span class="sp"></span><button class="btn sm ghost" onclick="state.nutTab='checkins';render()">كل المتابعات</button></h3><div class="list">${low.map(p=>`<div class="it"><b class="f1">${p.n}<div class="muted" style="font-weight:400">${gName(p.g)}</div></b><span class="badge b-red">التزام ${Math.max(15,p.att-25)}%</span><button class="btn sm ghost" onclick="state.nm='${p.n}';state.nutTab='member';render()">الملف</button></div>`).join("")}</div></div>
+   <div class="card" style="margin-top:16px"><h3>جروبات من غير برنامج</h3><div class="list">${noProg.map(g=>`<div class="it"><b class="f1">${g.name} <span class="muted">· ${g.br}</span></b><button class="btn sm" onclick="modal(sendProg())">تعيين</button></div>`).join("")}</div></div></div></div>`;
+}
+function nutPrograms(){
+  return `<div class="grid g3">${PROGS.map((p,i)=>`<div class="card"><h3>🥗 ${p.n}</h3><div class="muted">${p.goal} · ${p.kcal} سعر يومياً · ${[8,12,4,8,4][i]} أسابيع</div>
+    <div class="macro"><i style="width:${p.m[0]}%;background:#e01f26"></i><i style="width:${p.m[1]}%;background:#111"></i><i style="width:${p.m[2]}%;background:#d9822b"></i></div>
+    <div class="muted">بروتين ${p.m[0]}% · كارب ${p.m[1]}% · دهون ${p.m[2]}%</div>
+    <div class="muted" style="margin-top:4px">🏃 يوم تمرين + 😴 يوم راحة · ${4+i%3} وجبات · من د. ريم</div>
+    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><span class="badge b-blue">👥 ${p.g} جروب</span><span class="badge b-or">👤 ${p.i} فرد</span></div>
+    <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap"><button class="btn sm" onclick="modal(sendProg('${p.n}'))">تعيين</button><button class="btn sm ghost" onclick="NB.kcal=${p.kcal};NB.mac=[${p.m}];state.nutTab='builder';render()">فتح في الصانع</button><button class="btn sm ghost" onclick="toast('اتعمل نسخة')">نسخ</button></div></div>`).join("")}
+    <div class="card" style="display:grid;place-items:center;border-style:dashed;min-height:200px"><button class="btn ghost" onclick="state.nutTab='builder';render()">+ برنامج جديد</button></div></div>`;
+}
+function nutAssign(){const f=state.asgF||"all",rows=ASSIGN.filter(a=>f==="all"||a[1]===f);
+  return `<div class="card"><h3>البرامج المتعيّنة<span class="sp"></span><button class="btn sm" onclick="modal(sendProg())">+ تعيين برنامج</button></h3>
+  <div class="tabs">${[["all","الكل"],["جروب","👥 على جروب"],["فرد","👤 على فرد"]].map(([k,l])=>`<button class="${f===k?'on':''}" onclick="state.asgF='${k}';render()">${l}</button>`).join("")}</div>
+  <div class="tbl-wrap"><table><tr><th>البرنامج</th><th>النوع</th><th>متعيّن لـ</th><th>بواسطة</th><th>من</th><th>اتفتح من البوابة</th></tr>
+  ${rows.map(a=>`<tr><td><b>${a[0]}</b></td><td><span class="badge ${a[1]==="فرد"?"b-or":"b-blue"}">${a[1]==="فرد"?"👤 فرد":"👥 جروب"}</span></td><td>${a[2]}</td><td>${a[3]}</td><td>${a[4]}</td><td>${a[5]}</td></tr>`).join("")}</table></div>
+  <div class="alert o" style="margin-top:12px">💡<div class="f1">لو العضو عنده <b>برنامج فردي</b> بيغلب على برنامج جروبه. ولما تعيّن قالب على أعضاء بعينهم، السيستم بينسخه لكل واحد كبرنامج فردي تقدر تعدّله.</div></div></div>`;}
+function nutBuilder(){
+  const D=NB.days[NB.day],tot=D.reduce((t,[,it])=>{const x=nbTot(it);return t.map((v,i)=>v+x[i])},[0,0,0,0]),tg=[NB.kcal,NB.kcal*NB.mac[0]/400,NB.kcal*NB.mac[1]/400,NB.kcal*NB.mac[2]/900];
+  const bar=(l,v,t,u)=>{const r=v/(t||1),c=r>1.1?'#d64545':r<.9?'#d9822b':'#1e9e57';return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between"><b>${l}</b><span>${Math.round(v)} / ${Math.round(t)} ${u}</span></div><div class="bar" style="background:#efe8e8;height:8px"><i style="width:${Math.min(100,r*100)}%;background:${c}"></i></div></div>`};
+  const who=NB.target==="group"?`<select onchange="NB.who=this.value">${GROUPS.map(g=>`<option ${g.name===NB.who?'selected':''}>${g.name}</option>`).join("")}</select>`:`<select onchange="NB.who=this.value">${GROUPS.map(g=>`<optgroup label="${g.name}">${PLAYERS.filter(p=>p.g===g.id).map(p=>`<option ${p.n===NB.who?'selected':''}>${p.n}</option>`).join("")}</optgroup>`).join("")}</select>`;
+  return `<div class="grid g2"><div>
+  <div class="card"><h3>إعداد البرنامج</h3>
+   <div class="tabs"><button class="${NB.target==='group'?'on':''}" onclick="NB.target='group';NB.who='جروب الصبح A';render()">👥 قالب لجروب</button><button class="${NB.target==='ind'?'on':''}" onclick="NB.target='ind';NB.who='أحمد سامي';render()">👤 برنامج فردي لعضو</button></div>
+   <div class="grid g2e" style="gap:10px"><div class="field"><label>${NB.target==='group'?'الجروب':'العضو'}</label>${who}</div>
+    <div class="field"><label>ابدأ من قالب</label><select onchange="if(this.value!=='-'){NB.kcal=PROGS[+this.value].kcal;NB.mac=PROGS[+this.value].m.slice();render()}"><option value="-">—</option>${PROGS.map((p,i)=>`<option value="${i}">${p.n}</option>`).join("")}</select></div>
+    <div class="field"><label>السعرات المستهدفة</label><input type="number" step="50" value="${NB.kcal}" onchange="NB.kcal=+this.value;render()"></div>
+    <div class="field"><label>المدة</label><select><option>4 أسابيع</option><option selected>8 أسابيع</option><option>12 أسبوع</option></select></div></div>
+   <div class="grid g3" style="gap:10px">${["بروتين %","كارب %","دهون %"].map((l,i)=>`<div class="field"><label>${l}</label><input type="number" value="${NB.mac[i]}" onchange="NB.mac[${i}]=+this.value;render()"></div>`).join("")}</div>
+   ${NB.target==='ind'?'<div class="muted">💡 تقدر تحسب السعرات المناسبة له من «ملف العضو».</div>':''}</div>
+  <div class="card" style="margin-top:16px"><h3>الوجبات</h3>
+   <div class="tabs"><button class="${NB.day==='train'?'on':''}" onclick="NB.day='train';render()">🏃 يوم تمرين</button><button class="${NB.day==='rest'?'on':''}" onclick="NB.day='rest';render()">😴 يوم راحة</button></div>
+   ${D.map(([mn,items],mi)=>{const mt=nbTot(items);return `<div style="border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden"><div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#fbf7f7"><input value="${mn}" onchange="NB.days[NB.day][${mi}][0]=this.value" style="border:0;background:transparent!important;font-weight:800;font-size:14px;flex:1;min-width:0"><span class="muted">${Math.round(mt[0])} سعر · P ${Math.round(mt[1])} جم</span><button class="btn sm ghost" onclick="NB.days[NB.day].splice(${mi},1);render()">×</button></div>
+   <div class="tbl-wrap"><table><tr><th>الصنف</th><th>الكمية</th><th>سعرات</th><th>P/C/F</th><th>بدائل</th><th></th></tr>${items.map(([f,q],ii)=>{const F=FOODS[f],al=alts(f);return `<tr><td><b>${F[0]}</b><div class="muted" style="font-size:11.5px">× ${F[1]}</div></td><td><input type="number" step="0.5" min="0.5" value="${q}" style="width:68px;border:1px solid var(--line);border-radius:8px;padding:5px" onchange="NB.days[NB.day][${mi}][1][${ii}][1]=+this.value;render()"></td><td>${Math.round(F[2]*q)}</td><td class="muted">${Math.round(F[3]*q)}/${Math.round(F[4]*q)}/${Math.round(F[5]*q)}</td><td>${al.length?`<span class="badge b-gray" title="${al.map(i=>FOODS[i][0]).join('، ')}">↔ ${al.map(i=>FOODS[i][0]).slice(0,2).join('، ')}</span>`:'—'}</td><td><button class="btn sm ghost" onclick="NB.days[NB.day][${mi}][1].splice(${ii},1);render()">×</button></td></tr>`}).join("")}</table></div>
+   <div style="padding:8px 12px"><select class="sel" onchange="if(this.value!==''){NB.days[NB.day][${mi}][1].push([+this.value,1]);render()}"><option value="">+ أضف صنف من المكتبة</option>${FOODS.map((F,i)=>`<option value="${i}">${F[0]} · ${F[2]} سعر / ${F[1]}</option>`).join("")}</select></div></div>`}).join("")}
+   <button class="btn ghost" onclick="NB.days[NB.day].push(['وجبة جديدة',[]]);render()">+ وجبة</button></div></div>
+  <div><div class="card" style="position:sticky;top:80px"><h3>إجمالي ${NB.day==='train'?'يوم التمرين':'يوم الراحة'}</h3>
+   ${bar("السعرات",tot[0],tg[0],"سعر")}${bar("بروتين",tot[1],tg[1],"جم")}${bar("كارب",tot[2],tg[2],"جم")}${bar("دهون",tot[3],tg[3],"جم")}
+   <div class="muted" style="margin-bottom:12px">🟢 مظبوط · 🟠 أقل من الهدف · 🔴 أكتر من الهدف</div>
+   <div class="field"><label>💧 المية اليومية (لتر)</label><input type="number" step="0.5" value="${NB.water}" onchange="NB.water=+this.value"></div>
+   <div class="field"><label>💊 مكملات</label><input value="${NB.supp}" onchange="NB.supp=this.value"></div>
+   <div class="field"><label>📝 ملاحظات للعضو</label><textarea rows="2" onchange="NB.notes=this.value">${NB.notes}</textarea></div>
+   <div class="list"><div class="it"><span class="f1">العضو يقدر يبدّل الصنف ببديل من نفس النوع</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div><div class="it"><span class="f1">تذكير بمواعيد الوجبات على الواتساب</span><button class="toggle" onclick="this.classList.toggle('on')"></button></div><div class="it"><span class="f1">قايمة مشتريات أسبوعية للعضو</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div></div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn" onclick="toast('${NB.target==='group'?'اتعيّن على '+NB.who+' واتبعت للأعضاء':'اتبعت لـ '+NB.who+' وظهر في بوابته'}')">${NB.target==='group'?'تعيين على الجروب':'إرسال للعضو'}</button><button class="btn ghost" onclick="toast('اتحفظ كقالب في المكتبة')">حفظ كقالب</button><button class="btn ghost" onclick="toast('PDF جاهز للتحميل')">PDF</button></div>
+  </div></div></div>`;
+}
+function nutCalc(){const v=id=>+(($(id)||{}).value)||0;if(!$("cw"))return;const w=v("cw"),hh=v("ch"),a=v("ca"),act=v("cact"),goal=v("cgoal"),bmr=10*w+6.25*hh-5*a+5,tdee=bmr*act,kc=Math.round((tdee+goal)/10)*10,pr=Math.round(w*(goal<0?2.2:2)),fa=Math.round(kc*.25/9),cb=Math.max(0,Math.round((kc-pr*4-fa*9)/4));NCALC={kc,pr,fa,cb};
+ $("calcOut").innerHTML=`<div class="grid g2e" style="gap:8px">${[["الحرق الأساسي",Math.round(bmr)+" سعر"],["الاحتياج اليومي",Math.round(tdee)+" سعر"],["السعرات المستهدفة",kc+" سعر"],["الماكروز (جم)",`بروتين ${pr} · كارب ${cb} · دهون ${fa}`]].map(([l,x],i)=>`<div style="background:${i===2?'#fdecec':'#f6f3f3'};border-radius:10px;padding:10px"><div class="muted">${l}</div><b>${x}</b></div>`).join("")}</div>`}
+function nutMember(){
+  const p=PLAYERS.find(x=>x.n===state.nm)||PLAYERS[0],ind=ASSIGN.find(a=>a[1]==="فرد"&&a[2]===p.n),gp=ASSIGN.find(a=>a[1]==="جروب"&&a[2].includes(gName(p.g)));
+  return `<div class="card"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>العضو:</b><select class="sel" onchange="state.nm=this.value;render()">${GROUPS.map(g=>`<optgroup label="${g.name}">${PLAYERS.filter(x=>x.g===g.id).map(x=>`<option ${x.n===p.n?'selected':''}>${x.n}</option>`).join("")}</optgroup>`).join("")}</select><span class="muted">${gName(p.g)} · أخصائية التغذية: د. ريم</span></div></div>
+  <div class="grid g2e" style="margin-top:16px">
+   <div class="card"><h3>🧮 حساب السعرات</h3>
+    <div class="grid g3" style="gap:10px"><div class="field"><label>الوزن (كجم)</label><input id="cw" type="number" value="${72+p.lvl*3}" oninput="nutCalc()"></div><div class="field"><label>الطول (سم)</label><input id="ch" type="number" value="176" oninput="nutCalc()"></div><div class="field"><label>السن</label><input id="ca" type="number" value="29" oninput="nutCalc()"></div></div>
+    <div class="grid g2e" style="gap:10px"><div class="field"><label>النشاط</label><select id="cact" onchange="nutCalc()"><option value="1.375">3 أيام تمرين</option><option value="1.55" selected>4–5 أيام</option><option value="1.725">يومياً</option></select></div><div class="field"><label>الهدف</label><select id="cgoal" onchange="nutCalc()"><option value="-500">تنشيف</option><option value="0">ثبات</option><option value="300">زيادة عضل</option></select></div></div>
+    <div id="calcOut"></div>
+    <button class="btn" style="margin-top:12px" onclick="NB.target='ind';NB.who='${p.n}';NB.kcal=NCALC.kc;state.nutTab='builder';render()">اعمل له برنامج فردي بالأرقام دي</button></div>
+   <div class="card"><h3>🥗 البرنامج الحالي</h3>
+    ${ind?`<div class="alert o">👤<div class="f1"><b>برنامج فردي: ${ind[0]}</b><div class="muted">من ${ind[3]} · ${ind[4]} · بيغلب على برنامج الجروب</div></div></div>`:gp?`<div class="alert g">👥<div class="f1"><b>بيتبع برنامج الجروب: ${gp[0]}</b><div class="muted">${gName(p.g)} · من ${gp[4]}</div></div></div>`:'<div class="alert r">⚠️<div class="f1">ملوش برنامج. لا هو ولا جروبه.</div></div>'}
+    <div class="field"><label>أكلات مش بيحبها</label><input value="السمك، البامية"></div>
+    <div class="field"><label>حساسية أو ممنوعات</label><input placeholder="مثال: اللاكتوز"></div>
+    <div class="grid g2e" style="gap:10px"><div class="field"><label>عدد الوجبات</label><select><option>3</option><option selected>4</option><option>5</option><option>6</option></select></div><div class="field"><label>ميزانية الأكل</label><select><option>اقتصادية</option><option selected>متوسطة</option><option>مفتوحة</option></select></div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" onclick="NB.target='ind';NB.who='${p.n}';state.nutTab='builder';render()">${ind?'تعديل برنامجه':'خصّص له برنامج فردي'}</button><button class="btn sm wa" onclick="toast('فتح محادثة مع ${p.n}')">💬 رسالة</button></div></div></div>
+  <div class="grid g2e" style="margin-top:16px">
+   <div class="card"><h3>الالتزام آخر 14 يوم <span class="ph2">المرحلة 2</span></h3><div class="ch" style="height:180px"><canvas id="c10"></canvas></div><div class="grid g3" style="gap:8px;margin-top:10px"><div><div class="muted">الالتزام</div><b>76%</b></div><div><div class="muted">صور وجبات</div><b>18</b></div><div><div class="muted">أسئلة للأخصائي</div><b>3</b></div></div></div>
+   <div class="card"><h3>الوزن <span class="ph2">المرحلة 2</span></h3><div class="ch" style="height:180px"><canvas id="c4"></canvas></div>
+    <div class="list" style="margin-top:8px">${[["1 أكتوبر","84 كجم · وسط 91","السعرات −100"],["17 سبتمبر","85.2 كجم · وسط 93","بدون تعديل"],["3 سبتمبر","87 كجم · وسط 95","بداية البرنامج"]].map(c=>`<div class="it"><b style="width:90px">${c[0]}</b><span class="f1">${c[1]}</span><span class="muted">${c[2]}</span></div>`).join("")}</div></div></div>`;
+}
+function nutCheckins(){
+  const rows=PLAYERS.filter((p,i)=>!p.guest&&i%11===0).slice(0,9).map((p,i)=>({p,last:["17 سبتمبر","15 سبتمبر","1 أكتوبر","10 سبتمبر","18 سبتمبر","2 أكتوبر","12 سبتمبر","19 سبتمبر","20 سبتمبر"][i],d:[-1.2,-0.4,-2,0.6,-0.8,-1.5,0,-0.3,0.9][i],c:[82,55,90,40,71,88,35,64,77][i],s:["مستحقة","متأخرة","تمت","متأخرة","مستحقة","تمت","متأخرة","مستحقة","مستحقة"][i]}));
+  return `<div class="card"><h3>المتابعات الدورية<span class="sp"></span><span class="muted">كل أسبوعين لكل عضو ليه برنامج</span></h3><div class="tbl-wrap"><table><tr><th>العضو</th><th>الجروب</th><th>آخر متابعة</th><th>تغير الوزن</th><th>الالتزام</th><th>الحالة</th><th></th></tr>
+  ${rows.map(({p,last,d,c,s})=>`<tr><td><b>${p.n}</b></td><td>${gName(p.g)}</td><td>${last}</td><td class="${d<0?'up':d>0?'down':'muted'}">${d>0?'+':''}${d} كجم</td><td><span class="badge ${c<50?'b-red':c<70?'b-or':'b-green'}">${c}%</span></td><td><span class="badge ${s==='تمت'?'b-green':s==='متأخرة'?'b-red':'b-or'}">${s}</span></td><td><button class="btn sm ghost" onclick="modal(checkinM('${p.n}'))">سجّل متابعة</button> <button class="btn sm ghost" onclick="state.nm='${p.n}';state.nutTab='member';render()">الملف</button></td></tr>`).join("")}</table></div></div>`;
+}
+function checkinM(n){return `<h3 style="margin-bottom:12px">متابعة ${n}</h3><div class="grid g2e" style="gap:10px"><div class="field"><label>الوزن (كجم)</label><input type="number" value="84"></div><div class="field"><label>محيط الوسط (سم)</label><input type="number" value="91"></div></div>
+<div class="field"><label>الالتزام آخر أسبوعين</label><div class="chips">${["ضعيف","متوسط","كويس","ممتاز"].map((x,i)=>`<button class="pchip ${i===2?'on':''}" onclick="this.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));this.classList.add('on')">${x}</button>`).join("")}</div></div>
+<div class="field"><label>تعديل السعرات</label><select><option>−200</option><option>−100</option><option selected>بدون تعديل</option><option>+100</option><option>+200</option></select></div>
+<div class="field"><label>صور التقدم</label><div style="border:2px dashed var(--line);border-radius:10px;padding:14px;text-align:center" class="muted">📷 ارفع صور قبل / بعد</div></div>
+<div class="field"><label>ملاحظات للعضو</label><textarea rows="2">ماشي كويس، زوّد المية وخفف الرز بالليل.</textarea></div>
+<div class="field"><label>المتابعة الجاية</label><input type="date" value="2026-10-16"></div>
+<button class="btn" onclick="closeAll();toast('المتابعة اتسجلت واتبعت ملخصها للعضو')">حفظ وإرسال للعضو</button>`}
+function nutFoods(){return `<div class="card"><h3>مكتبة الأكل<span class="sp"></span><input class="sel" placeholder="🔍 ابحث" oninput="document.querySelectorAll('#fdT tr[data-n]').forEach(r=>r.style.display=r.dataset.n.includes(this.value)?'':'none')"><button class="btn sm" onclick="modal(foodM())">+ صنف جديد</button></h3>
+ <div class="muted" style="margin-bottom:10px">أكل مصري جاهز بالسعرات والماكروز، وكل نادي يقدر يزوّد أصنافه. صانع البرنامج بيحسب منها، وبيقترح البدائل من نفس النوع.</div>
+ <div class="tbl-wrap"><table id="fdT"><tr><th>الصنف</th><th>النوع</th><th>الحصة</th><th>سعرات</th><th>بروتين</th><th>كارب</th><th>دهون</th><th>البدائل</th></tr>${FOODS.map((F,i)=>`<tr data-n="${F[0]}"><td><b>${F[0]}</b></td><td><span class="badge b-gray">${FCAT[i]}</span></td><td class="muted">${F[1]}</td><td>${F[2]}</td><td>${F[3]}</td><td>${F[4]}</td><td>${F[5]}</td><td class="muted">${alts(i).map(j=>FOODS[j][0]).join('، ')||'—'}</td></tr>`).join("")}</table></div></div>`}
+function foodM(){return `<h3 style="margin-bottom:12px">صنف جديد</h3><div class="field"><label>الاسم</label><input placeholder="مثال: حواوشي"></div><div class="field"><label>الحصة</label><input placeholder="رغيف"></div><div class="field"><label>النوع (للبدائل)</label><select>${[...new Set(FCAT)].map(c=>`<option>${c}</option>`).join("")}</select></div><div class="grid g2e" style="gap:10px">${["السعرات","بروتين (جم)","كارب (جم)","دهون (جم)"].map(l=>`<div class="field"><label>${l}</label><input type="number"></div>`).join("")}</div><button class="btn" onclick="closeAll();toast('الصنف اتضاف للمكتبة')">إضافة</button>`}
+
+/* ---------- permissions ---------- */
+const ACTS=["عرض","إضافة","تعديل","حذف"];
+const FEATS=[["لوحة التحكم","المؤشرات والتنبيهات"],["الفروع","بيانات الفروع ومديرينها"],["الجروبات والمواعيد","الجروبات والجدول وإلغاء الحصص"],["الأعضاء","ملف العضو والنقل والتجميد"],["الحضور","تسجيل الحضور والـ QR"],["الباقات والخصومات","أسعار الاشتراكات والعروض"],["التحصيل والإيصالات","تحصيل وإصدار إيصال"],["الحركات المالية","سجل الفلوس والتعديل عليه"],["الماتشات والتقييم والتقسيمة","النتايج وتقييم اللاعبين والتقسيمة"],["التغذية","البرامج والمتابعات"],["واتساب والتواصل","الرسائل التلقائية والجماعية"],["التقارير","المالية والتشغيلية"],["المستخدمين والصلاحيات","الفريق والأدوار"],["الإعدادات والباقة","الهوية واشتراك المنصة"]];
+const MASK=["1---","1111","1111","1111","111-","1111","111-","1-11","1111","1111","111-","1---","1111","1-1-"];
+const RAW={"مالك":"1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111 1111","مدير فرع":"1000 1000 1110 1110 1110 1000 1110 1000 1111 1110 1110 1000 1000 0000","كاشير":"1000 0000 1000 1100 1100 1000 1100 1000 0000 0000 0100 0000 0000 0000","استقبال":"1000 0000 1000 1100 1110 1000 0000 0000 1000 0000 0000 0000 0000 0000",
+ "مدرب كورة":"1000 0000 1000 1000 1110 0000 0000 0000 1111 1000 1100 0000 0000 0000","مدرب لياقة":"0000 0000 1000 1000 1100 0000 0000 0000 1010 1000 1100 0000 0000 0000","مدرب حراس":"0000 0000 1000 1000 1100 0000 0000 0000 1010 0000 0000 0000 0000 0000","أخصائي تغذية":"0000 0000 1000 1000 0000 0000 0000 0000 0000 1111 1100 0000 0000 0000","أخصائي علاج طبيعي":"0000 0000 1000 1010 0000 0000 0000 0000 0000 0000 1000 0000 0000 0000"};
+const ADMIN_ROLES=["مالك","مدير فرع","كاشير","استقبال"],COACH_ROLES=["مدرب كورة","مدرب لياقة","مدرب حراس","أخصائي تغذية","أخصائي علاج طبيعي"];
+const PERMS={};for(const r in RAW){PERMS[r]=RAW[r].split(" ").map((s,fi)=>s.split("").map((c,ai)=>MASK[fi][ai]==="-"?null:c==="1"))}
+const ROLE_DESC={"مالك":"كل الصلاحيات على كل الفروع.","مدير فرع":"يدير فرعه بالكامل ماعدا الأسعار والإعدادات وتعديل الفلوس بعد حفظها.","كاشير":"تسجيل الأعضاء والتحصيل والحضور في فرعه.","استقبال":"استقبال الأعضاء والحضور والتجميد، من غير فلوس.","مدرب كورة":"الحضور والماتشات والتقييم والتقسيمة لجروباته بس، ومبيشوفش فلوس.","مدرب لياقة":"الحضور وتقييم معيار اللياقة لجروباته بس.","مدرب حراس":"الحضور وتقييم الحراسة لجروباته بس.","أخصائي تغذية":"البرامج والمتابعات وملفات التغذية للأعضاء في جروباته.","أخصائي علاج طبيعي":"ملاحظات الإصابات والتأهيل على ملف العضو."};
+const LIMITS=[["نطاق البيانات","يشوف ويعدّل في إيه","s",["كل الفروع","فروعه المحددة","جروباته فقط"]],["يشوف المبالغ والإيرادات","الأرقام المالية في اللوحة والتقارير","t"],["أقصى خصم يقدر يديه","عند التحصيل أو التجديد","s",["0%","5%","10%","20%","بدون حد"]],["تعديل حركة مالية بعد الحفظ","من غير موافقة المالك","t"],["تصدير البيانات Excel","الأعضاء والحركات","t"],["يبعت رسائل واتساب جماعية","لجروب أو فرع","t"]];
+const LIMV={"مالك":["كل الفروع",1,"بدون حد",1,1,1],"مدير فرع":["فروعه المحددة",1,"10%",0,1,1],"كاشير":["فروعه المحددة",0,"5%",0,0,0],"استقبال":["فروعه المحددة",0,"0%",0,0,0],"مدرب كورة":["جروباته فقط",0,"0%",0,0,1],"مدرب لياقة":["جروباته فقط",0,"0%",0,0,0],"مدرب حراس":["جروباته فقط",0,"0%",0,0,0],"أخصائي تغذية":["جروباته فقط",0,"0%",0,0,1],"أخصائي علاج طبيعي":["فروعه المحددة",0,"0%",0,0,0]};
+const USERS=[{n:"حازم",role:"مالك",br:"all",act:1,web:1,mob:1},{n:"أ. رامي",role:"مدير فرع",br:["الشيخ زايد"],act:1,web:1,mob:1},{n:"أ. هاني",role:"مدير فرع",br:["أكتوبر","المهندسين"],act:1,web:1,mob:1},{n:"سارة",role:"كاشير",br:["الشيخ زايد"],act:1,web:1,mob:0},{n:"منى",role:"كاشير",br:["أكتوبر"],act:1,web:1,mob:0},{n:"أ. كريم",role:"استقبال",br:["المهندسين"],act:1,web:0,mob:1}];
+const COACHES=[{n:"كابتن محمود",spec:"مدرب كورة",br:["الشيخ زايد"],act:1},{n:"كابتن شريف",spec:"مدرب كورة",br:["الشيخ زايد"],act:1},{n:"كابتن حسام",spec:"مدرب لياقة",br:["الشيخ زايد"],act:1},{n:"كابتن أيمن",spec:"مدرب حراس",br:["الشيخ زايد"],act:1},{n:"كابتن عمرو",spec:"مدرب كورة",br:["أكتوبر"],act:1},{n:"كابتن نادر",spec:"مدرب لياقة",br:["أكتوبر"],act:1},{n:"كابتن ياسر",spec:"مدرب كورة",br:["المهندسين"],act:1},{n:"كابتن طارق",spec:"مدرب لياقة",br:["المهندسين"],act:0},{n:"د. ريم",spec:"أخصائي تغذية",br:["الشيخ زايد","أكتوبر"],act:1},{n:"د. مصطفى",spec:"أخصائي علاج طبيعي",br:["الشيخ زايد"],act:1}];
+const CROLES=["رئيسي","لياقة","حراس","تغذية","مساعد"];
+const SPEC_ROLE={"مدرب كورة":"رئيسي","مدرب لياقة":"لياقة","مدرب حراس":"حراس","أخصائي تغذية":"تغذية","أخصائي علاج طبيعي":"مساعد"};
+function coachGroups(n){return GROUPS.filter(g=>g.coaches.some(c=>c[0]===n)).map(g=>[g,g.coaches.find(c=>c[0]===n)[1]])}
+function roleCount(r){return COACH_ROLES.includes(r)?COACHES.filter(c=>c.spec===r).length:USERS.filter(u=>u.role===r).length}
+function togglePerm(fi,ai){const P=PERMS[state.role];P[fi][ai]=!P[fi][ai];if(ai>0&&P[fi][ai]&&P[fi][0]===false)P[fi][0]=true;if(ai===0&&!P[fi][0])P[fi]=P[fi].map(v=>v===null?null:false);render()}
+function permAll(v){PERMS[state.role]=PERMS[state.role].map(r=>r.map(x=>x===null?null:!!v));render()}
+function newRole(){modal(`<h3 style="margin-bottom:12px">دور مخصص للموظفين</h3><div class="field"><label>اسم الدور</label><input id="nrN" value="محاسب"></div><button class="btn" onclick="nrSave()">إضافة</button>`)}
+function nrSave(){const n=$("nrN").value.trim();if(!n||PERMS[n])return;ADMIN_ROLES.push(n);PERMS[n]=FEATS.map((f,fi)=>MASK[fi].split("").map(c=>c==="-"?null:false));LIMV[n]=["فروعه المحددة",0,"0%",0,0,0];state.role=n;closeAll();render();toast("الدور اتضاف، حدد صلاحياته")}
+function openDrawer(){$("drawer").classList.add("show");$("ov").classList.add("show")}
+let CD=null;
+function coachDrawer(i){const c=i<0?{n:"",spec:"مدرب كورة",br:[],act:1}:COACHES[i];CD={i,n:c.n,spec:c.spec,br:new Set(c.br),asg:new Map(i<0?[]:coachGroups(c.n).map(([g,r])=>[g.id,r])),act:c.act};cdRender();openDrawer()}
+function cdRender(){
+ $("drawer").innerHTML=`<button class="x" onclick="closeAll()">×</button><h2 style="font-size:20px;margin-bottom:16px">${CD.i<0?"مدرب / أخصائي جديد":"تعديل "+CD.n}</h2>
+ <div class="field"><label>الاسم</label><input value="${CD.n}" oninput="CD.n=this.value"></div>
+ <div class="field"><label>الموبايل (بيوصله لينك تطبيق المدرب على الواتساب)</label><input dir="ltr" value="${CD.i<0?'':'0111 234 5678'}"></div>
+ <div class="field"><label>التخصص</label><select onchange="CD.spec=this.value;cdRender()">${COACH_ROLES.map(r=>`<option ${r===CD.spec?'selected':''}>${r}</option>`).join("")}</select><div class="muted">مالوش صلاحيات عامة: بيتحكم بس في الجروبات اللي هتعيّنه عليها وأنشطته فيها.</div></div>
+ <div class="field"><label>1. اختار الفرع أو الفروع</label><div class="chips">${BR.map(b=>`<button class="pchip ${CD.br.has(b)?'on':''}" onclick="cdBr('${b}')">📍 ${b}</button>`).join("")}</div></div>
+ <div class="card" style="margin-bottom:12px"><h3>2. عيّنه على جروبات ${CD.br.size?'الفروع المختارة':''} <span class="badge b-gray">${CD.asg.size} متعيّن</span></h3>
+ ${CD.br.size?BR.filter(b=>CD.br.has(b)).map(b=>`<div class="muted" style="font-weight:700;margin-top:6px">📍 ${b}</div><div class="list">${GROUPS.filter(g=>g.br===b).map(g=>{const on=CD.asg.has(g.id),others=g.coaches.filter(c=>c[0]!==CD.n);return `<div class="it"><button class="chk ${on?'on':''}" onclick="cdG(${g.id})">${on?'✓':''}</button><div class="f1"><b>${g.name}</b> <span class="muted">${g.days.map(d=>DAYS[d]).join("، ")} · ${g.time}</span><div class="muted" style="font-size:11.5px">${others.length?"معاه: "+others.map(c=>c[0]+" ("+c[1]+")").join("، "):"مفيش مدربين لسه"}</div></div>${on?`<select class="sel" style="padding:4px 8px" onchange="CD.asg.set(${g.id},this.value)">${CROLES.map(r=>`<option ${r===CD.asg.get(g.id)?'selected':''}>${r}</option>`).join("")}</select>`:''}</div>`}).join("")}</div>`).join(""):'<div class="muted">اختار فرع الأول عشان تظهر جروباته.</div>'}
+ <div class="muted" style="margin-top:8px">الجروب ممكن يبقى عليه أكتر من مدرب، وكل واحد بدوره.</div></div>
+ <div class="field"><label>طريقة الحساب</label><select><option>بالحصة</option><option>راتب شهري</option><option>نسبة من اشتراكات جروباته</option></select></div>
+ <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><span class="f1"><b>الحساب نشط</b></span><button class="toggle ${CD.act?'on':''}" onclick="CD.act=!CD.act;this.classList.toggle('on')"></button></div>
+ <button class="btn" onclick="cdSave()">${CD.i<0?"إضافة وإرسال لينك التطبيق":"حفظ"}</button>`;
+}
+function cdBr(b){CD.br.has(b)?CD.br.delete(b):CD.br.add(b);GROUPS.forEach(g=>{if(!CD.br.has(g.br))CD.asg.delete(g.id)});cdRender()}
+function cdG(id){CD.asg.has(id)?CD.asg.delete(id):CD.asg.set(id,SPEC_ROLE[CD.spec]||"مساعد");cdRender()}
+function cdSave(){const n=CD.n.trim();if(!n){toast("اكتب الاسم");return}if(!CD.br.size){toast("اختار فرع");return}
+ const old=CD.i>=0?COACHES[CD.i].n:null;
+ GROUPS.forEach(g=>{g.coaches=g.coaches.filter(c=>c[0]!==old&&c[0]!==n);if(CD.asg.has(g.id))g.coaches.push([n,CD.asg.get(g.id)]);g.coaches.sort((a,b)=>(a[1]==="رئيسي"?0:1)-(b[1]==="رئيسي"?0:1))});
+ const rec={n,spec:CD.spec,br:[...CD.br],act:CD.act?1:0};if(CD.i<0)COACHES.push(rec);else COACHES[CD.i]=rec;
+ closeAll();render();toast(`اتحفظ، و${n} متعيّن على ${CD.asg.size} جروب`)}
+let SD=null;
+function staffDrawer(i){const u=i<0?{n:"",role:"كاشير",br:[],act:1,web:1,mob:0}:USERS[i];SD={i,n:u.n,role:u.role,all:u.br==="all",br:new Set(u.br==="all"?[]:u.br),act:u.act,web:u.web,mob:u.mob};sdRender();openDrawer()}
+function sdRender(){
+ $("drawer").innerHTML=`<button class="x" onclick="closeAll()">×</button><h2 style="font-size:20px;margin-bottom:16px">${SD.i<0?"موظف جديد":"تعديل "+SD.n}</h2>
+ <div class="field"><label>الاسم</label><input value="${SD.n}" oninput="SD.n=this.value"></div>
+ <div class="field"><label>الموبايل (الدعوة بتوصل واتساب)</label><input dir="ltr" value="${SD.i<0?'':'0100 123 4567'}"></div>
+ <div class="field"><label>الدور</label><select onchange="SD.role=this.value;sdRender()">${ADMIN_ROLES.map(r=>`<option ${r===SD.role?'selected':''}>${r}</option>`).join("")}</select><div class="muted">${ROLE_DESC[SD.role]||''} <a href="#" onclick="closeAll();state.role='${SD.role}';state.permTab='roles';render();return false" style="color:var(--brand2)">تعديل صلاحيات الدور</a></div></div>
+ <div class="field"><label>الفروع</label><div class="chips"><button class="pchip ${SD.all?'on':''}" onclick="SD.all=!SD.all;sdRender()">🌐 كل الفروع (الحالية والجديدة)</button>${SD.all?'':BR.map(b=>`<button class="pchip ${SD.br.has(b)?'on':''}" onclick="SD.br.has('${b}')?SD.br.delete('${b}'):SD.br.add('${b}');sdRender()">📍 ${b}</button>`).join("")}</div></div>
+ <div class="card" style="margin-bottom:12px"><h3>الدخول على</h3><div class="list">
+  <div class="it"><span class="f1"><b>🖥️ لوحة التحكم (ويب)</b><div class="muted">الإدارة الكاملة من الكمبيوتر</div></span><button class="toggle ${SD.web?'on':''}" onclick="SD.web=!SD.web;this.classList.toggle('on')"></button></div>
+  <div class="it"><span class="f1"><b>📱 تطبيق الإدارة (موبايل)</b><div class="muted">تحصيل وحضور ومتابعة من الموبايل</div></span><button class="toggle ${SD.mob?'on':''}" onclick="SD.mob=!SD.mob;this.classList.toggle('on')"></button></div></div></div>
+ <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><span class="f1"><b>الحساب نشط</b></span><button class="toggle ${SD.act?'on':''}" onclick="SD.act=!SD.act;this.classList.toggle('on')"></button></div>
+ <button class="btn" onclick="sdSave()">${SD.i<0?"إرسال دعوة":"حفظ"}</button>`;
+}
+function sdSave(){const n=SD.n.trim();if(!n){toast("اكتب الاسم");return}if(!SD.all&&!SD.br.size){toast("اختار فرع");return}
+ const rec={n,role:SD.role,br:SD.all?"all":[...SD.br],act:SD.act?1:0,web:SD.web?1:0,mob:SD.mob?1:0};if(SD.i<0)USERS.push(rec);else USERS[SD.i]=rec;closeAll();render();toast(SD.i<0?"اتبعتت الدعوة":"اتحفظ")}
+function qr(){let s='<svg width="150" height="150" viewBox="0 0 21 21" shape-rendering="crispEdges">';const f=(x,y)=>((x<7&&y<7)||(x>13&&y<7)||(x<7&&y>13));for(let y=0;y<21;y++)for(let x=0;x<21;x++){let on;if(f(x,y)){const lx=x>13?x-14:x,ly=y>13?y-14:y;on=lx===0||lx===6||ly===0||ly===6||(lx>1&&lx<5&&ly>1&&ly<5)}else on=((x*7+y*13+x*y)%5)<2;if(on)s+=`<rect x="${x}" y="${y}" width="1" height="1" fill="#0d1b16"/>`}return s+'</svg>'}
+function receipt(){return `<h3 style="margin-bottom:12px">إيصال دفع</h3><div style="border:1px dashed var(--line);border-radius:12px;padding:16px"><div style="display:flex;justify-content:space-between;align-items:center"><span style="display:flex;align-items:center;gap:8px"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgcng9IjU2IiBmaWxsPSIjMTExIi8+PHBhdGggZD0iTTEyOCAzNGw3OCAyOHY2MmMwIDUwLTMzIDg2LTc4IDEwMC00NS0xNC03OC01MC03OC0xMDBWNjJ6IiBmaWxsPSIjZTAxZjI2Ii8+PHBhdGggZD0iTTEyOCA1OGw1NiAyMHY0NmMwIDM2LTIzIDYyLTU2IDc0LTMzLTEyLTU2LTM4LTU2LTc0Vjc4eiIgZmlsbD0iIzExMSIvPjxwYXRoIGQ9Ik05OCA5Nmg2MHYxNmgtNDJ2MTZoMzZ2MTZoLTM2djE2aDQ0djE2SDk4eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPgo=" alt="Elite Sports" style="width:32px;height:32px;border-radius:12px;object-fit:cover"><b>أكاديمية النخبة</b></span><span class="muted">#R-10482</span></div><div class="list" style="margin-top:10px"><div class="it"><span class="f1 muted">العضو</span><b>أحمد سامي</b></div><div class="it"><span class="f1 muted">الباقة</span><b>شهري</b></div><div class="it"><span class="f1 muted">الطريقة</span><b>إنستاباي</b></div><div class="it"><span class="f1 muted">المبلغ</span><b>900 ج</b></div><div class="it"><span class="f1 muted">صالح حتى</span><b>28 أكتوبر</b></div></div></div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn wa" onclick="closeAll();toast('الإيصال اتبعت على واتساب')">إرسال واتساب</button><button class="btn ghost" onclick="toast('تحميل PDF')">PDF</button></div>`}
+function addBranch(){return `<h3 style="margin-bottom:14px">فرع جديد</h3><div class="field"><label>اسم الفرع</label><input placeholder="مثال: التجمع الخامس"></div><div class="field"><label>العنوان</label><input></div><div class="field"><label>مدير الفرع</label><select><option>اختار من الفريق</option></select></div><button class="btn" onclick="closeAll();toast('الفرع اتضاف')">حفظ</button>`}
+function addGroup(){return `<h3 style="margin-bottom:14px">جروب جديد</h3><div class="field"><label>الاسم</label><input placeholder="جروب الصبح B"></div><div class="grid g2e" style="gap:10px"><div class="field"><label>الفرع</label><select id="agBr" onchange="$('agC').innerHTML=agList(this.value)">${BR.map(b=>`<option>${b}</option>`).join("")}</select></div><div class="field"><label>السعة</label><input type="number" value="20"></div><div class="field"><label>المستوى</label><select><option>مبتدئ</option><option>متوسط</option><option>متقدم</option></select></div><div class="field"><label>الميعاد</label><input type="time" value="19:00"></div></div>
+<div class="field"><label>الأيام</label><div class="tabs">${DAYS.map(d=>`<button onclick="this.classList.toggle('on')">${d}</button>`).join("")}</div></div>
+<div class="field"><label>المدربين والأخصائيين في الفرع ده (اختار أكتر من واحد ودور كل واحد)</label><div class="list" id="agC">${agList(BR[0])}</div></div>
+<button class="btn" onclick="closeAll();toast('الجروب اتضاف والحصص اتولدت')">حفظ</button>`}
+function agList(b){const cs=COACHES.filter(c=>c.br.includes(b)&&c.act);return cs.length?cs.map(c=>`<div class="it"><button class="chk" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'✓':''"></button><span class="f1">${c.n} <span class="muted">· ${c.spec}</span></span><select class="sel" style="padding:4px 8px">${CROLES.map(r=>`<option ${r===SPEC_ROLE[c.spec]?'selected':''}>${r}</option>`).join("")}</select></div>`).join(""):'<div class="muted">مفيش مدربين في الفرع ده. ضيفهم من المستخدمين.</div>'}
+function addMember(){return `<h3 style="margin-bottom:14px">عضو جديد</h3><div class="field"><label>الاسم</label><input></div><div class="field"><label>الموبايل (واتساب)</label><input dir="ltr" placeholder="01xxxxxxxxx"></div><div class="field"><label>الجروب</label><select>${GROUPS.map(g=>`<option>${g.name} · ${g.br}${g.n>=g.cap?' (كامل، قائمة انتظار)':''}</option>`).join("")}</select></div><div class="field"><label>الباقة</label><select><option>شهري · 900 ج</option><option>3 شهور · 2,400 ج</option></select></div><button class="btn" onclick="closeAll();toast('اتسجل واتبعتله لينك البوابة')">تسجيل وإرسال لينك البوابة</button>`}
+function importX(){return `<h3 style="margin-bottom:14px">استيراد أعضاء من Excel</h3><div style="border:2px dashed var(--line);border-radius:12px;padding:26px;text-align:center" class="muted">📄 اسحب الملف هنا أو اضغط للاختيار</div><div class="list" style="margin-top:12px"><div class="it"><span class="f1">عمود "الاسم"</span><span class="badge b-green">← الاسم</span></div><div class="it"><span class="f1">عمود "التليفون"</span><span class="badge b-green">← الموبايل</span></div><div class="it"><span class="f1">عمود "المجموعة"</span><span class="badge b-green">← الجروب</span></div></div><div class="alert o" style="margin-top:10px">⚠️ 3 صفوف أرقامها ناقصة، هتتراجع قبل الاستيراد</div><button class="btn" onclick="closeAll();toast('اتستورد 84 عضو')">استيراد 84 عضو</button>`}
+function sendProg(p){return `<h3 style="margin-bottom:14px">تعيين برنامج تغذية</h3>
+<div class="field"><label>البرنامج</label><select>${PROGS.map(x=>`<option ${x.n===p?'selected':''}>${x.n}</option>`).join("")}</select></div>
+<div class="field"><label>تعيين على</label><div class="tabs"><button class="on" onclick="tgt(this,'g')">👥 جروب أو أكتر</button><button onclick="tgt(this,'i')">👤 عضو أو أكتر</button></div></div>
+<div id="tg"><div class="chips">${GROUPS.map(g=>`<button class="pchip" onclick="this.classList.toggle('on')">${g.name} · ${g.br}</button>`).join("")}</div></div>
+<div id="ti" style="display:none"><input class="sel" style="width:100%;margin-bottom:8px" placeholder="🔍 ابحث عن عضو"><div class="chips">${MEM.map(m=>`<button class="pchip" onclick="this.classList.toggle('on')">${m.n}</button>`).join("")}</div>
+<label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" checked> انسخه كبرنامج فردي عشان أعدّله لكل عضو</label></div>
+<div class="field" style="margin-top:12px"><label>يبدأ من</label><input type="date" value="2026-10-03"></div>
+<label style="display:flex;gap:8px;align-items:center;margin-bottom:14px"><input type="checkbox" checked> يتبعت على الواتساب ويظهر في بوابة العضو</label>
+<button class="btn" onclick="closeAll();toast('البرنامج اتعيّن')">تعيين</button>`}
+render();
+</script>
+<script src="team-cards.js"></script><script src="enhancements.js"></script><script src="dashboard.js"></script><script src="finance.js"></script><script src="refinements.js"></script><script src="prototype-flow.js"></script><script src="sports-config.js"></script><script src="ms-dash.js"></script><script src="journey.js"></script><script src="enrollment.js"></script></body>
+</html>
+
+
+
+
+
+

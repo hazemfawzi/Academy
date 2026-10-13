@@ -1,0 +1,14 @@
+(function(){
+ if(!window.V||!window.MS)return;
+ const db=V.db,E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const known=[{id:'A',branch:'الشيخ زايد',sport:'football'},{id:'B',branch:'الشيخ زايد',sport:'football'},{id:'C',branch:'الشيخ زايد',sport:'football'},
+ ...MS.NEW_GROUPS.map(g=>({id:'sport-'+g.id,name:g.name,branch:g.br,sport:MS.GROUP_SPORT[g.id],capacity:g.cap})),
+ {id:'branch-4',name:'جروب الصبح · أكتوبر',branch:'أكتوبر',sport:'football',capacity:18},{id:'branch-5',name:'جروب المغرب · أكتوبر',branch:'أكتوبر',sport:'football',capacity:20},{id:'branch-6',name:'جروب الليل · المهندسين',branch:'المهندسين',sport:'football',capacity:20},{id:'branch-7',name:'جروب العصر · المهندسين',branch:'المهندسين',sport:'football',capacity:16}];
+ if(known.some(g=>!db.state.groups.some(x=>x.id===g.id&&x.branch===g.branch&&x.sport===g.sport)))V.run(()=>db.update(s=>{known.forEach(g=>{const old=s.groups.find(x=>x.id===g.id);if(old){old.branch=g.branch;old.sport=g.sport;}else s.groups.push(g);});}));
+ const option=(v,label)=>`<option value="${E(v)}">${E(label)}</option>`;
+ const original=V.newMemberForm;
+ V.newMemberForm=lead=>original(lead).replace(/<div class="v-field"><label[^>]*>الجروب<\/label>[\s\S]*?<\/div>/,`<div class="v-field"><label for="vn-branch">الفرع</label><select id="vn-branch" onchange="Enrollment.branch()">${option('','اختر الفرع أولًا')}${[...new Set(db.state.groups.map(g=>g.branch).filter(Boolean))].map(b=>option(b,b)).join('')}</select></div><div class="v-field"><label for="vn-sport">الرياضة</label><select id="vn-sport" disabled onchange="Enrollment.sport()">${option('','اختر الفرع أولًا')}</select></div><div class="v-field"><label for="vn-group">الجروب</label><select id="vn-group" disabled>${option('','اختر الرياضة أولًا')}</select><small>تظهر فقط الجروبات التابعة للفرع والرياضة المختارين.</small></div>`);
+ const val=id=>document.getElementById(id)?.value||'';
+ window.Enrollment={branch(){const branch=val('vn-branch'),sports=[...new Set(db.state.groups.filter(g=>g.branch===branch).map(g=>g.sport))].filter(s=>MS.sport(s)?.on!==false);const el=document.getElementById('vn-sport');el.innerHTML=option('','اختر الرياضة')+sports.map(s=>option(s,MS.sport(s)?.name||s)).join('');el.disabled=!branch;this.sport();},sport(){const el=document.getElementById('vn-group'),groups=db.state.groups.filter(g=>g.branch===val('vn-branch')&&g.sport===val('vn-sport'));el.innerHTML=option('',groups.length?'اختر الجروب':'لا توجد جروبات للاختيار الحالي')+groups.map(g=>option(g.id,g.name)).join('');el.disabled=!groups.length;}};
+ const save=V.newMemberSave;V.newMemberSave=function(...args){const g=db.state.groups.find(g=>g.id===val('vn-group'));if(!g||g.branch!==val('vn-branch')||g.sport!==val('vn-sport'))return V.run(()=>{throw Error('اختر الفرع ثم الرياضة ثم الجروب التابع لهما');});return save.apply(this,args);};
+})();

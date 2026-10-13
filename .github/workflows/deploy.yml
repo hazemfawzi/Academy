@@ -1,0 +1,64 @@
+name: Deploy academy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: academy-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify application
+        run: node --test tests.cjs
+      - name: Prepare static files
+        run: |
+          mkdir -p /tmp/academy-site
+          cp -- *.html *.css *.js /tmp/academy-site/
+          cp -R assets /tmp/academy-site/
+      - name: Deploy over SSH
+        env:
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ vars.DEPLOY_PORT }}
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          EXPECTED_HOST_FINGERPRINT: SHA256:qHouKFK2hEu62cJ3zpVzoga5JMkeW5UhHnxeC6gtrD0
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${DEPLOY_HOST:?Missing DEPLOY_HOST}"
+          : "${DEPLOY_USER:?Missing DEPLOY_USER}"
+          : "${DEPLOY_PATH:?Missing DEPLOY_PATH}"
+          : "${DEPLOY_SSH_KEY:?Missing DEPLOY_SSH_KEY}"
+          DEPLOY_PORT=${DEPLOY_PORT:-22}
+          [[ "$DEPLOY_HOST" =~ ^[a-zA-Z0-9.-]+$ ]]
+          [[ "$DEPLOY_USER" =~ ^[a-zA-Z0-9_-]+$ ]]
+          [[ "$DEPLOY_PORT" =~ ^[0-9]+$ ]]
+          [[ "$DEPLOY_PATH" =~ ^/home/[a-zA-Z0-9_./-]+$ ]]
+          [[ "$DEPLOY_PATH" != *'/../'* && "$DEPLOY_PATH" != */.. ]]
+          key_dir=$(mktemp -d)
+          trap 'rm -rf "$key_dir"' EXIT
+          chmod 700 "$key_dir"
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$key_dir/key"
+          ssh-keyscan -T 15 -p "$DEPLOY_PORT" -t ed25519 "$DEPLOY_HOST" > "$key_dir/known_hosts"
+          [[ -s "$key_dir/known_hosts" ]]
+          fingerprints=$(ssh-keygen -lf "$key_dir/known_hosts" -E sha256 | awk '{print $2}' | sort -u)
+          if [[ "$fingerprints" != "$EXPECTED_HOST_FINGERPRINT" ]]; then
+            echo 'SSH server fingerprint did not match. Deployment stopped.' >&2
+            exit 1
+          fi
+          chmod 600 "$key_dir/key" "$key_dir/known_hosts"
+          remote_shell="ssh -p $DEPLOY_PORT -i $key_dir/key -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$key_dir/known_hosts"
+          # rsync must be installed on the hosting server. No remote deletion.
+          backup_path="${DEPLOY_PATH%/}.deploy-backups/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          rsync -az --protect-args --delay-updates --backup --backup-dir="$backup_path" \
+            -e "$remote_shell" /tmp/academy-site/ "$DEPLOY_USER@$DEPLOY_HOST:${DEPLOY_PATH%/}/"

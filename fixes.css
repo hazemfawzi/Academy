@@ -1,0 +1,10 @@
+/* visual fixes */
+.sc-entry .btn.ghost,.ms-head .btn.ghost{background:#ffffff14!important;color:#fff!important;border:1px solid #ffffff55!important}
+.seg .btn{background:transparent!important;color:var(--ink2,#4b4140)!important;box-shadow:none!important;border:0!important;min-height:0}
+.seg .btn.on{background:#fff!important;color:var(--ink,#17110f)!important;box-shadow:0 2px 6px rgba(0,0,0,.08)!important}
+.v-table{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.v-table table{min-width:100%}
+/* landing logo */
+.brand{display:grid!important;grid-template-columns:auto auto;column-gap:10px;align-items:center;justify-content:start}
+.brand-logo{grid-row:span 2;width:46px;height:46px;border-radius:12px;object-fit:cover;box-shadow:0 4px 12px #0002}
+.brand>span,.brand>small{grid-column:2}

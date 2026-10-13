@@ -1,0 +1,93 @@
+/* Multi-sport layer styles. ms-* = dashboard, msx-* = mobile apps. */
+.ms-chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.ms-chip{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:7px 14px;font:700 13px Cairo,sans-serif;cursor:pointer}
+.ms-chip.on{background:#17110f;color:#fff;border-color:#17110f}
+.ms-strip{margin-bottom:16px}
+.ms-sports{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.ms-sport{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:right;border:1px solid var(--line);background:#fbf8f7;border-radius:14px;padding:12px;cursor:pointer;font-family:inherit;color:var(--ink)}
+.ms-sport:hover{border-color:#e01f26}
+.ms-sport small{color:var(--muted,#6f605e);font-size:12px}
+.ms-ico{font-size:24px;line-height:1}
+.ms-ico.sm{font-size:20px;width:30px;text-align:center}
+.ms-intro{margin-bottom:16px}
+.ms-sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.ms-scard.off{opacity:.55}
+.ms-shead{display:flex;align-items:center;gap:12px}
+.ms-shead .ms-ico{font-size:32px}
+.ms-sub{font-weight:800;font-size:12.5px;margin:14px 0 6px;color:var(--muted,#6f605e)}
+.ms-levels,.ms-mods{display:flex;flex-wrap:wrap;gap:6px}
+.ms-levels span{display:inline-flex;align-items:center;gap:5px;background:#f6f1f0;border-radius:8px;padding:3px 9px;font-size:12px}
+.ms-levels em,.ms-belt em{display:inline-block;width:14px;height:8px;border-radius:2px;border:1px solid #0002}
+.ms-belt{display:inline-flex;align-items:center;gap:6px;font-weight:700}
+.ms-mod{border:1px dashed #cfc3c0;background:#fff;color:var(--muted,#6f605e);border-radius:9px;padding:5px 10px;font:700 12px Cairo,sans-serif;cursor:pointer}
+.ms-mod.on{border:1px solid #137447;background:#e9f7ef;color:#137447}
+.ms-switch{position:relative;width:44px;height:26px;flex:none;cursor:pointer}
+.ms-switch input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.ms-switch i{position:absolute;inset:0;border-radius:999px;background:#d8cfcd;transition:.2s}
+.ms-switch i:after{content:"";position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.ms-switch input:checked+i{background:#137447}
+.ms-switch input:checked+i:after{right:21px}
+.ms-switch input:focus-visible+i{outline:2px solid #2463d6;outline-offset:2px}
+.ms-bar{height:8px;background:#efe9e8;border-radius:6px;overflow:hidden;width:120px;display:inline-block;vertical-align:middle;margin-left:6px}
+.ms-bar i{display:block;height:100%;background:#c2650c}
+.ms-bar.ok i{background:#137447}
+.ms-matrix th{font-size:12px;white-space:normal;min-width:80px}
+.ms-cell{width:34px;height:34px;border-radius:9px;border:1.5px solid #ddd2cf;background:#fff;font-weight:900;color:#fff;cursor:pointer}
+.ms-cell.on{background:#137447;border-color:#137447}
+.ms-court-grid{display:grid;gap:6px;overflow-x:auto}
+.ms-court-grid .h{text-align:center;font-weight:800;padding:6px}
+.ms-court-grid .t{display:flex;align-items:center;font-weight:700;font-size:13px;color:var(--muted,#6f605e)}
+.ms-slot{border-radius:10px;padding:9px 10px;font:700 13px Cairo,sans-serif;min-height:52px;display:flex;flex-direction:column;justify-content:center;text-align:right;border:0;color:var(--ink)}
+.ms-slot small{font-weight:600;font-size:11px;opacity:.75}
+.ms-slot.group,.ms-legend .group{background:#e7effd;color:#1f4fae}
+.ms-slot.booking,.ms-legend .booking{background:#e4f6ec;color:#12804a}
+.ms-slot.event,.ms-legend .event{background:#fff1e0;color:#a85409}
+.ms-slot.free,.ms-legend .free{background:#fff;border:1.5px dashed #d8cfcd;color:var(--muted,#6f605e);cursor:pointer}
+.ms-slot.free:hover{border-color:#e01f26;color:#e01f26}
+.ms-legend{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.ms-legend span{border-radius:8px;padding:3px 10px;font-size:12px;font-weight:700}
+.ms-fam{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-top:16px}
+.ms-famfoot{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.ms-famfoot>div{flex:1;min-width:160px}
+@media(max-width:760px){.ms-sgrid,.ms-fam{grid-template-columns:1fr}.ms-court-grid{grid-template-columns:64px repeat(3,minmax(90px,1fr))!important}}
+
+/* ---------- mobile apps ---------- */
+.msx-mut{color:var(--mut,#8b7f7d);display:block;font-size:12.5px}
+.msx-green{color:#12804a}
+.msx-ico{font-size:24px;line-height:1;flex:none}
+.msx-ico.lg{font-size:36px}
+.msx-pill{font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.msx-pill.ok{background:#e4f6ec;color:#12804a}
+.msx-pill.warn{background:#fff1e0;color:#c2650c}
+.msx-pill.bad{background:#fdecec;color:#a3121a}
+.msx-hero{background:linear-gradient(135deg,#1b1012,#4a0b0e);color:#fff}
+.msx-hero small{color:#f3b9bb;font-weight:700}
+.msx-hero b{display:block;font-size:18px;margin:4px 0}
+.msx-hero p{margin:0;color:#e9d6d7;font-size:13px;line-height:1.7}
+.msx-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:14px}
+.msx-row.big{font-size:17px;border-top:1px solid var(--line);margin:4px 0 12px;padding-top:12px}
+.msx-row s{display:inline}
+.msx-kid{display:flex;align-items:center;gap:12px}
+.msx-big{display:flex;align-items:center;gap:8px;font-size:20px;margin:4px 0 10px}
+.msx-bar{height:10px;border-radius:6px;background:#efe9e8;overflow:hidden;margin-bottom:6px}
+.msx-bar i{display:block;height:100%;background:linear-gradient(90deg,#e01f26,#f08a00)}
+.msx-belt{display:inline-block;width:26px;height:12px;border-radius:3px;border:1px solid #0002;flex:none}
+.msx-in{width:72px;height:40px;border:1.5px solid var(--line);border-radius:11px;text-align:center;font:700 15px Cairo,sans-serif;background:#fff;color:var(--ink)}
+.msx-in.wide{width:100%;text-align:right;padding:0 12px;margin-top:8px}
+.msx-gym{padding:10px 0;border-bottom:1px solid var(--line)}
+.msx-gym:last-child{border:0}
+.msx-gym b{display:flex;gap:6px;align-items:baseline;margin-bottom:8px}
+.msx-gym .msx-mut{display:inline}
+.msx-link{display:flex;align-items:center;gap:12px;cursor:pointer}
+.msx-courts{display:grid;gap:5px}
+.msx-courts .h{text-align:center;font-weight:800;font-size:12.5px}
+.msx-courts .t{font-size:11.5px;font-weight:700;color:var(--mut,#8b7f7d);display:flex;align-items:center}
+.msx-slot{border-radius:10px;min-height:46px;font:700 11.5px Cairo,sans-serif;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px;border:0;color:var(--ink)}
+.msx-slot.group,.msx-legend .group{background:#e7effd;color:#1f4fae}
+.msx-slot.booking,.msx-legend .booking{background:#e4f6ec;color:#12804a}
+.msx-slot.event,.msx-legend .event{background:#fff1e0;color:#a85409}
+.msx-slot.free{background:#fff;border:1.5px dashed #d8cfcd;color:var(--mut,#8b7f7d);cursor:pointer}
+.msx-legend{display:flex;gap:6px;margin-top:10px}
+.msx-legend span{border-radius:8px;padding:2px 9px;font-size:11.5px;font-weight:700}
+.card.msx-hero{background:linear-gradient(135deg,#1b1012,#4a0b0e)!important;color:#fff!important}
+.msx-g2{margin:0 0 12px!important}

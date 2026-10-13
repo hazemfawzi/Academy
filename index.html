@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>أكاديمية النخبة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--red:#e01f26;--ink:#17110f;--ink2:#6b5d58;--bg:#f4efed;--card:#fff;--line:#eadfdb;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Cairo,Tahoma,sans-serif;color:var(--ink)}
+main{max-width:980px;margin:auto;padding:40px 16px 56px}
+header{position:relative;overflow:hidden;padding:36px 32px;border-radius:28px;background:radial-gradient(120% 140% at 100% 0%,#c0161e,#4a0b0e 50%,#0f0f10);color:#fff}
+header .top{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+header img{width:52px;height:52px;border-radius:14px}
+header .brand{font:900 22px/1 Arial,sans-serif;letter-spacing:-1px;direction:ltr}
+header .brand span{color:#ff6b70}
+header h1{font-size:40px;line-height:1.35;margin:0 0 12px;font-weight:900}
+header p{margin:0;color:#efd6d8;font-size:16px;max-width:560px;line-height:1.8}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:10px;text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-3px);box-shadow:0 12px 30px #3a141a14}
+.card .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:#fdecec;color:var(--red)}
+.card.dark{background:#17110f;color:#fff;border-color:#17110f}
+.card.dark .ic{background:#ffffff14;color:#fff}
+.card.dark p{color:#cdbfbb}
+.card h2{margin:4px 0 0;font-size:20px}
+.card p{margin:0;color:var(--ink2);font-size:14px;line-height:1.8;flex:1}
+.card .go{font-weight:800;color:var(--red);font-size:14px}
+.card.dark .go{color:#ff8a8e}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.links a{font-size:13px;font-weight:700;color:var(--ink);background:#f6efed;border-radius:999px;padding:6px 12px;text-decoration:none}
+.note{margin-top:20px;font-size:13px;color:var(--ink2);line-height:1.9;background:#fff;border:1px dashed var(--line);border-radius:16px;padding:14px 18px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}header{padding:28px 22px}header h1{font-size:30px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="top"><img src="assets/logo.svg" alt="أكاديمية النخبة"><div class="brand">ELITE<span>SPORTS</span></div></div>
+  <h1>كل الرياضات في مكان واحد.<br>كل لاعب ليه ملف واضح.</h1>
+  <p>نظام كامل لأكاديمية فيها أكتر من رياضة: كورة وسباحة وكاراتيه وجمباز وبادل ولياقة. تطبيق للعضو وولي الأمر والمدرب ومدير الفرع، ولوحة تحكم للإدارة، وموقع للأكاديمية.</p>
+</header>
+
+<div class="grid">
+  <a class="card" href="landing.html">
+    <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg></div>
+    <h2>موقع النادي</h2>
+    <p>الأنشطة والباقات والفرع، وحجز حصة تجربة في 3 خطوات، وصفحة مجتمع النادي.</p>
+    <span class="go">افتح الموقع ←</span>
+  </a>
+  <a class="card dark" href="apps.html">
+    <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+    <h2>تطبيقات الموبايل</h2>
+    <p>العضو وولي الأمر: حصص الأولاد ومستواهم والدفع للعيلة كلها. المدرب: أدوات رياضته (تقسيمة، أحزمة، أزمنة، مهارات). مدير الفرع: التحصيل وحجز الملاعب.</p>
+    <span class="go">افتح التطبيقات ←</span>
+  </a>
+  <a class="card" href="dashboard.html">
+    <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></div>
+    <h2>لوحة الإدارة</h2>
+    <p>الرياضات وخصائص كل واحدة، والمستويات والأحزمة، والملاعب والحجوزات، والعائلات، والتحصيل والتقارير.</p>
+    <span class="go">افتح لوحة التحكم ←</span>
+  </a>
+</div>
+
+<div class="note">
+  <b>نسخة عرض ببيانات تجريبية.</b> كل اللي بتعمله بيتحفظ على الجهاز ده بس.
+  عشان تجرّب الحضور قبل ميعاد الحصة، اضغط «تجربة وقت الحصة» من الشريط اللي فوق في التطبيقات.
+  <div class="links"><a href="dashboard.html#sports">الرياضات والخصائص</a><a href="community.html">المجتمع</a><a href="apps.html">ابدأ كعضو</a><a href="dashboard.html">ابدأ كإدارة</a></div>
+</div>
+</main>
+</body>
+</html>
