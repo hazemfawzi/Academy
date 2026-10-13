@@ -21,9 +21,7 @@ jobs:
         run: node --test tests.cjs
       - name: Prepare static files
         run: |
-          mkdir -p /tmp/academy-site
-          cp -- *.html *.css *.js /tmp/academy-site/
-          cp -R assets /tmp/academy-site/
+          python3 scripts/prepare-static.py
       - name: Deploy over SSH
         env:
           DEPLOY_HOST: ${{ vars.DEPLOY_HOST || 'server1.view-mind.com' }}
