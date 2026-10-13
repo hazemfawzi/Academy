@@ -79,7 +79,8 @@ jobs:
             bash -s -- "$DEPLOY_PATH" < scripts/configure-cache.sh
       - name: Check published pages
         run: |
-          set -euo pipefail
+          set -Eeuo pipefail
+          trap 'echo "::error title=Published page verification::Failed command: $BASH_COMMAND"' ERR
           curl --fail --silent --show-error --retry 3 https://store.view-mind.com/index.html -o /tmp/published-index.html
           grep -q 'أكاديمية النخبة' /tmp/published-index.html
           curl --fail --silent --show-error -D /tmp/academy-headers.txt https://store.view-mind.com/dashboard.html -o /tmp/academy-dashboard.html
