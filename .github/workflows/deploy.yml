@@ -35,6 +35,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          error_log=$(mktemp)
+          exec 2> >(tee "$error_log" >&2)
+          report_failure() {
+            status=$?
+            if (( status != 0 )); then
+              message=$(tail -n 12 "$error_log")
+              message=${message//'%'/'%25'}
+              message=${message//$'\r'/'%0D'}
+              message=${message//$'\n'/'%0A'}
+              echo "::error title=SSH deployment diagnostic::$message"
+            fi
+          }
+          trap report_failure EXIT
           : "${DEPLOY_HOST:?Missing DEPLOY_HOST}"
           : "${DEPLOY_USER:?Missing DEPLOY_USER}"
           : "${DEPLOY_PATH:?Missing DEPLOY_PATH}"
@@ -46,7 +59,8 @@ jobs:
           [[ "$DEPLOY_PATH" =~ ^/home/[a-zA-Z0-9_./-]+$ ]]
           [[ "$DEPLOY_PATH" != *'/../'* && "$DEPLOY_PATH" != */.. ]]
           key_dir=$(mktemp -d)
-          trap 'rm -rf "$key_dir"' EXIT
+          cleanup() { report_failure; rm -rf "$key_dir" "$error_log"; }
+          trap cleanup EXIT
           chmod 700 "$key_dir"
           printf '%s\n' "$DEPLOY_SSH_KEY" > "$key_dir/key"
           ssh-keyscan -T 15 -p "$DEPLOY_PORT" -t ed25519 "$DEPLOY_HOST" > "$key_dir/known_hosts"
