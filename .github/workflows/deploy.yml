@@ -82,6 +82,11 @@ jobs:
           set -euo pipefail
           curl --fail --silent --show-error --retry 3 https://store.view-mind.com/index.html -o /tmp/published-index.html
           grep -q 'أكاديمية النخبة' /tmp/published-index.html
+          curl --fail --silent --show-error -D /tmp/academy-headers.txt https://store.view-mind.com/dashboard.html -o /tmp/academy-dashboard.html
+          grep -qi 'cache-control:.*no-store' /tmp/academy-headers.txt
+          grep -q 'journey.js?v=' /tmp/academy-dashboard.html
+          curl --fail --silent --show-error https://store.view-mind.com/ -o /tmp/academy-root.html
+          grep -q 'journey.js?v=\|landing.html' /tmp/academy-root.html
           curl --fail --silent --show-error https://store.view-mind.com/journey.js -o /tmp/published-journey.js
           cmp journey.js /tmp/published-journey.js
           curl --fail --silent --show-error https://store.view-mind.com/enrollment.js -o /tmp/published-enrollment.js
