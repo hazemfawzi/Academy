@@ -98,6 +98,8 @@ jobs:
           grep -q "academy-ui.js?v=$expected_ui_hash" /tmp/academy-dashboard.html
           curl --fail --silent --show-error "https://store.view-mind.com/academy-ui.css?v=$(sha256sum academy-ui.css | cut -c1-12)" -o /tmp/published-academy-ui.css
           cmp academy-ui.css /tmp/published-academy-ui.css
+          curl --fail --silent --show-error https://store.view-mind.com/assets/fonts/IBMPlexSansArabic-Regular.ttf -o /tmp/published-plex.ttf
+          cmp assets/fonts/IBMPlexSansArabic-Regular.ttf /tmp/published-plex.ttf
           curl --fail --silent --show-error "https://store.view-mind.com/portal.css?v=$(sha256sum portal.css | cut -c1-12)" -o /tmp/published-portal.css
           cmp portal.css /tmp/published-portal.css
           curl --fail --silent --show-error "https://store.view-mind.com/app-entry.js?v=$(sha256sum app-entry.js | cut -c1-12)" -o /tmp/published-app-entry.js
