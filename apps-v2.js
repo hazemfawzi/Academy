@@ -149,7 +149,7 @@
     const health = roster.filter(m => m.medical), unpaid = roster.filter(m => !(m.remaining > 0 && new Date(m.end) >= new Date()));
     const eligible = a.members.filter(m => m.sportLevel && P.eligibility(m)?.eligible).length;
     const tools = SE.tools(AA.sport);
-    return page(`<header class="ax-top"><div class="ax-top-row"><div><small>مساحة التدريب</small><h2>${E(coach)}</h2></div><button type="button" class="ax-icon-btn" aria-label="تصفية" onclick="AppKit.filters()">${icon('list', 20)}</button></div>${sportChips()}</header>`,
+    return page(`<header class="ax-top"><div class="ax-top-row"><div><small>مساحة التدريب</small><h2>${E(coach)}</h2></div><span class="ax-top-actions">${window.Payroll ? `<button type="button" class="ax-icon-btn" aria-label="مستحقاتي" onclick="go('earnings')">${icon('wallet', 20)}</button>` : ''}<button type="button" class="ax-icon-btn" aria-label="تصفية" onclick="AppKit.filters()">${icon('list', 20)}</button></span></div>${sportChips()}</header>`,
       `${next ? `<section class="ax-hero" ${sportTone(d)}><small>${live ? 'الحصة الآن' : 'الحصة القادمة · ' + E(K.until(next.start))}</small><h3>${E(g?.name)}</h3><p>${E(fmt(next.start, { weekday: 'long', hour: 'numeric', minute: '2-digit' }))} · ${E(next.resource || g?.resource || '')}</p>
         <div class="ax-hero-row">${K.stack(roster.map(m => m.name))}<span>${live ? Object.values(next.present).filter(Boolean).length + ' حاضر' : roster.filter(m => next.rsvp[m.id] === 'confirmed').length + ' أكد'} من ${roster.length}</span></div>
         <div class="ax-hero-actions"><button type="button" class="ax-btn light" onclick="AcademyApps.sessionId='${next.id}';go('attend')">${icon('check', 18)} ${live ? 'سجّل الحضور' : 'كشف الحضور'}</button>${window.PlayerCard ? `<button type="button" class="ax-btn ghost" onclick="PlayerCard.rateSession('${next.id}')">${icon('star', 18)} تقييم الحصة</button>` : ''}${window.Checkin ? `<button type="button" class="ax-btn ghost" onclick="go('scan')">${icon('qr', 18)} مسح الأكواد</button>` : ''}</div></section>` : K.empty('لا توجد حصص قادمة', 'الحصص بتتولد من جدول الجروب.')}
@@ -278,7 +278,7 @@
     APPS.coach.tabs = [['home', 'home', 'الرئيسية'], ['sessions', 'cal', 'الحصص'], ['attend', 'check', 'الحضور'], [football ? 'teams' : 'sporttools', football ? 'bolt' : 'star', football ? 'التقسيمة' : 'الأدوات'], ['players', 'users', 'اللاعبون']];
     APPS.manager.tabs = [['home', 'home', 'الرئيسية'], ['gsess', 'cal', 'الحصص'], ['members', 'users', 'اللاعبون'], ['collect', 'wallet', 'التحصيل'], ['gmore', 'more', 'المزيد']];
     if (!APPS.member.list.some(x => x[0] === 'progress')) APPS.member.list.push(['progress', 'التقدم الرياضي']);
-    APPS.member.sub.progress = 'progress'; APPS.member.sub.assistant = 'home'; APPS.member.sub.mycode = 'home'; APPS.member.sub.account = 'account'; APPS.coach.sub.scan = 'home'; APPS.member.sub.sessions = 'sessions';
+    APPS.member.sub.progress = 'progress'; APPS.member.sub.assistant = 'home'; APPS.member.sub.mycode = 'home'; APPS.member.sub.account = 'account'; APPS.coach.sub.scan = 'home'; APPS.coach.sub.earnings = 'home'; APPS.member.sub.sessions = 'sessions';
   };
   AA.configure();
   document.body.classList.add('apps-v2');

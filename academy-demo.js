@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (!window.V || !window.SportEngine) return;
-  const db = V.db, VERSION = 5;
+  const db = V.db, VERSION = 6;
   if ((db.state.sportDemoVersion || 0) >= VERSION) return;
   const firstRun = (db.state.sportDemoVersion || 0) < 1;
 
@@ -242,6 +242,19 @@
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="360" height="560" viewBox="0 0 360 560" font-family="Arial"><rect width="360" height="560" fill="#f4f6f8"/><rect x="20" y="24" width="320" height="512" rx="22" fill="#fff"/><circle cx="180" cy="104" r="36" fill="#e3f4ea"/><path d="M163 104l12 12 24-26" stroke="#1f8a4c" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="180" y="176" text-anchor="middle" font-size="20" font-weight="700" fill="#1d2b24">تم التحويل بنجاح</text><text x="180" y="226" text-anchor="middle" font-size="34" font-weight="700" fill="#1d2b24">${amount} EGP</text><g font-size="14" fill="#6b7a72"><text x="316" y="286" text-anchor="end">إلى</text><text x="316" y="336" text-anchor="end">من</text><text x="316" y="386" text-anchor="end">رقم العملية</text><text x="316" y="436" text-anchor="end">التاريخ</text></g><g font-size="15" font-weight="700" fill="#1d2b24"><text x="44" y="286">academy@bank</text><text x="44" y="336">${kid.guardian?.phone || '01011112233'}</text><text x="44" y="386">TX884213907</text></g><text x="44" y="436" font-size="13" font-weight="700" fill="#1d2b24">${when}</text><text x="180" y="506" text-anchor="middle" font-size="11" fill="#9aa59f">صورة توضيحية لبيانات العرض</text></svg>`;
       s.requests.unshift({ id: 'demo-req-receipt', memberId: kid.id, type: 'payment', status: 'pending', created: iso(daysFrom(-0.05)), payload: { plan: 'monthly', method: 'إنستاباي', reference: '', receipt: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg), discount: 10, charge: { label: `${d.name} · ${p.name}`, price: p.price, sessions: p.sessions, days: 30, programId: p.id } } });
     }
+    s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 5);
+  }));
+
+  /* Version 6: pay terms for every coach, last month already paid, one bonus this month. */
+  if ((db.state.sportDemoVersion || 0) < 6) V.run(() => db.update(s => {
+    const terms = { 'كابتن محمود': { mode: 'fixed', base: 6000 }, 'كابتن سلمى': { mode: 'session', perSession: 300 }, 'سنسي وليد': { mode: 'percent', percent: 40 }, 'كابتن ندى': { mode: 'session', perSession: 280 }, 'كابتن كريم': { mode: 'percent', percent: 35 }, 'كوتش دينا': { mode: 'mixed', base: 2000, perSession: 150 }, 'كابتن رامي': { mode: 'session', perSession: 250 }, 'كابتن هشام': { mode: 'session', perSession: 250 } };
+    s.settings.payroll = s.settings.payroll || Object.fromEntries(Object.entries(terms).map(([k, t]) => [k, { base: 0, perSession: 0, percent: 0, ...t }]));
+    const last = new Date(now.getFullYear(), now.getMonth() - 1, 15), month = `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, '0')}`;
+    s.payrollRuns = s.payrollRuns || [];
+    if (!s.payrollRuns.length && window.PayrollCore) PayrollCore.coaches(s).forEach((c, i) => { const st = PayrollCore.statement(s, c, month); if (st.terms && st.sessions.length) s.payrollRuns.push({ id: 'demo-pay-' + i, coach: c, month, total: st.total, sessions: st.sessions.length, method: i % 2 ? 'إنستاباي' : 'تحويل بنكي', at: iso(new Date(now.getFullYear(), now.getMonth(), 2, 13)) }); });
+    const cur = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    s.payrollAdjust = s.payrollAdjust || [];
+    if (!s.payrollAdjust.length) s.payrollAdjust.push({ id: 'demo-adj-1', coach: 'كابتن سلمى', month: cur, amount: 300, note: 'حصة تقييم إضافية للمستوى 2', at: iso(daysFrom(-2)) });
     s.sportDemoVersion = VERSION;
   }));
 })();
