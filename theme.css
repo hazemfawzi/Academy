@@ -1,0 +1,64 @@
+/* Loaded last: aligns older screens with the shared tokens and styles the dashboard shell. */
+body{font-family:var(--t-font)!important}
+#branchSel,.ac-scope,.sport-workspace .ws-home-sports,.sport-workspace .ac-scope{display:none!important}
+
+/* Header scope */
+.ws-scope{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ws-scope label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t-muted)}
+.ws-scope select{font:inherit;font-size:13px;border:1px solid var(--t-line);border-radius:10px;padding:7px 10px;background:var(--t-surface);color:var(--t-ink);min-height:38px}
+.ws-scope select:focus{outline:none;box-shadow:var(--t-focus);border-color:var(--t-brand)}
+
+/* Sidebar: seven sections */
+.ws-shell .side .nav a{position:relative;display:flex;align-items:center;gap:10px}
+.ws-badge{margin-inline-start:auto;font-style:normal;font-size:11px;font-weight:700;background:var(--t-accent);color:#1f2a22;border-radius:999px;padding:1px 8px;min-width:22px;text-align:center}
+.ws-section-tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--t-line);margin:0 0 18px;scrollbar-width:thin}
+.ws-section-tabs button{font:inherit;font-size:14px;white-space:nowrap;border:0;background:none;padding:10px 14px;color:var(--t-muted);border-bottom:3px solid transparent;cursor:pointer}
+.ws-section-tabs button.on{color:var(--t-brand-strong);border-bottom-color:var(--t-brand);font-weight:700}
+.ws-section-tabs button:focus-visible{outline:none;box-shadow:var(--t-focus)}
+
+/* Home */
+.ws-home2{display:grid;gap:18px;font-family:var(--t-font);color:var(--t-ink)}
+.ws-hello{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+.ws-hello small{color:var(--t-muted);font-size:13px}
+.ws-hello h1{font-size:28px;margin:2px 0 0}
+.ws-quick{display:flex;gap:8px;flex-wrap:wrap}
+.ws-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.ws-kpis button{font:inherit;text-align:right;background:var(--t-surface);border:1px solid var(--t-line);border-radius:var(--t-radius);padding:16px;cursor:pointer;display:grid;gap:4px;color:var(--t-ink);box-shadow:var(--t-shadow)}
+.ws-kpis button:hover{border-color:var(--t-brand)}
+.ws-kpis small{font-size:13px;color:var(--t-muted)}
+.ws-kpis b{font-size:28px;line-height:1.2}
+.ws-kpis span{font-size:12px;color:var(--t-muted)}
+.ws-kpis .attention b{color:var(--t-warn)}
+.ws-home-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.ws-decision2,.ws-today{font:inherit;width:100%;display:grid;align-items:center;gap:12px;text-align:right;border:0;border-top:1px solid var(--t-line-2);background:none;padding:12px 2px;cursor:pointer;color:var(--t-ink)}
+.ws-decision2{grid-template-columns:44px 1fr auto}
+.ws-decision2>b{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--t-surface-2);font-size:16px}
+.ws-decision2.warn>b{background:var(--t-warn-soft);color:var(--t-warn)}
+.ws-decision2.ok>b{background:var(--t-ok-soft);color:var(--t-ok)}
+.ws-decision2 span,.ws-today span{display:grid;gap:2px}
+.ws-decision2 small,.ws-today small{font-size:12px;color:var(--t-muted)}
+.ws-decision2 i{font-style:normal;color:var(--t-muted)}
+.ws-decision2:hover,.ws-today:hover{background:var(--t-surface-2)}
+.ws-today{grid-template-columns:64px 1fr auto}
+.ws-today time{font-weight:700;color:var(--t-brand-strong)}
+.ws-today em{font-style:normal;font-size:12px;color:var(--t-muted)}
+.ws-clear{color:var(--t-muted);font-size:14px;margin:6px 0}
+.ws-sport-rows{display:grid;gap:6px}
+.ws-sport-rows button{font:inherit;display:grid;grid-template-columns:40px 1fr auto;grid-template-rows:auto auto;gap:0 10px;align-items:center;text-align:right;border:1px solid var(--t-line-2);border-radius:12px;background:var(--t-surface);padding:8px 10px;cursor:pointer;color:var(--t-ink)}
+.ws-sport-rows button:hover{border-color:var(--sport)}
+.ws-sport-rows .sb-icon{grid-row:1/3;width:38px;height:38px;font-size:20px}
+.ws-sport-rows small{font-size:12px;color:var(--t-muted)}
+.ws-sport-rows b{grid-row:1/3;grid-column:3;font-size:18px}
+.ws-bars{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:170px;padding-top:10px}
+.ws-bars div{display:grid;grid-template-rows:1fr auto;height:100%;gap:6px;text-align:center}
+.ws-bars i{align-self:end;display:block;background:var(--t-brand);border-radius:6px 6px 2px 2px;min-height:2px}
+.ws-bars small{font-size:11px;color:var(--t-muted)}
+
+/* Older sport dashboard: calm cards instead of a rainbow */
+.ny-kpi{background:var(--t-surface)!important;border:1px solid var(--t-line)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)}
+.ny-kpi b,.ny-kpi small,.ny-kpi p{color:inherit!important}
+.ny-kpi p{color:var(--t-muted)!important}
+.ny-kpi-top i{background:var(--t-brand-soft)!important;color:var(--t-brand)!important}
+
+@media (max-width:1000px){.ws-home-grid{grid-template-columns:1fr}.ws-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){.ws-scope label span{display:none}.ws-scope select{max-width:130px}.ws-hello h1{font-size:24px}.ws-quick .sb-btn{flex:1}}
