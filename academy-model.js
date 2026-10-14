@@ -20,18 +20,19 @@
   const start=new Date(data.start).getTime(),duration=Number(data.duration);
   if(!Number.isFinite(start))fail('حدد تاريخ ووقت صحيحين');
   if(!Number.isInteger(duration)||duration<15||duration>240)fail('مدة الحصة من 15 إلى 240 دقيقة');
-  if(!String(data.coach||'').trim())fail('حدد المدرب المسؤول');
-  if(!String(data.resource||'').trim())fail('حدد الملعب أو مساحة التدريب');
+  const coach=String(data.coach||'').trim(),resource=String(data.resource||'').trim();
+  if(!coach)fail('حدد المدرب المسؤول');
+  if(!resource)fail('حدد الملعب أو مساحة التدريب');
   const end=start+duration*60000;
   for(const s of state.sessions){
    if(s.id===data.id||s.status==='cancelled')continue;
    const gs=state.groups.find(g=>g.id===s.group),overlap=start<new Date(s.start).getTime()+s.duration*60000&&end>new Date(s.start).getTime();
    if(!overlap)continue;
    if(s.group===data.group)fail('الجروب لديه حصة متعارضة في هذا الوقت');
-   if(s.coach&&s.coach.trim()===data.coach.trim())fail('المدرب لديه حصة أخرى في هذا الوقت');
-   if(gs?.branch===group.branch&&s.resource&&s.resource.trim()===data.resource.trim())fail('مساحة التدريب محجوزة في هذا الوقت');
+   if(s.coach&&String(s.coach).trim()===coach)fail('المدرب لديه حصة أخرى في هذا الوقت');
+   if(gs?.branch===group.branch&&s.resource&&String(s.resource).trim()===resource)fail('مساحة التدريب محجوزة في هذا الوقت');
   }
-  return {...data,start:new Date(start).toISOString(),duration,coach:data.coach.trim(),resource:data.resource.trim()};
+  return {...data,start:new Date(start).toISOString(),duration,coach,resource};
  }
  const api={day,status,scope,summary,validateSession};root.AcademyModel=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

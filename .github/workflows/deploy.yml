@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: '24'
       - name: Verify application
-        run: node --test tests.cjs academy-model.test.cjs
+        run: node --test tests.cjs academy-model.test.cjs sport-engine.test.cjs family-schedule.test.cjs
       - name: Prepare static files
         run: |
           python3 scripts/prepare-static.py

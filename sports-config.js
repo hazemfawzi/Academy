@@ -2,7 +2,7 @@
    and demo data for the sport-specific screens. Shared by the dashboard and the mobile apps. */
 (function (root) {
   'use strict';
-  const ACADEMY = { name: 'أكاديمية النخبة الرياضية', short: 'النخبة', latin: 'ELITE SPORTS' };
+  const ACADEMY = { name: 'أكاديمية النخبة الرياضية', short: 'النخبة', latin: 'ELITE ACADEMY' };
 
   const MODULES = {
     teams:       { name: 'تقسيم فرق متوازن',        desc: 'تقسيمة بالمستوى والمركز لأي عدد حاضرين' },

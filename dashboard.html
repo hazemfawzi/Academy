@@ -4,17 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>أكاديمية النخبة — لوحة التحكم</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
   --bg:#f6f3f3;--card:#fff;--ink:#1a1414;--muted:#7a6e6e;--line:#ece4e4;
-  --brand:#9e1016;--brand2:#e01f26;--lime:#ff4d4d;--navy:#111111;
+  --brand:#1f4637;--brand2:#2d604c;--lime:#ff4d4d;--navy:#111111;
   --red:#d64545;--redbg:#fde8e8;--orange:#d9822b;--orbg:#fdf0e1;--blue:#2f6fd6;--bluebg:#e6effc;
   --greenbg:#e3f6ea;--radius:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+body{font-family:AcademyPlex,Tahoma,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
 button{font-family:inherit;cursor:pointer}
 input,select,textarea{font-family:inherit;font-size:14px}
 .app{display:flex;min-height:100vh}
@@ -55,7 +55,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .kpi .d{font-size:12px;margin-top:4px}.up{color:var(--brand2)}.down{color:var(--red)}
 .badge{display:inline-block;padding:1px 9px;border-radius:20px;font-size:11.5px;font-weight:700}
 .b-green{background:var(--greenbg);color:#137a3f}.b-red{background:var(--redbg);color:var(--red)}.b-or{background:var(--orbg);color:var(--orange)}.b-blue{background:var(--bluebg);color:var(--blue)}.b-gray{background:#f2eded;color:var(--muted)}
-.star{background:#fdecec;color:#b3141b;border:1px solid #f3c2c4;font-size:10.5px;padding:0 7px;border-radius:6px;font-weight:700}
+.star{background:#e6f0ea;color:#b3141b;border:1px solid #f3c2c4;font-size:10.5px;padding:0 7px;border-radius:6px;font-weight:700}
 .ph2{background:#efe9fb;color:#6b46c1;border:1px solid #d9cdf5;font-size:10.5px;padding:0 7px;border-radius:6px;font-weight:700}
 table{width:100%;border-collapse:collapse}
 th{text-align:right;font-size:12px;color:var(--muted);font-weight:700;padding:9px 8px;border-bottom:1px solid var(--line);background:#fbf9f9}
@@ -71,7 +71,7 @@ tr.click:hover td{background:#fcf6f6;cursor:pointer}
 .sched{display:grid;grid-template-columns:80px repeat(6,1fr);gap:6px}
 .sched .h{font-weight:700;font-size:12px;color:var(--muted);text-align:center;padding:6px}
 .sched .t{font-size:12px;color:var(--muted);display:flex;align-items:center}
-.slot{background:#fdecec;border-inline-start:3px solid var(--brand2);border-radius:8px;padding:6px 8px;font-size:11.5px;min-height:46px}
+.slot{background:#e6f0ea;border-inline-start:3px solid var(--brand2);border-radius:8px;padding:6px 8px;font-size:11.5px;min-height:46px}
 .slot b{display:block;font-size:12px}
 .slot.b2{background:var(--bluebg);border-color:var(--blue)}.slot.b3{background:var(--orbg);border-color:var(--orange)}
 .empty{min-height:46px}
@@ -86,7 +86,7 @@ tr.click:hover td{background:#fcf6f6;cursor:pointer}
 .toggle.on::after{right:21px}
 .chk{width:22px;height:22px;border-radius:6px;border:2px solid #cdbfbf;display:grid;place-items:center;flex-shrink:0;background:#fff;font-size:13px;color:#fff}
 .chk.on{background:var(--brand2);border-color:var(--brand2)}
-.pitch{background:linear-gradient(135deg,#9e1016,#e01f26);border-radius:14px;padding:16px;color:#fff;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pitch{background:linear-gradient(135deg,#1f4637,#2d604c);border-radius:14px;padding:16px;color:#fff;display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .team{background:rgba(255,255,255,.12);border-radius:10px;padding:12px}
 .team h4{margin-bottom:8px}
 .team div{padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.25);font-size:13px;display:flex;justify-content:space-between}
@@ -146,7 +146,7 @@ option,optgroup{color:var(--ink);background:#fff}
 .tcard .hd{padding:10px 12px;display:flex;align-items:center;gap:8px;font-weight:800}
 .tcard .pl{display:flex;align-items:center;gap:8px;padding:8px 12px;border-top:1px solid #f3eeee;cursor:pointer;user-select:none}
 .tcard .pl:hover{background:#fcf6f6}
-.tcard .pl.sel{background:#fdecec;box-shadow:inset 3px 0 0 var(--brand2)}
+.tcard .pl.sel{background:#e6f0ea;box-shadow:inset 3px 0 0 var(--brand2)}
 .pos{font-size:10.5px;font-weight:800;border-radius:6px;padding:0 6px;background:#f2eded;color:var(--muted)}
 .pos.gk{background:#fff4cc;color:#8a6a00}
 .big{font-size:16px;padding:12px 18px;width:100%}
@@ -154,20 +154,20 @@ option,optgroup{color:var(--ink);background:#fff}
 .cellc{display:flex;justify-content:center}
 .chk[disabled]{opacity:.55;cursor:not-allowed}
 .grip{color:#bdb1af;touch-action:none;cursor:grab;padding:6px 3px;display:grid;place-items:center;flex-shrink:0;margin-inline-start:-6px}
-.grip:active{cursor:grabbing;color:#e01f26}
-.drag-ghost{position:fixed;z-index:9999;pointer-events:none;background:#fff;box-shadow:0 18px 40px rgba(0,0,0,.28);border-radius:14px;transform:rotate(-2deg) scale(1.04);display:flex;align-items:center;gap:8px;padding:10px 14px;font-family:Cairo,sans-serif;font-size:14px}
+.grip:active{cursor:grabbing;color:#2d604c}
+.drag-ghost{position:fixed;z-index:9999;pointer-events:none;background:#fff;box-shadow:0 18px 40px rgba(0,0,0,.28);border-radius:14px;transform:rotate(-2deg) scale(1.04);display:flex;align-items:center;gap:8px;padding:10px 14px;font-family:AcademyPlex,sans-serif;font-size:14px}
 .drag-src{opacity:.3}
-.drop-on{outline:3px dashed #e01f26;outline-offset:3px;transform:scale(1.015);transition:transform .12s}
+.drop-on{outline:3px dashed #2d604c;outline-offset:3px;transform:scale(1.015);transition:transform .12s}
 body.dragging{user-select:none;-webkit-user-select:none;cursor:grabbing}
 </style>
 <link rel="stylesheet" href="v2.css"><link rel="stylesheet" href="dashboard.css"><link rel="stylesheet" href="finance.css"><script src="avatars.js"></script><script src="core.js"></script><script src="demo-data.js"></script><link rel="stylesheet" href="refinements.css"><link rel="stylesheet" href="prototype-flow.css"><link rel="stylesheet" href="avatars.css"><link rel="stylesheet" href="fixes.css"><link rel="stylesheet" href="ms.css"><link rel="stylesheet" href="journey.css">
 <link rel="stylesheet" href="team-cards.css">
-<link rel="stylesheet" href="academy-ui.css">
-</head>
+<link rel="stylesheet" href="academy-ui.css"><link rel="stylesheet" href="design-tokens.css"><link rel="stylesheet" href="registration.css"><link rel="stylesheet" href="sport-builder.css"><link rel="stylesheet" href="sport-apps.css"><link rel="stylesheet" href="programs.css">
+<link rel="stylesheet" href="theme.css"></head>
 <body>
 <div class="app">
   <aside class="side" id="side">
-    <div class="logo"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgcng9IjU2IiBmaWxsPSIjMTExIi8+PHBhdGggZD0iTTEyOCAzNGw3OCAyOHY2MmMwIDUwLTMzIDg2LTc4IDEwMC00NS0xNC03OC01MC03OC0xMDBWNjJ6IiBmaWxsPSIjZTAxZjI2Ii8+PHBhdGggZD0iTTEyOCA1OGw1NiAyMHY0NmMwIDM2LTIzIDYyLTU2IDc0LTMzLTEyLTU2LTM4LTU2LTc0Vjc4eiIgZmlsbD0iIzExMSIvPjxwYXRoIGQ9Ik05OCA5Nmg2MHYxNmgtNDJ2MTZoMzZ2MTZoLTM2djE2aDQ0djE2SDk4eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPgo=" alt="Elite Sports" style="width:46px;height:46px;border-radius:12px;object-fit:cover"><div><b>ELITE <span style="color:#ff3b3b">SPORTS</span></b><small>أكاديمية رياضات متعددة</small></div></div>
+    <div class="logo"><img src="assets/logo.svg" alt="Elite Sports" style="width:46px;height:46px;border-radius:12px;object-fit:cover"><div><b>ELITE <span style="color:#c6a45b">ACADEMY</span></b><small>أكاديمية رياضات متعددة</small></div></div>
     <nav class="nav" id="nav"></nav>
     <div class="foot">
       <div class="plan">
@@ -247,7 +247,7 @@ function go(p){state.page=p;$("side").classList.remove("show");render();window.s
 function toast(t){const e=$("toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),2200)}
 function closeAll(){["ov","drawer","modal"].forEach(i=>$(i).classList.remove("show"))}
 function modal(h){$("modal").innerHTML=`<button class="x" onclick="closeAll()">×</button>`+h;$("modal").classList.add("show");$("ov").classList.add("show")}
-function chart(id,cfg){const c=$(id);if(!c||!window.Chart)return;cfg.options=Object.assign({responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:"Cairo"}}}},scales:cfg.type==="doughnut"?{}:{x:{ticks:{font:{family:"Cairo"}},grid:{display:false}},y:{ticks:{font:{family:"Cairo"}},beginAtZero:true}}},cfg.options||{});charts.push(new Chart(c,cfg))}
+function chart(id,cfg){const c=$(id);if(!c||!window.Chart)return;cfg.options=Object.assign({responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:"AcademyPlex"}}}},scales:cfg.type==="doughnut"?{}:{x:{ticks:{font:{family:"AcademyPlex"}},grid:{display:false}},y:{ticks:{font:{family:"AcademyPlex"}},beginAtZero:true}}},cfg.options||{});charts.push(new Chart(c,cfg))}
 
 const PAGES={
 dash(){
@@ -280,7 +280,7 @@ dash(){
     </div>
   </div>`;
 },
-dash_after(){chart("c1",{type:"bar",data:{labels:["أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر"],datasets:[{label:"المستحق",data:[150,158,162,170,175,201],backgroundColor:"#f1d6d7",borderRadius:6},{label:"المحصّل",data:[128,140,151,160,166,186],backgroundColor:"#e01f26",borderRadius:6}]},options:{plugins:{legend:{position:"bottom",labels:{font:{family:"Cairo"}}},tooltip:{callbacks:{label:c=>c.dataset.label+": "+c.raw+" ألف ج"}}}}})},
+dash_after(){chart("c1",{type:"bar",data:{labels:["أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر"],datasets:[{label:"المستحق",data:[150,158,162,170,175,201],backgroundColor:"#f1d6d7",borderRadius:6},{label:"المحصّل",data:[128,140,151,160,166,186],backgroundColor:"#2d604c",borderRadius:6}]},options:{plugins:{legend:{position:"bottom",labels:{font:{family:"AcademyPlex"}}},tooltip:{callbacks:{label:c=>c.dataset.label+": "+c.raw+" ألف ج"}}}}})},
 
 branches(){
   const d={"الشيخ زايد":[3,112,"84,000","91%"],"أكتوبر":[2,71,"53,200","78%"],"المهندسين":[2,65,"49,200","85%"]};
@@ -324,7 +324,7 @@ attendance(){
   <div class="card"><h3>QR العضو</h3><div style="display:grid;place-items:center;padding:10px">${qr()}</div><div class="muted" style="text-align:center">العضو يفتح الـ QR من بوابته، والمدرب أو الاستقبال يمسحه. لو الاشتراك منتهي يظهر تنبيه فوراً.</div>
    <h3 style="margin-top:16px">حضور الأسبوع</h3><div class="ch" style="height:170px"><canvas id="c2"></canvas></div></div></div>`;
 },
-attendance_after(){chart("c2",{type:"bar",data:{labels:DAYS,datasets:[{label:"نسبة الحضور %",data:[88,79,91,84,86,72],backgroundColor:"#e01f26",borderRadius:6}]},options:{plugins:{legend:{display:false}}}})},
+attendance_after(){chart("c2",{type:"bar",data:{labels:DAYS,datasets:[{label:"نسبة الحضور %",data:[88,79,91,84,86,72],backgroundColor:"#2d604c",borderRadius:6}]},options:{plugins:{legend:{display:false}}}})},
 
 billing(){
   const t=state.billTab;
@@ -345,7 +345,7 @@ billing(){
    ${[["1 أكتوبر","أحمد سامي","تجديد شهري","إنستاباي","900","أ. رامي"],["1 أكتوبر","هشام فؤاد","3 شهور","كاش","2,400","أ. هاني"],["30 سبتمبر","مازن رضا","تجديد شهري","فودافون كاش","900","أ. وائل"],["30 سبتمبر","إسلام وليد","تجديد شهري","كاش","810","أ. رامي"],["29 سبتمبر","يوسف حسن","6 شهور","إنستاباي","4,500","أ. رامي"]].map(r=>`<tr><td>${r[0]}</td><td><b>${r[1]}</b></td><td>${r[2]}</td><td><span class="badge b-gray">${r[3]}</span></td><td><b>${r[4]} ج</b></td><td>${r[5]}</td><td><button class="btn sm ghost" onclick="modal(receipt())">PDF</button></td></tr>`).join("")}</table></div><div class="muted" style="margin-top:8px">🔒 أي تعديل أو حذف لحركة مالية بيتسجل في سجل التدقيق باسم اللي عمله.</div></div>`;
   return `<div class="tabs">${tabs.map(([k,l])=>`<button class="${t===k?'on':''}" onclick="state.billTab='${k}';render()">${l}</button>`).join("")}</div>${body}`;
 },
-billing_after(){if(state.billTab==="collect")chart("c3",{type:"doughnut",data:{labels:["كاش","إنستاباي","فودافون كاش"],datasets:[{data:[4200,5400,1800],backgroundColor:["#9e1016","#e01f26","#ff9a9a"]}]},options:{plugins:{legend:{position:"bottom",labels:{font:{family:"Cairo"}}}}}})},
+billing_after(){if(state.billTab==="collect")chart("c3",{type:"doughnut",data:{labels:["كاش","إنستاباي","فودافون كاش"],datasets:[{data:[4200,5400,1800],backgroundColor:["#1f4637","#2d604c","#9cc7b0"]}]},options:{plugins:{legend:{position:"bottom",labels:{font:{family:"AcademyPlex"}}}}}})},
 
 matches(){
   const t=state.matchTab;
@@ -363,10 +363,10 @@ nutrition(){
 },
 nutrition_after(){
   const t=state.nutTab;
-  if(t==="overview")chart("c11",{type:"bar",data:{labels:GROUPS.map(g=>g.name),datasets:[{label:"الالتزام %",data:[78,74,61,70,66,81,52],backgroundColor:[78,74,61,70,66,81,52].map(v=>v<60?"#d64545":v<70?"#d9822b":"#2b2b2b"),borderRadius:6}]},options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{max:100,ticks:{font:{family:"Cairo"}}},y:{ticks:{font:{family:"Cairo"}}}}}});
+  if(t==="overview")chart("c11",{type:"bar",data:{labels:GROUPS.map(g=>g.name),datasets:[{label:"الالتزام %",data:[78,74,61,70,66,81,52],backgroundColor:[78,74,61,70,66,81,52].map(v=>v<60?"#d64545":v<70?"#d9822b":"#2b2b2b"),borderRadius:6}]},options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{max:100,ticks:{font:{family:"AcademyPlex"}}},y:{ticks:{font:{family:"AcademyPlex"}}}}}});
   if(t==="member"){nutCalc();
-    chart("c4",{type:"line",data:{labels:["يونيو","يوليو","أغسطس","سبتمبر","أكتوبر"],datasets:[{label:"الوزن (كجم)",data:[90,88.5,87,85.2,84],borderColor:"#e01f26",backgroundColor:"rgba(224,31,38,.12)",fill:true,tension:.35}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:false}}}});
-    chart("c10",{type:"bar",data:{labels:[...Array(14)].map((_,i)=>String(18+i>30?18+i-30:18+i)),datasets:[{label:"الوجبات المسجلة %",data:[100,80,60,100,100,40,80,100,60,80,100,100,20,80],backgroundColor:"#e01f26",borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{max:100}}}});}
+    chart("c4",{type:"line",data:{labels:["يونيو","يوليو","أغسطس","سبتمبر","أكتوبر"],datasets:[{label:"الوزن (كجم)",data:[90,88.5,87,85.2,84],borderColor:"#2d604c",backgroundColor:"rgba(45,96,76,.12)",fill:true,tension:.35}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:false}}}});
+    chart("c10",{type:"bar",data:{labels:[...Array(14)].map((_,i)=>String(18+i>30?18+i-30:18+i)),datasets:[{label:"الوجبات المسجلة %",data:[100,80,60,100,100,40,80,100,60,80,100,100,20,80],backgroundColor:"#2d604c",borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{max:100}}}});}
 },
 
 comms(){
@@ -390,8 +390,8 @@ reports(){
    <table><tr><th>العضو</th><th>الجروب</th><th>الحضور</th><th>نهاية الاشتراك</th><th>الخطورة</th></tr>${risk.map(x=>`<tr><td><b>${x.n}</b></td><td>${gName(x.g)}</td><td>${x.att}%</td><td>${x.end}</td><td><span class="badge ${x.att<50?'b-red':'b-or'}">${x.att<50?'عالية':'متوسطة'}</span></td></tr>`).join("")}</table></div>`;
 },
 reports_after(){
-  chart("c6",{type:"bar",data:{labels:BR,datasets:[{label:"أغسطس",data:[76,49,46],backgroundColor:"#f1d6d7",borderRadius:6},{label:"سبتمبر",data:[84,53.2,49.2],backgroundColor:"#e01f26",borderRadius:6}]},options:{plugins:{legend:{position:"bottom",labels:{font:{family:"Cairo"}}}}}});
-  chart("c7",{type:"bar",data:{labels:GROUPS.map(g=>g.name),datasets:[{label:"%",data:[91,88,72,80,77,86,64],backgroundColor:["#2b2b2b","#2b2b2b","#d9822b","#2b2b2b","#2b2b2b","#2b2b2b","#e01f26"],borderRadius:6}]},options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{max:100,ticks:{font:{family:"Cairo"}}},y:{ticks:{font:{family:"Cairo"}}}}}});
+  chart("c6",{type:"bar",data:{labels:BR,datasets:[{label:"أغسطس",data:[76,49,46],backgroundColor:"#f1d6d7",borderRadius:6},{label:"سبتمبر",data:[84,53.2,49.2],backgroundColor:"#2d604c",borderRadius:6}]},options:{plugins:{legend:{position:"bottom",labels:{font:{family:"AcademyPlex"}}}}}});
+  chart("c7",{type:"bar",data:{labels:GROUPS.map(g=>g.name),datasets:[{label:"%",data:[91,88,72,80,77,86,64],backgroundColor:["#2b2b2b","#2b2b2b","#d9822b","#2b2b2b","#2b2b2b","#2b2b2b","#2d604c"],borderRadius:6}]},options:{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{max:100,ticks:{font:{family:"AcademyPlex"}}},y:{ticks:{font:{family:"AcademyPlex"}}}}}});
 },
 
 users(){
@@ -437,10 +437,10 @@ users(){
 settings(){
   return `<div class="grid g2e">
   <div class="card"><h3>هوية النادي</h3>
-   <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgcng9IjU2IiBmaWxsPSIjMTExIi8+PHBhdGggZD0iTTEyOCAzNGw3OCAyOHY2MmMwIDUwLTMzIDg2LTc4IDEwMC00NS0xNC03OC01MC03OC0xMDBWNjJ6IiBmaWxsPSIjZTAxZjI2Ii8+PHBhdGggZD0iTTEyOCA1OGw1NiAyMHY0NmMwIDM2LTIzIDYyLTU2IDc0LTMzLTEyLTU2LTM4LTU2LTc0Vjc4eiIgZmlsbD0iIzExMSIvPjxwYXRoIGQ9Ik05OCA5Nmg2MHYxNmgtNDJ2MTZoMzZ2MTZoLTM2djE2aDQ0djE2SDk4eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPgo=" alt="Elite Sports" style="width:64px;height:64px;border-radius:12px;object-fit:cover"><button class="btn sm ghost">تغيير اللوجو</button></div>
+   <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px"><img src="assets/logo.svg" alt="Elite Sports" style="width:64px;height:64px;border-radius:12px;object-fit:cover"><button class="btn sm ghost">تغيير اللوجو</button></div>
    <div class="field"><label>اسم النادي</label><input value="أكاديمية النخبة"></div>
    <div class="field"><label>رابط البوابة</label><input value="koragym.platform.app" dir="ltr"></div>
-   <div class="field"><label>اللون الأساسي</label><div style="display:flex;gap:8px">${["#e01f26","#9e1016","#2f6fd6","#d64545","#111"].map((c,i)=>`<span style="width:30px;height:30px;border-radius:8px;background:${c};${i===0?'outline:3px solid #111':''}"></span>`).join("")}</div></div>
+   <div class="field"><label>اللون الأساسي</label><div style="display:flex;gap:8px">${["#2d604c","#1f4637","#2f6fd6","#d64545","#111"].map((c,i)=>`<span style="width:30px;height:30px;border-radius:8px;background:${c};${i===0?'outline:3px solid #111':''}"></span>`).join("")}</div></div>
    <div class="grid g2e" style="gap:10px"><div class="field"><label>العملة</label><select><option>جنيه مصري</option><option>ريال سعودي</option></select></div><div class="field"><label>المنطقة الزمنية</label><select><option>القاهرة</option><option>الرياض</option></select></div></div></div>
   <div class="card"><h3>باقة المنصة</h3>
    <div class="grid g2e" style="gap:10px">${[["مجانية","0","حتى 30 عضو"],["أساسية","499","حتى 100 عضو"],["نمو","999","حتى 300 عضو",1],["احترافية","1,999","غير محدود"]].map(p=>`<div class="plancard" style="${p[3]?'border:2px solid var(--brand2);background:#fdf1f1':''}"><b>${p[0]}</b><div class="p" style="font-size:20px">${p[1]} ج</div><div class="muted">${p[2]}</div>${p[3]?'<span class="badge b-green" style="margin-top:6px">باقتك الحالية</span>':''}</div>`).join("")}</div>
@@ -503,7 +503,7 @@ group(){
 },
 group_after(){
   const ps=PLAYERS.filter(p=>p.g===state.gid);
-  chart("c8",{type:"line",data:{labels:["أ1","أ2","أ3","أ4","أ5","أ6","أ7","أ8"],datasets:[{label:"الحضور %",data:[72,78,75,81,84,79,86,83].map(v=>v-(state.gid%3)*4),borderColor:"#e01f26",backgroundColor:"rgba(224,31,38,.12)",fill:true,tension:.35}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,max:100}}}});
+  chart("c8",{type:"line",data:{labels:["أ1","أ2","أ3","أ4","أ5","أ6","أ7","أ8"],datasets:[{label:"الحضور %",data:[72,78,75,81,84,79,86,83].map(v=>v-(state.gid%3)*4),borderColor:"#2d604c",backgroundColor:"rgba(45,96,76,.12)",fill:true,tension:.35}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,max:100}}}});
   chart("c9",{type:"bar",data:{labels:["★","★★","★★★","★★★★","★★★★★"],datasets:[{label:"عدد اللاعبين",data:[1,2,3,4,5].map(l=>ps.filter(p=>p.lvl===l).length),backgroundColor:"#2b2b2b",borderRadius:6}]},options:{plugins:{legend:{display:false}}}});
 },
 
@@ -518,7 +518,7 @@ function render(){
   charts.splice(0).forEach(c=>c.destroy());
   $("nav").innerHTML=navHTML();
   const lbl=NAV.flatMap(x=>x[1]).find(x=>x[0]===state.page);
-  $("title").textContent=state.page==="group"?gName(state.gid):state.page==="coach"?COACHES[state.cid].n:lbl[2];
+  $("title").textContent=state.page==="group"?gName(state.gid):state.page==="coach"?COACHES[state.cid].n:lbl?lbl[2]:(window.PAGE_TITLES||{})[state.page]||"";
   $("content").innerHTML=PAGES[state.page]();
   const a=PAGES[state.page+"_after"];if(a)a();
 }
@@ -571,7 +571,7 @@ function rgSet(id){state.rg=id;render()}
 function ratingTab(){
  const gid=state.rg,g=GROUPS.find(x=>x.id===gid),rows=PLAYERS.filter(p=>p.g===gid).map(p=>({p,r:RATE[p.n],f:finalScore(p.n)})).sort((a,b)=>b.f-a.f);
  const due=rows.filter(({r})=>r.at==="12 سبتمبر").length;
- const src=(k,num,title,badge,desc)=>`<div class="card"><h3>${num}. ${title} <span class="badge ${badge}">${RW[k]}%</span></h3><div class="muted" style="min-height:60px">${desc}</div><label class="muted" style="display:block;margin-top:10px">الوزن في التقييم النهائي</label><input type="range" min="0" max="100" step="5" value="${RW[k]}" onchange="setW('${k}',this.value)" style="width:100%;accent-color:#e01f26"></div>`;
+ const src=(k,num,title,badge,desc)=>`<div class="card"><h3>${num}. ${title} <span class="badge ${badge}">${RW[k]}%</span></h3><div class="muted" style="min-height:60px">${desc}</div><label class="muted" style="display:block;margin-top:10px">الوزن في التقييم النهائي</label><input type="range" min="0" max="100" step="5" value="${RW[k]}" onchange="setW('${k}',this.value)" style="width:100%;accent-color:#2d604c"></div>`;
  return `<div class="card"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>الجروب:</b>${groupSelect(gid,"rgSet")}<span class="muted">${g.coaches.filter(c=>c[1]!=='تغذية').map(c=>c[0]+" ("+c[1]+")").join("، ")}</span><span class="sp f1"></span>${due?`<span class="badge b-or">${due} لاعب محتاج مراجعة شهرية</span>`:''}<button class="btn sm" onclick="addToGroup(${gid})">+ إضافة لاعب للجروب</button></div></div>
  <div class="card" style="margin-top:16px"><h3>تقييمات ${g.name} <span class="badge b-gray">${rows.length} لاعب</span><span class="sp"></span><span class="muted">🔒 اللاعب بيشوف تقييمه هو بس</span></h3><div class="tbl-wrap"><table><tr><th>اللاعب</th><th>المركز</th><th>المدرب /5</th><th>🧤 حراسة</th><th>ماتشات</th><th>الأداء /100</th><th>الزملاء /100</th><th>النهائي /100</th><th>المستوى</th><th>آخر تقييم</th><th></th></tr>
  ${rows.map(({p,r,f})=>{const prov=r.m<5;return `<tr><td><b>${p.n}</b>${prov?' <span class="badge b-or">جديد</span>':''}</td><td><span class="pos ${p.pos==='حارس'?'gk':''}">${p.pos}</span></td><td>${coachAvg(p.n).toFixed(1)}</td><td>${r.gk!=null?r.gk+' / 5':'<span class="muted">—</span>'}</td><td>${r.m}</td><td>${prov?'—':r.perf}</td><td>${prov?'—':r.peer}</td><td><b>${f}</b> <span class="${r.trend>0?'up':r.trend<0?'down':'muted'}" style="font-size:12px">${r.trend>0?'▲':r.trend<0?'▼':'•'}</span></td><td style="color:#d9822b;white-space:nowrap">${"★".repeat(p.lvl)}<span style="color:#ddd">${"★".repeat(5-p.lvl)}</span></td><td class="muted" style="white-space:nowrap">${r.at}</td><td><button class="btn sm ghost" onclick="modal(rateModal('${p.n}'))">قيّم</button></td></tr>`}).join("")}</table></div></div>
@@ -701,7 +701,7 @@ function atgSave(){const gid=ATG.gid;let msg;
  syncLvl();closeAll();render();toast(msg)}
 
 /* ---------- team builder ---------- */
-const BIBS=[["أحمر","#e01f26","#fff"],["أسود","#111","#fff"],["أبيض","#fff","#111"],["أصفر","#f5c518","#111"]];
+const BIBS=[["أحمر","#2d604c","#fff"],["أسود","#111","#fff"],["أبيض","#fff","#111"],["أصفر","#f5c518","#111"]];
 const TB={gid:1,present:null,size:"auto",gk:true,avoid:true,teams:null,sel:null,mins:8};
 TB.present=new Set(defPresent(1));
 function tbGroup(id,keep){TB.gid=id;TB.present=new Set(defPresent(id));TB.teams=null;if(!keep)render()}
@@ -837,7 +837,7 @@ function nutOverview(){
 }
 function nutPrograms(){
   return `<div class="grid g3">${PROGS.map((p,i)=>`<div class="card"><h3>🥗 ${p.n}</h3><div class="muted">${p.goal} · ${p.kcal} سعر يومياً · ${[8,12,4,8,4][i]} أسابيع</div>
-    <div class="macro"><i style="width:${p.m[0]}%;background:#e01f26"></i><i style="width:${p.m[1]}%;background:#111"></i><i style="width:${p.m[2]}%;background:#d9822b"></i></div>
+    <div class="macro"><i style="width:${p.m[0]}%;background:#2d604c"></i><i style="width:${p.m[1]}%;background:#111"></i><i style="width:${p.m[2]}%;background:#d9822b"></i></div>
     <div class="muted">بروتين ${p.m[0]}% · كارب ${p.m[1]}% · دهون ${p.m[2]}%</div>
     <div class="muted" style="margin-top:4px">🏃 يوم تمرين + 😴 يوم راحة · ${4+i%3} وجبات · من د. ريم</div>
     <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><span class="badge b-blue">👥 ${p.g} جروب</span><span class="badge b-or">👤 ${p.i} فرد</span></div>
@@ -880,7 +880,7 @@ function nutBuilder(){
   </div></div></div>`;
 }
 function nutCalc(){const v=id=>+(($(id)||{}).value)||0;if(!$("cw"))return;const w=v("cw"),hh=v("ch"),a=v("ca"),act=v("cact"),goal=v("cgoal"),bmr=10*w+6.25*hh-5*a+5,tdee=bmr*act,kc=Math.round((tdee+goal)/10)*10,pr=Math.round(w*(goal<0?2.2:2)),fa=Math.round(kc*.25/9),cb=Math.max(0,Math.round((kc-pr*4-fa*9)/4));NCALC={kc,pr,fa,cb};
- $("calcOut").innerHTML=`<div class="grid g2e" style="gap:8px">${[["الحرق الأساسي",Math.round(bmr)+" سعر"],["الاحتياج اليومي",Math.round(tdee)+" سعر"],["السعرات المستهدفة",kc+" سعر"],["الماكروز (جم)",`بروتين ${pr} · كارب ${cb} · دهون ${fa}`]].map(([l,x],i)=>`<div style="background:${i===2?'#fdecec':'#f6f3f3'};border-radius:10px;padding:10px"><div class="muted">${l}</div><b>${x}</b></div>`).join("")}</div>`}
+ $("calcOut").innerHTML=`<div class="grid g2e" style="gap:8px">${[["الحرق الأساسي",Math.round(bmr)+" سعر"],["الاحتياج اليومي",Math.round(tdee)+" سعر"],["السعرات المستهدفة",kc+" سعر"],["الماكروز (جم)",`بروتين ${pr} · كارب ${cb} · دهون ${fa}`]].map(([l,x],i)=>`<div style="background:${i===2?'#e6f0ea':'#f6f3f3'};border-radius:10px;padding:10px"><div class="muted">${l}</div><b>${x}</b></div>`).join("")}</div>`}
 function nutMember(){
   const p=PLAYERS.find(x=>x.n===state.nm)||PLAYERS[0],ind=ASSIGN.find(a=>a[1]==="فرد"&&a[2]===p.n),gp=ASSIGN.find(a=>a[1]==="جروب"&&a[2].includes(gName(p.g)));
   return `<div class="card"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>العضو:</b><select class="sel" onchange="state.nm=this.value;render()">${GROUPS.map(g=>`<optgroup label="${g.name}">${PLAYERS.filter(x=>x.g===g.id).map(x=>`<option ${x.n===p.n?'selected':''}>${x.n}</option>`).join("")}</optgroup>`).join("")}</select><span class="muted">${gName(p.g)} · أخصائية التغذية: د. ريم</span></div></div>
@@ -979,7 +979,7 @@ function sdRender(){
 function sdSave(){const n=SD.n.trim();if(!n){toast("اكتب الاسم");return}if(!SD.all&&!SD.br.size){toast("اختار فرع");return}
  const rec={n,role:SD.role,br:SD.all?"all":[...SD.br],act:SD.act?1:0,web:SD.web?1:0,mob:SD.mob?1:0};if(SD.i<0)USERS.push(rec);else USERS[SD.i]=rec;closeAll();render();toast(SD.i<0?"اتبعتت الدعوة":"اتحفظ")}
 function qr(){let s='<svg width="150" height="150" viewBox="0 0 21 21" shape-rendering="crispEdges">';const f=(x,y)=>((x<7&&y<7)||(x>13&&y<7)||(x<7&&y>13));for(let y=0;y<21;y++)for(let x=0;x<21;x++){let on;if(f(x,y)){const lx=x>13?x-14:x,ly=y>13?y-14:y;on=lx===0||lx===6||ly===0||ly===6||(lx>1&&lx<5&&ly>1&&ly<5)}else on=((x*7+y*13+x*y)%5)<2;if(on)s+=`<rect x="${x}" y="${y}" width="1" height="1" fill="#0d1b16"/>`}return s+'</svg>'}
-function receipt(){return `<h3 style="margin-bottom:12px">إيصال دفع</h3><div style="border:1px dashed var(--line);border-radius:12px;padding:16px"><div style="display:flex;justify-content:space-between;align-items:center"><span style="display:flex;align-items:center;gap:8px"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgcng9IjU2IiBmaWxsPSIjMTExIi8+PHBhdGggZD0iTTEyOCAzNGw3OCAyOHY2MmMwIDUwLTMzIDg2LTc4IDEwMC00NS0xNC03OC01MC03OC0xMDBWNjJ6IiBmaWxsPSIjZTAxZjI2Ii8+PHBhdGggZD0iTTEyOCA1OGw1NiAyMHY0NmMwIDM2LTIzIDYyLTU2IDc0LTMzLTEyLTU2LTM4LTU2LTc0Vjc4eiIgZmlsbD0iIzExMSIvPjxwYXRoIGQ9Ik05OCA5Nmg2MHYxNmgtNDJ2MTZoMzZ2MTZoLTM2djE2aDQ0djE2SDk4eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPgo=" alt="Elite Sports" style="width:32px;height:32px;border-radius:12px;object-fit:cover"><b>أكاديمية النخبة</b></span><span class="muted">#R-10482</span></div><div class="list" style="margin-top:10px"><div class="it"><span class="f1 muted">العضو</span><b>أحمد سامي</b></div><div class="it"><span class="f1 muted">الباقة</span><b>شهري</b></div><div class="it"><span class="f1 muted">الطريقة</span><b>إنستاباي</b></div><div class="it"><span class="f1 muted">المبلغ</span><b>900 ج</b></div><div class="it"><span class="f1 muted">صالح حتى</span><b>28 أكتوبر</b></div></div></div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn wa" onclick="closeAll();toast('الإيصال اتبعت على واتساب')">إرسال واتساب</button><button class="btn ghost" onclick="toast('تحميل PDF')">PDF</button></div>`}
+function receipt(){return `<h3 style="margin-bottom:12px">إيصال دفع</h3><div style="border:1px dashed var(--line);border-radius:12px;padding:16px"><div style="display:flex;justify-content:space-between;align-items:center"><span style="display:flex;align-items:center;gap:8px"><img src="assets/logo.svg" alt="Elite Sports" style="width:32px;height:32px;border-radius:12px;object-fit:cover"><b>أكاديمية النخبة</b></span><span class="muted">#R-10482</span></div><div class="list" style="margin-top:10px"><div class="it"><span class="f1 muted">العضو</span><b>أحمد سامي</b></div><div class="it"><span class="f1 muted">الباقة</span><b>شهري</b></div><div class="it"><span class="f1 muted">الطريقة</span><b>إنستاباي</b></div><div class="it"><span class="f1 muted">المبلغ</span><b>900 ج</b></div><div class="it"><span class="f1 muted">صالح حتى</span><b>28 أكتوبر</b></div></div></div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn wa" onclick="closeAll();toast('الإيصال اتبعت على واتساب')">إرسال واتساب</button><button class="btn ghost" onclick="toast('تحميل PDF')">PDF</button></div>`}
 function addBranch(){return `<h3 style="margin-bottom:14px">فرع جديد</h3><div class="field"><label>اسم الفرع</label><input placeholder="مثال: التجمع الخامس"></div><div class="field"><label>العنوان</label><input></div><div class="field"><label>مدير الفرع</label><select><option>اختار من الفريق</option></select></div><button class="btn" onclick="closeAll();toast('الفرع اتضاف')">حفظ</button>`}
 function addGroup(){return `<h3 style="margin-bottom:14px">جروب جديد</h3><div class="field"><label>الاسم</label><input placeholder="جروب الصبح B"></div><div class="grid g2e" style="gap:10px"><div class="field"><label>الفرع</label><select id="agBr" onchange="$('agC').innerHTML=agList(this.value)">${BR.map(b=>`<option>${b}</option>`).join("")}</select></div><div class="field"><label>السعة</label><input type="number" value="20"></div><div class="field"><label>المستوى</label><select><option>مبتدئ</option><option>متوسط</option><option>متقدم</option></select></div><div class="field"><label>الميعاد</label><input type="time" value="19:00"></div></div>
 <div class="field"><label>الأيام</label><div class="tabs">${DAYS.map(d=>`<button onclick="this.classList.toggle('on')">${d}</button>`).join("")}</div></div>
@@ -999,7 +999,7 @@ function sendProg(p){return `<h3 style="margin-bottom:14px">تعيين برنا�
 <button class="btn" onclick="closeAll();toast('البرنامج اتعيّن')">تعيين</button>`}
 render();
 </script>
-<script src="team-cards.js"></script><script src="enhancements.js"></script><script src="dashboard.js"></script><script src="finance.js"></script><script src="refinements.js"></script><script src="prototype-flow.js"></script><script src="sports-config.js"></script><script src="sport-settings.js"></script><script src="ms-dash.js"></script><script src="journey.js"></script><script src="enrollment.js"></script><script src="academy-model.js"></script><script src="academy-ui.js"></script><script src="sport-admin.js"></script></body>
+<script src="team-cards.js"></script><script src="enhancements.js"></script><script src="dashboard.js"></script><script src="finance.js"></script><script src="refinements.js"></script><script src="prototype-flow.js"></script><script src="sports-config.js"></script><script src="sport-engine.js"></script><script src="ms-dash.js"></script><script src="journey.js"></script><script src="enrollment.js"></script><script src="progress-engine.js"></script><script src="academy-demo.js"></script><script src="family-engine.js"></script><script src="schedule-engine.js"></script><script src="academy-model.js"></script><script src="academy-ui.js"></script><script src="sport-builder.js"></script><script src="progress-ui.js"></script><script src="programs-ui.js"></script><script src="workspace-shell.js"></script><script src="registration.js"></script></body>
 </html>
 
 

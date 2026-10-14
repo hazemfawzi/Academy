@@ -1,0 +1,35 @@
+/* Groups with schedules, families and renewals. */
+.pr-head-actions{display:flex;gap:8px;flex-wrap:wrap}
+.pr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.pr-group,.pr-family{background:var(--t-surface);border:1px solid var(--t-line);border-radius:var(--t-radius);padding:16px;display:grid;gap:10px;box-shadow:var(--t-shadow);font-family:var(--t-font)}
+.pr-group{border-top:4px solid var(--sport)}
+.pr-group header{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--t-muted)}
+.pr-group header span{font-weight:700;color:var(--t-ink-2)}
+.pr-group h3{margin:0;font-size:18px}
+.pr-when{margin:0;font-weight:700;color:var(--t-brand-strong);font-size:14px}
+.pr-group dl{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0}
+.pr-group dl div{background:var(--t-surface-2);border-radius:10px;padding:7px 9px}
+.pr-group dt{font-size:11px;color:var(--t-muted)}
+.pr-group dd{margin:2px 0 0;font-size:13px;font-weight:700}
+.pr-cap i{display:block;height:8px;background:var(--t-line-2);border-radius:999px;overflow:hidden}
+.pr-cap em{display:block;height:100%;background:var(--sport,var(--t-brand))}
+.pr-cap small,.pr-next{font-size:12px;color:var(--t-muted);margin:4px 0 0}
+.pr-group footer,.pr-family footer{display:flex;gap:8px;flex-wrap:wrap}
+.pr-holiday-strip{background:var(--t-info-soft);color:var(--t-info);border-radius:10px;padding:10px 14px;font-size:13px;margin:0}
+.pr-days{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.pr-days label{cursor:pointer}
+.pr-days input{position:absolute;opacity:0}
+.pr-days span{display:block;padding:8px 12px;border:1px solid var(--t-line);border-radius:999px;font-size:13px;background:var(--t-surface)}
+.pr-days input:checked+span{background:var(--t-brand);border-color:var(--t-brand);color:#fff;font-weight:700}
+.pr-days input:focus-visible+span{box-shadow:var(--t-focus)}
+.pr-family header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.pr-family h3{margin:0;font-size:17px}
+.pr-family header small{font-size:12px;color:var(--t-muted)}
+.pr-kid{font:inherit;display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;text-align:right;border:1px solid var(--t-line-2);border-radius:12px;background:var(--t-surface-2);padding:8px 10px;cursor:pointer;color:var(--t-ink)}
+.pr-kid:hover{border-color:var(--t-brand)}
+.pr-kid .sb-icon{width:36px;height:36px;font-size:19px}
+.pr-kid span:nth-child(2){display:grid}
+.pr-kid small{font-size:12px;color:var(--t-muted)}
+.pr-search{display:block;max-width:520px}
+.pr-search input{width:100%;font:inherit;font-size:14px;border:1px solid var(--t-line);border-radius:10px;padding:10px 12px;background:var(--t-surface)}
+@media (max-width:560px){.pr-group dl{grid-template-columns:1fr 1fr}}
