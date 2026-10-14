@@ -136,7 +136,7 @@
   };
 
   APPS.member.F.more = () => page(`<header class="ax-top"><div class="ax-top-row"><div><small>${E(viewer().name)}</small><h2>المزيد</h2></div></div></header>`,
-    K.grid([['inbox', 'طلباتي', 'myrequests'], ['chat', 'ملاحظات المدرب', 'feedback'], ['send', 'الرسائل', 'msgs'], ['users', 'المجتمع', 'community'], ['food', 'التغذية', 'food'], ['star', 'تقييم الحصة', 'rate'], ['search', 'المفقودات', 'lost'], ['box', 'المتجر', 'shop'], ['ball', 'الرياضات', 'sports'], ['more', 'خدمات إضافية', 'legacyservices']].filter(([, , r]) => APPS.member.F[r]).map(([i, l, r]) => ({ icon: i, label: l, action: `go('${r}')` }))));
+    K.grid([['inbox', 'طلباتي', 'myrequests'], ['chat', 'ملاحظات المدرب', 'feedback'], ['send', 'الرسائل', 'msgs'], ['users', 'المجتمع', 'community'], ['food', 'التغذية', 'food'], ['star', 'تقييم الحصة', 'rate'], ['search', 'المفقودات', 'lost'], ['cart', 'قائمة المشتريات', 'shop'], ['ball', 'الرياضات', 'sports'], ['more', 'خدمات إضافية', 'legacyservices']].filter(([, , r]) => APPS.member.F[r]).map(([i, l, r]) => ({ icon: i, label: l, action: `go('${r}')` }))));
 
   /* =========================================================== coach */
   const scopeSessions = () => AA.scope().sessions;

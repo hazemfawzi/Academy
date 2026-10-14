@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (!window.V || !window.SportEngine) return;
-  const db = V.db, VERSION = 6;
+  const db = V.db, VERSION = 7;
   if ((db.state.sportDemoVersion || 0) >= VERSION) return;
   const firstRun = (db.state.sportDemoVersion || 0) < 1;
 
@@ -255,6 +255,21 @@
     const cur = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     s.payrollAdjust = s.payrollAdjust || [];
     if (!s.payrollAdjust.length) s.payrollAdjust.push({ id: 'demo-adj-1', coach: 'كابتن سلمى', month: cur, amount: 300, note: 'حصة تقييم إضافية للمستوى 2', at: iso(daysFrom(-2)) });
+    s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 6);
+  }));
+
+  /* Version 7: football players get a level so the levels screen and training plans
+     have a starting point (most beginners, some intermediate, a few advanced). */
+  if ((db.state.sportDemoVersion || 0) < 7) V.run(() => db.update(s => {
+    const d = SportEngine.get('football'), levels = (d?.levels || []).filter(l => l.active !== false);
+    if (levels.length) s.members.forEach(m => {
+      const g = s.groups.find(x => x.id === m.group);
+      if (g?.sport !== 'football' || m.sportLevel) return;
+      const r = hash(m.id) % 10, i = Math.min(levels.length - 1, r < 6 ? 0 : r < 9 ? 1 : 2);
+      m.sportLevel = levels[i].id;
+      s.levelHistory = s.levelHistory || [];
+      s.levelHistory.push({ id: 'demo-fl-' + m.id, memberId: m.id, sport: 'football', levelId: levels[i].id, levelName: levels[i].name, reason: 'تحديد المستوى في البداية', at: iso(daysFrom(-60)) });
+    });
     s.sportDemoVersion = VERSION;
   }));
 })();
