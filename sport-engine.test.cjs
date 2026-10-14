@@ -118,3 +118,23 @@ test('lane split groups players by level then best time', () => {
   const lanes = PC.split(st, swim, members, 2);
   assert.deepEqual(lanes.map(l => l.map(m => m.id)), [['b', 'a'], ['c', 'd']]);
 });
+
+test('player card scores coach ratings on a 40–99 scale with tiers and trend', () => {
+  const PCC = require('./player-card.js');
+  const def = SC.get(state(), config(), 'swimming');
+  const names = PCC.attrsFor(def.type);
+  const member = { id: 'p1' };
+  const st = { cardRatings: { p1: [
+    { at: '2026-09-01', values: Object.fromEntries(names.map(n => [n, 2])) },
+    { at: '2026-10-01', values: Object.fromEntries(names.map(n => [n, 5])) }
+  ] } };
+  const c = PCC.card(st, def, member, { attendance: 95, levelIndex: 1 });
+  assert.equal(PCC.toScore(1), 40);
+  assert.equal(PCC.toScore(5), 99);
+  assert.equal(c.attrs.length, 6);
+  assert.ok(c.overall >= 80 && c.tier === 'gold');
+  assert.ok(c.trend > 0, 'the newer rating raises the card');
+  assert.equal(PCC.card({}, def, { id: 'x' }).empty, true);
+  assert.throws(() => PCC.validateRating(def, { [names[0]]: 7 }), /1 إلى 5/);
+  assert.throws(() => PCC.validateRating(def, {}), /عنصرًا/);
+});
