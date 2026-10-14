@@ -1,0 +1,46 @@
+/* Sport tools in the apps: assessments, skills, levels, exams, lanes. */
+.sa-label{display:block;font-size:12px;color:var(--ac-muted,#64776c);margin-bottom:10px}
+.sa-label select{margin-top:6px}
+.sa-entry-list{display:grid;gap:6px;margin:12px 0}
+.sa-entry{display:grid;grid-template-columns:1fr 112px;gap:10px;align-items:center;padding:9px 10px;border:1px solid #dfe7e1;border-radius:10px;background:#fff}
+.sa-entry span{display:grid;gap:2px}
+.sa-entry b{font-size:14px}
+.sa-entry small{font-size:11px;color:#64776c}
+.sa-entry input,.sa-entry select{width:100%;padding:8px;border:1px solid #cfdcd3;border-radius:8px;font:inherit;text-align:center;background:#f8fbf9}
+.sa-chip{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:#eef2ef;color:#4c6357}
+.sa-chip.ok{background:#e1f1e6;color:#25693f}
+.sa-chip.warn{background:#fbefd9;color:#8a5a12}
+.sa-skill-card header,.sa-level-card header,.sa-exam header{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:10px}
+.sa-skill-card header small,.sa-exam header small{flex-basis:100%;color:#64776c;font-size:12px}
+.sa-skill-card header .sa-chip,.sa-level-card header .sa-chip{margin-inline-start:auto}
+.sa-skills{display:flex;flex-wrap:wrap;gap:6px}
+.sa-skill{border:1px solid #d7e3da;background:#fff;border-radius:999px;padding:7px 12px;font:inherit;font-size:12px;color:#33493d;cursor:pointer;min-height:36px}
+.sa-skill.done{background:#2d604c;border-color:#2d604c;color:#fff}
+.sa-skills.readonly .sa-skill{cursor:default}
+.sa-level-card p{font-size:13px;font-weight:700;color:#20372c;margin:0 0 8px}
+.sa-checks{list-style:none;padding:0;margin:0 0 10px;display:grid;gap:5px}
+.sa-checks li{display:grid;grid-template-columns:18px 1fr auto;gap:6px;font-size:12px;color:#4c6357;align-items:center}
+.sa-checks li span{color:#b0bdb5;font-weight:700}
+.sa-checks li.ok span{color:#2d7a4a}
+.sa-checks li small{color:#7a8c82}
+.sa-exam{border-color:#e8d9b4;background:#fffbf2}
+.sa-candidate{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid #f0e6cc}
+.sa-candidate span{display:grid}
+.sa-candidate small{font-size:11px;color:#7c6a45}
+.sa-lane{border:1px solid #dfe7e1;border-radius:12px;padding:10px 12px;margin-bottom:8px;background:#fff}
+.sa-lane>b{display:block;margin-bottom:6px;color:#2d604c}
+.sa-lane div{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:4px 0;border-top:1px dashed #e6ece8}
+.sa-lane small{color:#64776c}
+.sa-level-hero{background:#f3f8f4;border-color:#d4e5d9}
+.sa-level-hero small{font-size:12px;color:#5d7466}
+.sa-level-hero>b{display:block;font-size:22px;margin:4px 0}
+.sa-level-hero>p{font-size:13px;color:#2d604c;margin:0 0 10px}
+.sa-metric{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;background:#fff;border:1px solid #dfe7e1;border-radius:12px;padding:11px 12px;margin-bottom:8px}
+.sa-metric span{display:grid}
+.sa-metric small{font-size:11px;color:#64776c}
+.sa-metric strong{font-size:16px}
+.sa-metric em{font-style:normal;font-size:11px;padding:2px 8px;border-radius:999px;background:#eef2ef;color:#4c6357}
+.sa-metric em.up{background:#e1f1e6;color:#25693f}
+.sa-history{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.sa-history li{background:#fff;border:1px solid #dfe7e1;border-radius:10px;padding:9px 12px;display:grid}
+.sa-history small{font-size:11px;color:#64776c}

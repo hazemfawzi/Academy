@@ -31,14 +31,14 @@
     let body = '';
     if (k.sport === 'swimming') {
       const w = M.SWIM.find(x => x.n === k.n), next = s.levels[w.level + 1];
-      body = `<div class="card"><div class="msx-mut">المستوى الحالي</div><b class="msx-big">${s.levels[w.level]}</b>
-        <div class="msx-bar"><i style="width:${Math.max(10, Math.min(100, (40 - w.free25) / 10 * 100))}%"></i></div><small class="msx-mut">الترقية لـ «${next}» لما زمن 25 متر ينزل عن 30 ثانية</small></div>
+      body = `<div class="card"><div class="msx-mut">المستوى الحالي</div><b class="msx-big">${esc(s.levels[w.level] ?? '')}</b>
+        <div class="msx-bar"><i style="width:${Math.max(10, Math.min(100, (40 - w.free25) / 10 * 100))}%"></i></div><small class="msx-mut">الترقية لـ «${esc(next || "")}» لما زمن 25 متر ينزل عن 30 ثانية</small></div>
         <div class="g2 msx-g2"><div class="st"><b>${w.free25.toFixed(1)} ث</b><small>آخر زمن 25 م حرة</small></div><div class="st"><b class="msx-green">▼ ${(w.prev - w.free25).toFixed(1)} ث</b><small>تحسّن عن المرة اللي فاتت</small></div></div>
         <div class="card"><b>ملاحظة كابتن سلمى</b><p class="msx-mut" style="margin:6px 0 0">${esc(k.n.split(' ')[0])} بقت بتطفو لوحدها من غير خوف. الأسبوع ده هنشتغل على التنفس الجانبي.</p></div>`;
     } else if (k.sport === 'karate') {
       const a = M.KARATE.find(x => x.n === k.n);
-      body = `<div class="card"><div class="msx-mut">الحزام الحالي</div><b class="msx-big"><span class="msx-belt" style="background:${BELT[a.belt]}"></span>${s.levels[a.belt]}</b>
-        <div class="msx-bar"><i style="width:${a.ready}%"></i></div><small class="msx-mut">جاهزية اختبار الحزام ${s.levels[a.belt + 1]}: ${a.ready}%</small></div>
+      body = `<div class="card"><div class="msx-mut">الحزام الحالي</div><b class="msx-big"><span class="msx-belt" style="background:${BELT[a.belt]}"></span>${esc(s.levels[a.belt] ?? '')}</b>
+        <div class="msx-bar"><i style="width:${a.ready}%"></i></div><small class="msx-mut">جاهزية اختبار الحزام ${esc(s.levels[a.belt + 1] ?? '')}: ${a.ready}%</small></div>
         <div class="card"><b>🗓️ اختبار الأحزمة · ${M.KARATE_EXAM.date}</b><div class="lst" style="margin-top:8px">${M.KARATE_EXAM.items.map((x, i) => `<div class="it"><span class="f1">${x}</span><span class="msx-pill ${i < 3 ? 'ok' : 'warn'}">${i < 3 ? 'جاهز' : 'محتاج حضور أكتر'}</span></div>`).join('')}</div>
         ${btn('أكّد حضوره للاختبار', "toast('اتأكد حضور الاختبار')", 'full')}</div>`;
     } else return APPS.member.F.football();
@@ -56,12 +56,12 @@
     let body = '';
     if (c === 'karate') {
       body = `<div class="card"><b>ترشيحات اختبار ${M.KARATE_EXAM.date}</b><p class="msx-mut" style="margin:4px 0 8px">علّم مين جاهز، والترشيح بيوصل للإدارة ولولي الأمر.</p><div class="lst">${M.KARATE.map((a, i) => `<div class="it">
-        <span class="msx-belt" style="background:${BELT[a.belt]}"></span><div class="f1"><b>${esc(a.n)}</b><small class="msx-mut">${s.levels[a.belt]} · جاهزية ${a.ready}%</small></div>
+        <span class="msx-belt" style="background:${BELT[a.belt]}"></span><div class="f1"><b>${esc(a.n)}</b><small class="msx-mut">${esc(s.levels[a.belt] ?? '')} · جاهزية ${a.ready}%</small></div>
         <button class="chip ${a.nom ? 'on' : ''}" onclick="MSA.nom(${i})">${a.nom ? '✓ مرشّح' : 'رشّح'}</button></div>`).join('')}</div>
         ${btn(`ابعت الترشيحات (${M.KARATE.filter(a => a.nom).length})`, "MSA.sendNoms()", 'full')}</div>`;
     } else if (c === 'swimming') {
       body = `<div class="card"><b>تسجيل أزمنة 25 متر حرة</b><p class="msx-mut" style="margin:4px 0 8px">اكتب الزمن بالثواني، والرقم الشخصي بيتحدّث لوحده.</p><div class="lst">${M.SWIM.map((w, i) => `<div class="it">
-        <div class="f1"><b>${esc(w.n)}</b><small class="msx-mut">${M.sport('swimming').levels[w.level].split(' · ')[0]} · أحسن زمن ${w.free25.toFixed(1)} ث</small></div>
+        <div class="f1"><b>${esc(w.n)}</b><small class="msx-mut">${esc((M.sport('swimming').levels[w.level] || '').split(' · ')[0])} · أحسن زمن ${w.free25.toFixed(1)} ث</small></div>
         <input class="msx-in" id="msT${i}" inputmode="decimal" placeholder="ث" aria-label="زمن ${esc(w.n)}"></div>`).join('')}</div>${btn('حفظ الأزمنة', 'MSA.saveTimes()', 'full')}</div>`;
     } else {
       body = `<div class="card"><b>مهارات مستوى 2</b><p class="msx-mut" style="margin:4px 0 8px">اضغط على المهارة لما اللاعبة تتقنها.</p>${M.GYM.map((a, i) => `<div class="msx-gym"><b>${esc(a.n)} <small class="msx-mut">${a.done.filter(Boolean).length}/${M.GYM_SKILLS.length}</small></b><div class="chips">${M.GYM_SKILLS.map((x, j) => `<button class="chip ${a.done[j] ? 'on' : ''}" onclick="MSA.skill(${i},${j})">${a.done[j] ? '✓ ' : ''}${x}</button>`).join('')}</div></div>`).join('')}</div>`;

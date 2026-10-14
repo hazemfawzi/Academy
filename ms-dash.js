@@ -103,21 +103,21 @@
     return `<div class="card"><h3>🥋 اختبار الأحزمة · ${M.KARATE_EXAM.date}<span class="sp"></span><button class="btn sm" onclick="MSD.notifyExam()">بلّغ أولياء الأمور</button></h3>
       <div class="muted" style="margin-bottom:10px">بنود الاختبار: ${M.KARATE_EXAM.items.join(' · ')}</div>
       <div class="tbl-wrap"><table><tr><th>اللاعب</th><th>السن</th><th>الحزام الحالي</th><th>الجاهزية للاختبار</th><th>ولي الأمر</th><th></th></tr>
-      ${M.KARATE.map((k, i) => `<tr><td><b>${esc(k.n)}</b></td><td>${k.age}</td><td><span class="ms-belt"><em style="background:${BELT[k.belt]}"></em>${s.levels[k.belt]}</span></td>
+      ${M.KARATE.map((k, i) => `<tr><td><b>${esc(k.n)}</b></td><td>${k.age}</td><td><span class="ms-belt"><em style="background:${BELT[k.belt]}"></em>${esc(s.levels[k.belt])}</span></td>
         <td><div class="ms-bar ${k.ready >= 70 ? 'ok' : ''}"><i style="width:${k.ready}%"></i></div><small>${k.ready}%</small></td><td>${esc(k.parent)}</td>
-        <td>${k.ready >= 70 ? `<button class="btn sm" onclick="MSD.promote(${i})">ترقية لـ ${s.levels[Math.min(k.belt + 1, 6)]}</button>` : '<span class="badge b-or">محتاج تدريب</span>'}</td></tr>`).join('')}</table></div></div>`;
+        <td>${k.ready >= 70 && k.belt < s.levels.length - 1 ? `<button class="btn sm" onclick="MSD.promote(${i})">ترقية لـ ${esc(s.levels[Math.min(k.belt + 1, s.levels.length - 1)])}</button>` : '<span class="badge b-or">محتاج تدريب</span>'}</td></tr>`).join('')}</table></div></div>`;
   }
   function swimTable() {
     const s = M.sport('swimming');
     return `<div class="card"><h3>🏊 المستويات وزمن 25 متر حرة<span class="sp"></span><span class="muted">الترقية لما الزمن ينزل عن 30 ثانية</span></h3>
       <div class="tbl-wrap"><table><tr><th>السبّاح</th><th>السن</th><th>المستوى</th><th>آخر زمن</th><th>قبلها</th><th>التحسن</th><th></th></tr>
-      ${M.SWIM.map((w, i) => { const d = (w.prev - w.free25).toFixed(1); return `<tr><td><b>${esc(w.n)}</b></td><td>${w.age}</td><td><span class="badge b-blue">${s.levels[w.level]}</span></td>
+      ${M.SWIM.map((w, i) => { const d = (w.prev - w.free25).toFixed(1); return `<tr><td><b>${esc(w.n)}</b></td><td>${w.age}</td><td><span class="badge b-blue">${esc(s.levels[w.level])}</span></td>
         <td><b class="v-mono">${w.free25.toFixed(1)}s</b></td><td class="muted v-mono">${w.prev.toFixed(1)}s</td><td><span class="badge b-green">▼ ${d} ث</span></td>
-        <td>${w.free25 < 30 && w.level < s.levels.length - 1 ? `<button class="btn sm" onclick="MSD.swimUp(${i})">رقّي لـ ${s.levels[w.level + 1].split(' · ')[0]}</button>` : ''}</td></tr>`; }).join('')}</table></div></div>`;
+        <td>${w.free25 < 30 && w.level < s.levels.length - 1 ? `<button class="btn sm" onclick="MSD.swimUp(${i})">رقّي لـ ${esc(s.levels[w.level + 1].split(' · ')[0])}</button>` : ''}</td></tr>`; }).join('')}</table></div></div>`;
   }
   function gymMatrix() {
     return `<div class="card"><h3>🤸 مهارات مستوى 2<span class="sp"></span><span class="muted">اضغط على أي خانة تعلّم المهارة</span></h3>
-      <div class="tbl-wrap"><table class="ms-matrix"><tr><th>اللاعبة</th>${M.GYM_SKILLS.map(x => `<th>${x}</th>`).join('')}<th>الإنجاز</th></tr>
+      <div class="tbl-wrap"><table class="ms-matrix"><tr><th>اللاعبة</th>${M.GYM_SKILLS.map(x => `<th>${esc(x)}</th>`).join('')}<th>الإنجاز</th></tr>
       ${M.GYM.map((a, i) => { const n = a.done.filter(Boolean).length; return `<tr><td><b>${esc(a.n)}</b><div class="muted">${a.age} سنين</div></td>${a.done.map((d, j) => `<td><button class="ms-cell ${d ? 'on' : ''}" onclick="MSD.skill(${i},${j})" aria-label="${M.GYM_SKILLS[j]}">${d ? '✓' : ''}</button></td>`).join('')}
         <td>${n === M.GYM_SKILLS.length ? '<span class="badge b-green">جاهزة لمستوى 3</span>' : `${n}/${M.GYM_SKILLS.length}`}</td></tr>`; }).join('')}</table></div></div>`;
   }
@@ -174,20 +174,17 @@
   window.MSD = {
     filterGroups(id) { M.state.sportFilter = id; go('groups'); },
     prog(id) { M.state.progSport = id; render(); },
-    toggleSport(id) { const s = M.sport(id); s.on = !s.on; toast(s.on ? `${s.name} اتشغّلت` : `${s.name} اتقفلت ومش هتظهر للأعضاء`); render(); },
-    toggleMod(id, k) { const s = M.sport(id), i = s.modules.indexOf(k); if (i >= 0) s.modules.splice(i, 1); else s.modules.push(k); toast(`${M.MODULES[k].name}: ${i >= 0 ? 'اتقفلت' : 'اتفعّلت'} لـ ${s.name}`); render(); },
+    toggleSport(id) { V.run(() => { const s = SportEngine.toggle(id, !M.sport(id).on); toast(s.on ? `${s.name} اتشغّلت` : `${s.name} اتقفلت ومش هتظهر للأعضاء`); render(); }); },
+    toggleMod(id, k) { V.run(() => { const i = M.sport(id).modules.indexOf(k), s = SportEngine.toggleModule(id, k); toast(`${M.MODULES[k].name}: ${i >= 0 ? 'اتقفلت' : 'اتفعّلت'} لـ ${s.name}`); render(); }); },
     addSport() {
       const left = M.CATALOG.filter(c => !M.SPORTS.some(s => s.id === c.id));
       modal(`<h2>إضافة رياضة</h2><div class="muted" style="margin-bottom:12px">اختار الرياضة، وهي بتيجي بالخصائص المناسبة ليها، وتقدر تعدّلها بعدين.</div>
         <div class="list">${left.map(c => `<div class="it"><span class="ms-ico sm">${c.ico}</span><div class="f1"><b>${c.name}</b><div class="muted">${c.modules.map(k => M.MODULES[k].name).join(' · ')}</div></div><button class="btn sm" onclick="MSD.addFrom('${c.id}')">إضافة</button></div>`).join('') || '<div class="muted">كل الرياضات المتاحة مضافة.</div>'}</div>`);
     },
     addFrom(id) {
-      const c = M.CATALOG.find(x => x.id === id);
-      M.SPORTS.push({ id: c.id, name: c.name, ico: c.ico, on: true, tpl: c.tpl, coach: c.id === 'equestrian' ? 'مدرب' : 'كابتن', members: 0,
-        levels: c.id === 'equestrian' ? ['مبتدئ · مشي', 'خبب', 'جالوب', 'حواجز صغيرة', 'منافسات'] : ['مبتدئ', 'متوسط', 'متقدم'], modules: c.modules.slice() });
-      closeAll(); toast(`${c.name} اتضافت بخصائصها`); render();
+      V.run(() => { const def = SportEngine.save(SportEngine.draft({ catalogId: id })); closeAll(); toast(`${def.name} اتضافت بخصائصها`); render(); });
     },
-    promote(i) { const k = M.KARATE[i], s = M.sport('karate'); if (k.belt < 6) k.belt++; k.ready = 20; toast(`${k.n} اترقى للحزام ${s.levels[k.belt]} واتبعت لولي أمره`); render(); },
+    promote(i) { const k = M.KARATE[i], s = M.sport('karate'); if (k.belt < s.levels.length - 1) k.belt++; k.ready = 20; toast(`${k.n} اترقى للحزام ${s.levels[k.belt]} واتبعت لولي أمره`); render(); },
     swimUp(i) { const w = M.SWIM[i], s = M.sport('swimming'); w.level++; toast(`${w.n} اترقت لـ ${s.levels[w.level]}`); render(); },
     skill(i, j) { const a = M.GYM[i]; a.done[j] = a.done[j] ? 0 : 1; render(); },
     notifyExam() { toast(`اتبعت ميعاد الاختبار (${M.KARATE_EXAM.date}) لأولياء الأمور`); },
