@@ -89,10 +89,10 @@
   /* The card as a standalone SVG (also used for the PNG export). */
   function svg(m, opts = {}) {
     const d = defOf(m), c = cardOf(m), t = TIERS[c.tier || 'bronze'], lvl = window.Progress?.level(m);
-    const portrait = window.KoraAvatars ? KoraAvatars.portrait(m.name).replace('<svg ', '<svg x="88" y="78" width="124" height="124" ') : '';
+    const portrait = window.KoraAvatars ? KoraAvatars.portrait(m.name).replace('<svg ', '<svg x="88" y="78" width="124" height="124" style="width:124px;height:124px;max-width:none" ') : '';
     const attrs = c.attrs.map((a, i) => { const col = i % 2, row = Math.floor(i / 2), x = col ? 136 : 262, y = 310 + row * 28;
-      return `<text x="${x}" y="${y}" text-anchor="end" font-size="20" font-weight="700" fill="${t[2]}">${a.value ?? '—'}</text><text x="${x - 30}" y="${y}" text-anchor="end" font-size="14" fill="${t[2]}" opacity=".85">${E(SHORT[a.name] || a.name)}</text>`; }).join('');
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 420" width="${opts.width || 300}" height="${(opts.width || 300) * 1.4}" font-family="AcademyPlex, Tahoma, Arial, sans-serif" role="img" aria-label="بطاقة ${E(m.name)}">
+      return `<text x="${x}" y="${y}" text-anchor="end" font-size="20" font-weight="700" fill="${t[2]}">${a.value ?? '—'}</text><text x="${x - 34}" y="${y}" text-anchor="end" font-size="14" fill="${t[2]}" opacity=".85">${E(SHORT[a.name] || a.name)}</text>`; }).join('');
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 420" width="${opts.width || 300}" height="${(opts.width || 300) * 1.4}" font-family="AcademyPlex, Tahoma, Arial, sans-serif" direction="ltr" style="direction:ltr" role="img" aria-label="بطاقة ${E(m.name)}">
       <defs><linearGradient id="g-${E(m.id)}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${t[0]}"/><stop offset="1" stop-color="${t[1]}"/></linearGradient><clipPath id="p-${E(m.id)}"><circle cx="150" cy="140" r="62"/></clipPath><clipPath id="c-${E(m.id)}"><path d="M150 6 L282 40 V330 Q282 380 150 414 Q18 380 18 330 V40 Z"/></clipPath></defs>
       <path d="M150 6 L282 40 V330 Q282 380 150 414 Q18 380 18 330 V40 Z" fill="url(#g-${E(m.id)})" stroke="${t[2]}" stroke-opacity=".35" stroke-width="2"/>
       <g clip-path="url(#c-${E(m.id)})"><circle cx="250" cy="70" r="90" fill="#fff" opacity=".18"/><path d="M18 250 Q150 210 282 250 V420 H18 Z" fill="#fff" opacity=".12"/></g>
@@ -113,7 +113,7 @@
       const img = new Image(), url = URL.createObjectURL(new Blob([svgText], { type: 'image/svg+xml' }));
       img.onload = () => {
         const canvas = document.createElement('canvas'); canvas.width = img.width * 3; canvas.height = img.height * 3;
-        const ctx = canvas.getContext('2d'); ctx.scale(3, 3); ctx.drawImage(img, 0, 0); URL.revokeObjectURL(url);
+        const ctx = canvas.getContext('2d'); ctx.scale(3, 3); ctx.fillStyle = '#f3f6f4'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.drawImage(img, 0, 0); URL.revokeObjectURL(url);
         canvas.toBlob(async blob => {
           const file = new File([blob], name + '.png', { type: 'image/png' });
           try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); return resolve('shared'); } } catch (e) { /* fall back to download */ }
@@ -127,7 +127,7 @@
 
   function certificateSvg(cert) {
     const m = db.member(cert.memberId), d = defOf(m);
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 420" width="600" height="420" font-family="AcademyPlex, Tahoma, Arial, sans-serif">
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 420" width="600" height="420" font-family="AcademyPlex, Tahoma, Arial, sans-serif" direction="ltr" style="direction:ltr">
       <rect width="600" height="420" rx="18" fill="#fbf8f0"/><rect x="14" y="14" width="572" height="392" rx="12" fill="none" stroke="#b8954f" stroke-width="3"/><rect x="24" y="24" width="552" height="372" rx="8" fill="none" stroke="#2d604c" stroke-width="1"/>
       <text x="300" y="78" text-anchor="middle" font-size="15" letter-spacing="3" fill="#2d604c" font-weight="700">ELITE ACADEMY · أكاديمية النخبة</text>
       <text x="300" y="130" text-anchor="middle" font-size="34" font-weight="700" fill="#1d3127">شهادة تميز</text>

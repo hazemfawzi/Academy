@@ -205,3 +205,4 @@
 .ax-tile.ok .ax-tile-icon{background:#e2f2e8;color:var(--ax-ok)}
 .ax-tile.ok b{color:var(--ax-ok)}
 .ax-row .ax-btn.small{pointer-events:none}
+.ax-grid-icon.gold{background:linear-gradient(140deg,#d9c48f,#b8954f);color:#2a2414}

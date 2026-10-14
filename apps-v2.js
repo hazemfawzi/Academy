@@ -7,6 +7,8 @@
   const AA = window.AcademyApps, SE = window.SportEngine, P = window.Progress, F = window.Family, M = window.AcademyModel, SC = window.ScheduleCore, db = V.db;
   const E = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const icon = (n, s = 20) => typeof ic === 'function' ? ic(n, s) : '';
+  /* Assistant icon: a small robot face. */
+  if (typeof IC !== 'undefined' && !IC.bot) IC.bot = '<rect x="4" y="8" width="16" height="12" rx="4"/><path d="M12 8V4.5"/><circle cx="12" cy="3.8" r="1.2"/><circle cx="9" cy="13.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="13.5" r="1.3" fill="currentColor" stroke="none"/><path d="M9.5 17h5M2 12.5v3.5M22 12.5v3.5"/>';
   const avatar = (name, s = 40) => typeof av === 'function' ? av(name, s) : `<span class="ax-ini" style="width:${s}px;height:${s}px">${E(String(name)[0])}</span>`;
   const money = n => new Intl.NumberFormat('en-US').format(Math.round(n)) + ' ج';
   const fmt = (v, o) => new Intl.DateTimeFormat('ar-EG-u-nu-latn', o).format(new Date(v));
@@ -100,7 +102,7 @@
       ${latest ? `${K.section('آخر نتيجة', 'التقدم', "go('progress')")}<div class="ax-card ax-result"><div><small>${E(latest.label)} · ${E(fmt(latest.at, { day: 'numeric', month: 'short' }))}</small><b>${E(metric ? P.formatValue(metric, latest.value) : latest.value)}</b>${latest.note ? `<p>${E(latest.note)}</p>` : ''}</div>${K.spark(series, metric?.better === 'lower')}</div>` : ''}
       ${note ? `<div class="ax-card ax-note">${avatar(note.by || g?.coach || 'المدرب', 34)}<div><small>${E(note.by || g?.coach || 'المدرب')}</small><p>${E(note.text)}</p></div></div>` : ''}
       ${K.section('الخدمات')}${K.grid([
-        { icon: 'star', label: 'بطاقة اللاعب', action: `PlayerCard.open('${m.id}')`, tone: 'brand' }, { icon: 'chart', label: 'التقدم', action: "go('progress')" }, { icon: 'cal', label: 'الحصص', action: "go('sessions')" }, { icon: 'wallet', label: 'الاشتراك', action: "go('account')" }, { icon: 'bolt', label: 'اسأل المساعد', action: "go('assistant')", tone: 'brand' },
+        { icon: 'star', label: 'بطاقة اللاعب', action: `PlayerCard.open('${m.id}')`, tone: 'gold' }, { icon: 'chart', label: 'التقدم', action: "go('progress')" }, { icon: 'cal', label: 'الحصص', action: "go('sessions')" }, { icon: 'wallet', label: 'الاشتراك', action: "go('account')" }, { icon: 'bot', label: 'اسأل المساعد', action: "go('assistant')", tone: 'brand' },
         { icon: 'chat', label: 'الرسائل', action: "go('msgs')" }, { icon: 'inbox', label: 'طلباتي', action: "go('myrequests')" }, { icon: 'more', label: 'المزيد', action: "go('more')" }])}`);
   };
 
