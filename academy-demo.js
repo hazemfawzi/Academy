@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (!window.V || !window.SportEngine) return;
-  const db = V.db, VERSION = 2;
+  const db = V.db, VERSION = 3;
   if ((db.state.sportDemoVersion || 0) >= VERSION) return;
   const firstRun = (db.state.sportDemoVersion || 0) < 1;
 
@@ -191,6 +191,26 @@
       const age = m.dob ? ageOf(m.dob) : 25;
       m.programId = (d.programs.find(p => age >= p.ageMin && age <= p.ageMax) || d.programs[d.programs.length - 1]).id;
     });
+    s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 2);
+  }));
+
+  /* Version 3: two or three coach ratings per player so player cards start filled, and
+     one certificate of excellence this month. */
+  if ((db.state.sportDemoVersion || 0) < 3 && window.PlayerCardCore) V.run(() => db.update(s => {
+    s.cardRatings = s.cardRatings || {};
+    s.members.forEach((m, i) => {
+      const g = s.groups.find(x => x.id === m.group), d = g && SportEngine.get(g.sport);
+      if (!d || s.cardRatings[m.id] || (d.id === 'football' && !m.demo && i % 2)) return;
+      const names = PlayerCardCore.attrsFor(d.type), seed = hash(m.id), rounds = 2 + seed % 2;
+      s.cardRatings[m.id] = Array.from({ length: rounds }, (_, r) => ({
+        id: `demo-rating-${m.id}-${r}`, at: iso(daysFrom(-28 + r * 12)), by: g.coach || '', sessionId: '',
+        values: Object.fromEntries(names.map((n, k) => [n, Math.max(1, Math.min(5, 2 + ((seed >>> (k * 3)) % 3) + (r ? 1 : 0) * ((seed >>> k) % 2)))])),
+        note: r === rounds - 1 ? ['تحسن واضح في التركيز', 'مجهود ممتاز النهارده', 'محتاج يشتغل على التحمل', 'روح جميلة مع زمايله'][seed % 4] : ''
+      }));
+    });
+    const laila = s.members.find(m => m.name === 'ليلى سامي');
+    s.certificates = s.certificates || [];
+    if (laila && !s.certificates.length) s.certificates.push({ id: 'demo-cert-1', memberId: laila.id, month: 'شهر ' + new Intl.DateTimeFormat('ar-EG-u-nu-latn', { month: 'long', year: 'numeric' }).format(now), reason: 'التزام كامل بالحضور', by: 'كابتن سلمى', at: iso(daysFrom(-1)) });
     s.sportDemoVersion = VERSION;
   }));
 })();
