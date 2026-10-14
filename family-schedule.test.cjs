@@ -176,3 +176,34 @@ test('coach pay counts ended sessions, pays substitutes, shares collected fees a
   assert.throws(() => PY.validateTerms({ mode: 'percent', percent: 80 }), /60%/);
   assert.deepEqual(PY.validateTerms({ mode: 'fixed', base: '5000', perSession: 99 }), { mode: 'fixed', base: 5000, perSession: 0, percent: 0 });
 });
+
+test('weekly plans come from the right template, fill the session time and aim at missing skills', () => {
+  const TC = require('./training.js');
+  const SC = require('./sport-engine.js');
+  const swim = SC.get({ members: [], groups: [], sessions: [], audit: [] }, { SPORTS: [{ id: 'swimming', name: 'سباحة', on: true }], CATALOG: [] }, 'swimming');
+  const lvl = swim.levels[0];
+  const st = {
+    groups: [{ id: 'g', name: 'سباحة', sport: 'swimming', ageMin: 6, ageMax: 8 }],
+    members: ['a', 'b', 'c'].map(id => ({ id, group: 'g', sportLevel: lvl.id })),
+    skillMarks: { a: { [lvl.skills[0].id]: { at: '' } }, b: { [lvl.skills[0].id]: { at: '' } }, c: { [lvl.skills[0].id]: { at: '' } } },
+    sessions: [
+      { id: 's1', group: 'g', status: 'scheduled', start: '2026-10-17T17:00:00', duration: 60 },
+      { id: 's2', group: 'g', status: 'scheduled', start: '2026-10-19T17:00:00', duration: 45 },
+      { id: 's3', group: 'g', status: 'cancelled', start: '2026-10-21T17:00:00', duration: 60 },
+      { id: 's4', group: 'g', status: 'scheduled', start: '2026-10-25T17:00:00', duration: 60 }
+    ]
+  };
+  const w = TC.week(st, swim, st.groups[0], new Date('2026-10-18T10:00:00'));
+  assert.deepEqual(w.sessions.map(x => x.session.id), ['s1', 's2'], 'Saturday-to-Friday week, cancelled sessions dropped');
+  assert.equal(w.profile.band, 'kids');
+  assert.equal(w.profile.stage, 'beginner');
+  w.sessions.forEach(({ session, plan }) => assert.equal(plan.blocks.reduce((n, b) => n + b.min, 0), session.duration));
+  assert.ok(!w.skills.some(s => s.id === lvl.skills[0].id), 'mastered skills are not the focus');
+  assert.ok(w.sessions[0].plan.blocks.some(b => b.title.startsWith('مهارة المستوى')));
+  st.trainingPlans = { s1: { theme: 'x', blocks: [{ part: 'main', title: 'خطة المدرب', desc: '', min: 60 }] } };
+  assert.equal(TC.week(st, swim, st.groups[0], new Date('2026-10-18T10:00:00')).sessions[0].plan.blocks[0].title, 'خطة المدرب');
+  assert.throws(() => TC.validatePlan([{ title: 'أ', min: 20 }], 60), /مجموع/);
+  assert.equal(TC.ageBand(15), 'teens');
+  assert.ok(TC.tips('timed', 'kids').length >= 5);
+  for (const [type, T] of Object.entries(TC.TEMPLATES)) for (const k of ['beginner', 'intermediate', 'advanced']) assert.ok(T.main[k].length >= 2, type + ' ' + k);
+});
