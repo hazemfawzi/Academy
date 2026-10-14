@@ -1,6 +1,6 @@
 /* Loaded last: aligns older screens with the shared tokens and styles the dashboard shell. */
 body{font-family:var(--t-font)!important}
-#branchSel,.ac-scope,.sport-workspace .ws-home-sports,.sport-workspace .ac-scope{display:none!important}
+#branchSel,.ac-scope{display:none!important}
 
 /* Header scope */
 .ws-scope{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -53,12 +53,6 @@ body{font-family:var(--t-font)!important}
 .ws-bars div{display:grid;grid-template-rows:1fr auto;height:100%;gap:6px;text-align:center}
 .ws-bars i{align-self:end;display:block;background:var(--t-brand);border-radius:6px 6px 2px 2px;min-height:2px}
 .ws-bars small{font-size:11px;color:var(--t-muted)}
-
-/* Older sport dashboard: calm cards instead of a rainbow */
-.ny-kpi{background:var(--t-surface)!important;border:1px solid var(--t-line)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)}
-.ny-kpi b,.ny-kpi small,.ny-kpi p{color:inherit!important}
-.ny-kpi p{color:var(--t-muted)!important}
-.ny-kpi-top i{background:var(--t-brand-soft)!important;color:var(--t-brand)!important}
 
 @media (max-width:1000px){.ws-home-grid{grid-template-columns:1fr}.ws-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:700px){.ws-scope label span{display:none}.ws-scope select{max-width:130px}.ws-hello h1{font-size:24px}.ws-quick .sb-btn{flex:1}}

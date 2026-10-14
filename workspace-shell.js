@@ -64,8 +64,9 @@
 
   /* ---------- home ---------- */
   const homeBase = PAGES.dash;
-  PAGES.dash = () => {
-    if (U.sport !== 'all') return homeBase();
+  /* The original home (colored indicators, quick actions, sport cards) stays the default;
+     the decisions view below is kept as AcademyUI.decisions for later use. */
+  U.decisions = () => {
     const a = U.scope(), now = new Date(), day = db.day(now);
     const todays = a.todaySessions.filter(s => s.status !== 'cancelled');
     const overdue = a.followups.filter(f => f.status === 'open' && f.due <= day);
@@ -109,6 +110,7 @@
         <section class="sb-section"><header><h2>التحصيل آخر 7 أيام</h2><p>${money(series.reduce((n, x) => n + x.v, 0))} صافي</p></header><div class="ws-bars" role="img" aria-label="التحصيل اليومي خلال آخر سبعة أيام">${series.map(x => `<div><i style="height:${Math.max(2, x.v / max * 100)}%" title="${E(money(x.v))}"></i><small>${E(x.label)}</small></div>`).join('')}</div></section>
       </div></div>`;
   };
+  PAGES.dash = homeBase;
   PAGES.dash_after = () => {};
 
   render();
