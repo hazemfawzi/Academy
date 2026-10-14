@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (!window.V || !window.SportEngine) return;
-  const db = V.db, VERSION = 3;
+  const db = V.db, VERSION = 4;
   if ((db.state.sportDemoVersion || 0) >= VERSION) return;
   const firstRun = (db.state.sportDemoVersion || 0) < 1;
 
@@ -211,6 +211,25 @@
     const laila = s.members.find(m => m.name === 'ليلى سامي');
     s.certificates = s.certificates || [];
     if (laila && !s.certificates.length) s.certificates.push({ id: 'demo-cert-1', memberId: laila.id, month: 'شهر ' + new Intl.DateTimeFormat('ar-EG-u-nu-latn', { month: 'long', year: 'numeric' }).format(now), reason: 'التزام كامل بالحضور', by: 'كابتن سلمى', at: iso(daysFrom(-1)) });
+    s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 3);
+  }));
+
+  /* Version 4: branch addresses for the assistant, a holiday next week, one question the
+     assistant passed to the desk and two messages already sent. */
+  if ((db.state.sportDemoVersion || 0) < 4) V.run(() => db.update(s => {
+    const addresses = ['شارع 26 يوليو، بجوار مول العرب', 'التجمع الخامس، شارع التسعين الجنوبي', 'مدينة نصر، شارع عباس العقاد', 'المعادي، شارع 9'];
+    s.settings.branchInfo = s.settings.branchInfo || Object.fromEntries([...new Set(s.groups.map(g => g.branch).filter(Boolean))].map((b, i) => [b, { address: addresses[i % addresses.length], hours: 'يوميًا من 3 العصر لـ 10 بالليل', map: '' }]));
+    const off = new Date(daysFrom(5)), key = `${off.getFullYear()}-${String(off.getMonth() + 1).padStart(2, '0')}-${String(off.getDate()).padStart(2, '0')}`;
+    s.holidays = s.holidays || [];
+    if (!s.holidays.length) {
+      s.holidays.push({ date: key, name: 'إجازة منتصف الترم' });
+      s.sessions.forEach(x => { if (x.status === 'scheduled' && db.day(x.start) === key) { x.status = 'cancelled'; x.scheduleReason = 'إجازة: إجازة منتصف الترم'; } });
+    }
+    const kid = s.members.find(m => m.guardian) || s.members[1];
+    s.botInbox = s.botInbox || [];
+    if (kid && !s.botInbox.length) s.botInbox.push({ id: 'demo-q-1', memberId: kid.id, name: kid.guardian?.name || kid.name, phone: kid.guardian?.phone || kid.phone || '', text: 'هل فيه باص بيوصل من المعادي؟', status: 'open', at: iso(daysFrom(-0.1)) });
+    s.outbox = s.outbox || [];
+    if (!s.outbox.length) s.members.slice(2, 4).forEach((m, i) => s.outbox.push({ id: `demo-sent-${m.id}`, kind: i ? 'absence' : 'renewal', memberId: m.id, phone: m.phone || '', name: m.name, text: '', status: 'sent', channel: 'whatsapp', at: iso(daysFrom(-1 - i)) }));
     s.sportDemoVersion = VERSION;
   }));
 })();

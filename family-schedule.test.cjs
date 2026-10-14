@@ -68,3 +68,48 @@ test('children register without their own phone, program prices activate their o
   db.attend(sid, kid2.id, true);
   assert.equal(db.session(sid).marks[kid2.id], undefined);
 });
+
+test('automated messages pick the right people once, and the assistant answers from the records', () => {
+  const MC = require('./messages-engine.js');
+  const now = new Date('2026-10-14T12:00:00');
+  const at = (d, h = 17) => { const x = new Date(now); x.setDate(x.getDate() + d); x.setHours(h, 0, 0, 0); return x.toISOString(); };
+  const st = {
+    settings: {}, families: [{ id: 'f1', name: 'منى علي', phone: '01011112233', relation: 'أم' }],
+    groups: [{ id: 'g', name: 'سباحة 1', branch: 'فرع زايد', coach: 'كابتن سلمى', resource: 'الحمام الكبير' }],
+    members: [
+      { id: 'a', name: 'ليلى سامي', group: 'g', familyId: 'f1', end: at(3), remaining: 5, guardian: { name: 'منى علي', phone: '01011112233' } },
+      { id: 'b', name: 'عمر سامي', group: 'g', familyId: 'f1', end: at(30), remaining: 8, guardian: { name: 'منى علي', phone: '01011112233' } },
+      { id: 'c', name: 'كريم', group: 'g', end: at(-3), remaining: 0, phone: '01299998888' },
+      { id: 'd', name: 'بدون رقم', group: 'g', end: at(2), remaining: 3 }
+    ],
+    sessions: [
+      { id: 's1', group: 'g', status: 'ended', start: at(-1), present: { a: true }, marks: {}, rsvp: {} },
+      { id: 's2', group: 'g', status: 'scheduled', start: at(1), rsvp: {} }
+    ],
+    holidays: [{ date: '2026-10-18', name: 'إجازة منتصف الترم' }],
+    invoices: [{ memberId: 'b', total: 900, paid: 400 }], levelHistory: [], outbox: []
+  };
+  const due = MC.due(st, now);
+  const kinds = id => due.filter(x => x.memberId === id).map(x => x.kind).sort();
+  assert.deepEqual(kinds('a'), ['holiday', 'renewal']);
+  assert.ok(kinds('b').includes('absence'));
+  assert.deepEqual(kinds('c'), ['absence', 'expired', 'holiday']);
+  assert.equal(kinds('d').length, 0, 'no phone, no message');
+  assert.equal(due.filter(x => x.kind === 'holiday').length, 2, 'one holiday notice per phone, not per child');
+  assert.ok(due.find(x => x.kind === 'renewal').text.includes('ليلى'));
+  st.outbox.push({ id: due.find(x => x.kind === 'renewal').id });
+  assert.ok(!MC.due(st, now).some(x => x.kind === 'renewal'), 'sent messages are not suggested again');
+  st.settings.automation = { absence: false };
+  assert.ok(!MC.due(st, now).some(x => x.kind === 'absence'));
+  assert.equal(MC.waLink('01011112233', 'أهلًا'), 'https://wa.me/201011112233?text=%D8%A3%D9%87%D9%84%D9%8B%D8%A7');
+
+  const a = st.members[0];
+  assert.equal(MC.intentOf('امتى الحصة الجاية؟'), 'next');
+  assert.equal(MC.intentOf('التمرين فين'), 'place');
+  assert.equal(MC.intentOf('ليلى تعبانة ومش هتقدر تيجي'), 'excuse');
+  assert.match(MC.answer(st, a, 'الحصة امتى', now).text, /الحمام الكبير/);
+  assert.match(MC.answer(st, a, 'فيه اجازة؟', now).text, /منتصف الترم/);
+  assert.match(MC.answer(st, a, 'الرصيد', now).text, /500/);
+  assert.equal(MC.answer(st, a, 'اعتذار', now).confirm.sessionId, 's2');
+  assert.equal(MC.answer(st, a, 'فيه باص؟', now).unknown, true);
+});
