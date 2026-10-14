@@ -192,7 +192,7 @@
         ${active[0]?.skills.length ? `<div class="sb-phone-row"><b>مهارات المستوى</b><small>${active[0].skills.map(s => E(s.name)).join(' · ')}</small></div>` : ''}
         <div class="sb-phone-row"><b>أفضل النتائج</b><small>${d.metrics.map(m => E(m.name)).join(' · ') || '—'}</small></div>
         <div class="sb-phone-row"><b>شروط الترقية</b><small>${[d.promotion.skills ? 'إتقان المهارات' : '', d.promotion.minSessions ? d.promotion.minSessions + ' حصة' : '', d.promotion.minAttendance ? 'حضور ' + d.promotion.minAttendance + '%' : '', d.promotion.exam ? 'اختبار' : ''].filter(Boolean).join(' · ') || 'بدون شروط'}</small></div></section>
-      <section class="sb-phone"><small>لوحة الإدارة</small><h3>شاشات إضافية</h3>${a.map(x => `<div class="sb-phone-row"><b>${E(x.title)}</b></div>`).join('') || '<p class="muted">لا توجد شاشات إضافية.</p>'}<div class="sb-phone-row"><b>البرامج</b><small>${d.programs.filter(p => p.active !== false).map(p => `${E(p.name)} (${p.ageMin}–${p.ageMax}) ${money(p.price)}`).join(' · ')}</small></div></section></div>`;
+      <section class="sb-phone"><small>لوحة الإدارة</small><h3>شاشات إضافية</h3>${a.map(x => `<div class="sb-phone-row"><b>${E(x.title)}</b></div>`).join('') || '<p class="muted">لا توجد شاشات إضافية.</p>'}<div class="sb-phone-row"><b>البرامج</b><small>${d.programs.filter(p => p.active !== false).map(p => `${E(p.name)} (من ${p.ageMin} إلى ${p.ageMax} سنة) ${money(p.price)}`).join(' · ')}</small></div></section></div>`;
   }
 
   B.save = () => {

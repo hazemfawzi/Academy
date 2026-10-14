@@ -44,3 +44,29 @@
 .sa-history{list-style:none;padding:0;margin:0;display:grid;gap:6px}
 .sa-history li{background:#fff;border:1px solid #dfe7e1;border-radius:10px;padding:9px 12px;display:grid}
 .sa-history small{font-size:11px;color:#64776c}
+/* Parent switcher, child home, attendance statuses. */
+.pa-switch{display:flex;gap:6px;overflow-x:auto;margin-top:12px;padding-bottom:2px}
+.pa-switch button{font:inherit;font-size:13px;display:flex;align-items:center;gap:5px;border:1px solid #d7e3da;background:#f4f8f5;border-radius:999px;padding:7px 13px;white-space:nowrap;cursor:pointer;color:#2f463a;min-height:38px}
+.pa-switch button.on{background:#2d604c;border-color:#2d604c;color:#fff;font-weight:700}
+.pa-next{border-color:#cfe0d5;background:#f3f8f5}
+.pa-next small{font-size:12px;color:#5d7466}
+.pa-next h3{font-size:18px;margin:4px 0}
+.pa-small{font-size:15px!important;line-height:1.5}
+.pa-good{background:#e1f1e6;color:#25693f;border-radius:10px;padding:10px 12px;font-weight:700}
+.pa-owe{border-color:#efd9ad!important;background:#fff8ea!important}
+.pa-sub h3{font-size:22px;margin:4px 0}
+.pa-renew label{display:grid;gap:6px;font-size:13px;font-weight:700;margin-bottom:10px}
+.pa-renew select,.pa-renew input{font:inherit;padding:10px;border:1px solid #cfdcd3;border-radius:10px;background:#f8fbf9}
+.pa-att-head{display:flex;justify-content:space-between;align-items:center;margin:12px 0}
+.pa-att{background:#fff;border:1px solid #dfe7e1;border-radius:12px;padding:10px 12px;margin-bottom:8px;display:grid;gap:8px}
+.pa-att>div:first-child{display:grid;gap:2px}
+.pa-att.present,.pa-att.late{border-color:#bfdcc9}
+.pa-att.absent{border-color:#efcdc9}
+.pa-med{font-size:11px;color:#9a6212}
+.pa-warn{font-size:11px;color:#b3362f}
+.pa-seg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.pa-seg button{font:inherit;font-size:12px;border:1px solid #d7e3da;background:#f6f9f7;border-radius:8px;padding:8px 2px;cursor:pointer;min-height:38px;color:#3b5146}
+.pa-seg button.on.present{background:#2d604c;border-color:#2d604c;color:#fff}
+.pa-seg button.on.late{background:#b8954f;border-color:#b8954f;color:#fff}
+.pa-seg button.on.absent{background:#b3362f;border-color:#b3362f;color:#fff}
+.pa-seg button.on.excused{background:#2f6f8f;border-color:#2f6f8f;color:#fff}

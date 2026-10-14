@@ -5,8 +5,9 @@
 (function () {
   'use strict';
   if (!window.V || !window.SportEngine) return;
-  const db = V.db, VERSION = 1;
+  const db = V.db, VERSION = 2;
   if ((db.state.sportDemoVersion || 0) >= VERSION) return;
+  const firstRun = (db.state.sportDemoVersion || 0) < 1;
 
   const now = new Date();
   const dayMs = 86400000;
@@ -63,7 +64,7 @@
     return out;
   }
 
-  V.run(() => db.update(s => {
+  if (firstRun) V.run(() => db.update(s => {
     const def = id => SportEngine.get(id);
     const ids = new Set(s.members.map(m => m.id));
     s.sportProgress = s.sportProgress || [];
@@ -174,6 +175,22 @@
     pay('demo-padel-4', 700, 'فودافون كاش', 'monthly', 200, 1400);
     pay('demo-fitness-0', 700, 'كاش', 'monthly', 30, 700);
 
+    s.sportDemoVersion = 1;
+  }));
+
+  /* Version 2: the preview member is also the father of two players, so the parent app
+     has a real family to switch between. */
+  V.run(() => db.update(s => {
+    const me = s.members.find(m => m.id === 'm0');
+    if (me && !me.phone && !s.members.some(m => m.phone === '01011112233')) { me.phone = '01011112233'; me.dob = me.dob || birth(34); }
+    /* Each demo player follows the program that fits their age. */
+    const ageOf = dob => Math.floor((now - new Date(dob + 'T12:00:00')) / (365.25 * dayMs));
+    s.members.forEach(m => {
+      const g = s.groups.find(x => x.id === m.group), d = g && SportEngine.get(g.sport);
+      if (!d || m.programId) return;
+      const age = m.dob ? ageOf(m.dob) : 25;
+      m.programId = (d.programs.find(p => age >= p.ageMin && age <= p.ageMax) || d.programs[d.programs.length - 1]).id;
+    });
     s.sportDemoVersion = VERSION;
   }));
 })();

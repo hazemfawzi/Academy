@@ -2,7 +2,7 @@
 
 راجع [خطة المنتج](docs/PRODUCT-PLAN.md) و[لوحة العمل](docs/WORKBOARD.md) لمعرفة ما يعمل وحدود النسخة والمراحل التالية.
 
-التحقق الحالي: `node --test tests.cjs academy-model.test.cjs sport-engine.test.cjs`.
+التحقق الحالي: `node --test tests.cjs academy-model.test.cjs sport-engine.test.cjs family-schedule.test.cjs`.
 مركز التشغيل الجديد من `dashboard.html`؛ ملفات `academy-model.js` و`academy-ui.js` و`academy-ui.css` تشارك سجلات النموذج الحالي.
 المشروع ما زال نموذجًا محليًا؛ لا يمثل خدمة متعددة المستخدمين أو دفعًا حقيقيًا.
 
