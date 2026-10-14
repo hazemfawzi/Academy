@@ -102,7 +102,7 @@
       ${latest ? `${K.section('آخر نتيجة', 'التقدم', "go('progress')")}<div class="ax-card ax-result"><div><small>${E(latest.label)} · ${E(fmt(latest.at, { day: 'numeric', month: 'short' }))}</small><b>${E(metric ? P.formatValue(metric, latest.value) : latest.value)}</b>${latest.note ? `<p>${E(latest.note)}</p>` : ''}</div>${K.spark(series, metric?.better === 'lower')}</div>` : ''}
       ${note ? `<div class="ax-card ax-note">${avatar(note.by || g?.coach || 'المدرب', 34)}<div><small>${E(note.by || g?.coach || 'المدرب')}</small><p>${E(note.text)}</p></div></div>` : ''}
       ${K.section('الخدمات')}${K.grid([
-        { icon: 'star', label: 'بطاقة اللاعب', action: `PlayerCard.open('${m.id}')`, tone: 'gold' }, { icon: 'chart', label: 'التقدم', action: "go('progress')" }, { icon: 'cal', label: 'الحصص', action: "go('sessions')" }, { icon: 'wallet', label: 'الاشتراك', action: "go('account')" }, { icon: 'bot', label: 'اسأل المساعد', action: "go('assistant')", tone: 'brand' },
+        { icon: 'star', label: 'البطاقة', action: `PlayerCard.open('${m.id}')`, tone: 'gold' }, { icon: 'chart', label: 'التقدم', action: "go('progress')" }, { icon: 'cal', label: 'الحصص', action: "go('sessions')" }, { icon: 'wallet', label: 'الاشتراك', action: "go('account')" }, { icon: 'bot', label: 'المساعد', action: "go('assistant')" },
         { icon: 'chat', label: 'الرسائل', action: "go('msgs')" }, { icon: 'inbox', label: 'طلباتي', action: "go('myrequests')" }, { icon: 'more', label: 'المزيد', action: "go('more')" }])}`);
   };
 
