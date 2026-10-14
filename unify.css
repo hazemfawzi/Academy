@@ -1,0 +1,19 @@
+/* One visual language for old and new screens: dark-green heroes instead of the old
+   burgundy ones, and green for the main action everywhere (gold stays an accent).
+   Team colours (red and black teams) are left as they are. */
+:root{--u-hero:linear-gradient(125deg,#10211a 0%,#1f4637 55%,#2d604c 100%);--u-brand:#2d604c;--u-brand-dark:#1f4637}
+.fn-head,.kd-hero,.sc-hero,.msx-hero,.card.msx-hero,.sc-entry>div,.score,.v-sessionbar,.v-summary,.ms-head{background:var(--u-hero)!important;border-color:transparent!important}
+.v-summary .btn,.v-summary button:not(.ghost){color:var(--u-brand-dark)}
+.fn-stat.red{background:#9a6212!important;border-color:#9a6212!important}
+.ws-shell .btn:not(.ghost):not(.gl):not(.wh):not(.on),.ws-shell .ac-button.primary{background:var(--u-brand)!important;border-color:var(--u-brand)!important;color:#fff!important}
+.ws-shell .btn:not(.ghost):not(.gl):not(.wh):not(.on):hover,.ws-shell .ac-button.primary:hover{background:var(--u-brand-dark)!important}
+.ws-shell .toggle.on{background:var(--u-brand)!important}
+.mg-comms .sb-btn{margin-top:12px;width:100%}
+.msx-hero small{color:#d9c48f!important}.msx-hero p{color:#dfe9e3!important}
+.kd-hero h2 span{color:#d9c48f!important}.kd-hero p,.kd-hero-side small{color:#dfe9e3!important}
+.fn-stat:not(.dark):not(.red):not(.black):not(.ink),.fn-plan,.fn-panel,.fn-cash-equation{background:#fff!important;border-color:#e3eae5!important}
+.fn-stat.red{background:#9a6212!important}
+.fn-chips button,.fn-chips>span{background:#f3f6f4!important;border-color:#dbe4de!important;color:#1f4637!important}
+.fn-table tbody tr:nth-child(even){background:#f3f6f4!important}
+.fn-cash-equation>div{border-color:#e3eae5!important}
+.ws-month-labels span{color:#4f6b3a!important;font-weight:700}

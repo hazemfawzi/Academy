@@ -39,6 +39,8 @@
           <p class="mg-note">في النسخة دي كل رسالة بتتفتح في واتساب جاهزة ويضغط الموظف إرسال. الإرسال من غير تدخل محتاج ربط WhatsApp Business API، وساعتها نفس القواعد دي هتشتغل لوحدها كل يوم.</p></aside></div></div>`;
     };
     PAGES.automation_after = () => {};
+    /* The communication page points at the automated messages instead of keeping its own switches. */
+    MU.commsCard = () => { const cfg = Msg.settings(), due = Msg.due().length; return `<div class="card mg-comms"><h3>الرسائل الآلية</h3><p class="muted">التذكيرات والتنبيهات بقت في صفحة واحدة، بتحدد مين يستاهل رسالة النهارده وتفتحها في واتساب جاهزة.</p><div class="list">${Object.entries(Msg.KINDS).map(([k, d]) => `<div class="it"><div class="f1"><b>${E(d.name)}</b><div class="muted">${k === 'renewal' ? `قبل الانتهاء بـ ${cfg.renewalDays} أيام` : E(d.desc)}</div></div><span class="sa-chip ${cfg[k] ? 'ok' : ''}">${cfg[k] ? 'شغالة' : 'متوقفة'}</span></div>`).join('')}</div><button type="button" class="sb-btn primary" onclick="go('automation')">${due ? due + ' رسالة مستحقة · ' : ''}فتح الرسائل الآلية</button></div>`; };
 
     const find = id => Msg.due().find(x => x.id === id);
     MU.send = id => { const x = find(id); if (!x) return; window.open(Msg.waLink(x.to.phone, x.text), '_blank', 'noopener'); V.run(() => Msg.mark(x, 'sent')); render(); toast('اتسجلت كمرسلة'); };
