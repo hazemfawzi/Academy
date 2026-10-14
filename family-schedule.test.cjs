@@ -147,3 +147,32 @@ test('a renewal can carry a receipt screenshot instead of the transfer number', 
   db.decide(r.id, true);
   assert.equal(db.state.requests.find(x => x.id === r.id).status, 'approved');
 });
+
+test('coach pay counts ended sessions, pays substitutes, shares collected fees and keeps adjustments', () => {
+  const PY = require('./payroll.js');
+  const st = {
+    settings: { payroll: { 'سلمى': { mode: 'session', perSession: 300 }, 'وليد': { mode: 'percent', percent: 40 }, 'دينا': { mode: 'mixed', base: 2000, perSession: 150 } } },
+    groups: [{ id: 'g1', coach: 'سلمى' }, { id: 'g2', coach: 'وليد' }],
+    members: [{ id: 'a', group: 'g1' }, { id: 'b', group: 'g2' }],
+    sessions: [
+      { id: 's1', group: 'g1', status: 'ended', start: '2026-09-03T17:00:00', duration: 60, present: { a: true } },
+      { id: 's2', group: 'g1', status: 'ended', start: '2026-09-10T17:00:00', duration: 60, present: {} },
+      { id: 's3', group: 'g1', status: 'cancelled', start: '2026-09-17T17:00:00', duration: 60 },
+      { id: 's4', group: 'g1', status: 'ended', start: '2026-09-24T17:00:00', duration: 60, coach: 'دينا', present: { a: true } },
+      { id: 's5', group: 'g1', status: 'ended', start: '2026-10-01T17:00:00', duration: 60 }
+    ],
+    transactions: [{ memberId: 'b', amount: 1000, kind: 'payment', at: '2026-09-05T10:00:00' }, { memberId: 'b', amount: 200, kind: 'refund', at: '2026-09-06T10:00:00' }, { memberId: 'b', amount: 900, kind: 'payment', at: '2026-10-05T10:00:00' }],
+    payrollAdjust: [{ coach: 'سلمى', month: '2026-09', amount: -100, note: 'تأخير' }]
+  };
+  const salma = PY.statement(st, 'سلمى', '2026-09');
+  assert.equal(salma.sessions.length, 2, 'cancelled and substituted sessions are not hers');
+  assert.equal(salma.gross, 600);
+  assert.equal(salma.total, 500);
+  assert.equal(PY.statement(st, 'دينا', '2026-09').total, 2150, 'fixed plus the session she covered');
+  assert.equal(PY.statement(st, 'وليد', '2026-09').total, 320, '40% of fees after refunds');
+  assert.equal(PY.month(st, '2026-09').total, 500 + 2150 + 320);
+  assert.equal(PY.shift('2026-01', -1), '2025-12');
+  assert.throws(() => PY.validateTerms({ mode: 'session', perSession: 0 }), /أجر الحصة/);
+  assert.throws(() => PY.validateTerms({ mode: 'percent', percent: 80 }), /60%/);
+  assert.deepEqual(PY.validateTerms({ mode: 'fixed', base: '5000', perSession: 99 }), { mode: 'fixed', base: 5000, perSession: 0, percent: 0 });
+});
