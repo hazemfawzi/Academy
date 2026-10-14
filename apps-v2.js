@@ -99,8 +99,8 @@
       ${latest ? `${K.section('آخر نتيجة', 'التقدم', "go('progress')")}<div class="ax-card ax-result"><div><small>${E(latest.label)} · ${E(fmt(latest.at, { day: 'numeric', month: 'short' }))}</small><b>${E(metric ? P.formatValue(metric, latest.value) : latest.value)}</b>${latest.note ? `<p>${E(latest.note)}</p>` : ''}</div>${K.spark(series, metric?.better === 'lower')}</div>` : ''}
       ${note ? `<div class="ax-card ax-note">${avatar(note.by || g?.coach || 'المدرب', 34)}<div><small>${E(note.by || g?.coach || 'المدرب')}</small><p>${E(note.text)}</p></div></div>` : ''}
       ${K.section('الخدمات')}${K.grid([
-        { icon: 'star', label: 'بطاقة اللاعب', action: `PlayerCard.open('${m.id}')`, tone: 'brand' }, { icon: 'chart', label: 'التقدم', action: "go('progress')" }, { icon: 'cal', label: 'الحصص', action: "go('sessions')" }, { icon: 'wallet', label: 'الاشتراك', action: "go('account')" }, { icon: 'chat', label: 'الرسائل', action: "go('msgs')" },
-        { icon: 'inbox', label: 'طلباتي', action: "go('myrequests')" }, { icon: 'users', label: 'المجتمع', action: APPS.member.F.community ? "go('community')" : "go('more')" }, { icon: 'more', label: 'المزيد', action: "go('more')" }])}`);
+        { icon: 'star', label: 'بطاقة اللاعب', action: `PlayerCard.open('${m.id}')`, tone: 'brand' }, { icon: 'chart', label: 'التقدم', action: "go('progress')" }, { icon: 'cal', label: 'الحصص', action: "go('sessions')" }, { icon: 'wallet', label: 'الاشتراك', action: "go('account')" }, { icon: 'bolt', label: 'اسأل المساعد', action: "go('assistant')", tone: 'brand' },
+        { icon: 'chat', label: 'الرسائل', action: "go('msgs')" }, { icon: 'inbox', label: 'طلباتي', action: "go('myrequests')" }, { icon: 'more', label: 'المزيد', action: "go('more')" }])}`);
   };
 
   APPS.member.F.sessions = () => {
@@ -278,7 +278,7 @@
     APPS.coach.tabs = [['home', 'home', 'الرئيسية'], ['sessions', 'cal', 'الحصص'], ['attend', 'check', 'الحضور'], [football ? 'teams' : 'sporttools', football ? 'bolt' : 'star', football ? 'التقسيمة' : 'الأدوات'], ['players', 'users', 'اللاعبون']];
     APPS.manager.tabs = [['home', 'home', 'الرئيسية'], ['gsess', 'cal', 'الحصص'], ['members', 'users', 'اللاعبون'], ['collect', 'wallet', 'التحصيل'], ['gmore', 'more', 'المزيد']];
     if (!APPS.member.list.some(x => x[0] === 'progress')) APPS.member.list.push(['progress', 'التقدم الرياضي']);
-    APPS.member.sub.progress = 'progress'; APPS.member.sub.sessions = 'sessions';
+    APPS.member.sub.progress = 'progress'; APPS.member.sub.assistant = 'home'; APPS.member.sub.sessions = 'sessions';
   };
   AA.configure();
   document.body.classList.add('apps-v2');
