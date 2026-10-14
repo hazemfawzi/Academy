@@ -113,3 +113,37 @@ test('automated messages pick the right people once, and the assistant answers f
   assert.equal(MC.answer(st, a, 'اعتذار', now).confirm.sessionId, 's2');
   assert.equal(MC.answer(st, a, 'فيه باص؟', now).unknown, true);
 });
+
+test('player QR and six-digit codes identify the player and open the right session only', () => {
+  const CK = require('./checkin.js');
+  const members = [{ id: 'a', group: 'g' }, { id: 'b', group: 'h' }];
+  assert.equal(CK.parse(CK.payload('a'), members).member.id, 'a');
+  assert.equal(CK.parse(CK.shortCode('b'), members).member.id, 'b');
+  assert.notEqual(CK.shortCode('a'), CK.shortCode('b'));
+  assert.match(CK.parse(CK.payload('a').replace(/:[^:]+$/, ':zzz'), members).error, /متعدل/);
+  assert.match(CK.parse('https://example.com', members).error, /مش كود/);
+  assert.match(CK.parse('000000', members).error, /مش متسجل/);
+  const now = new Date('2026-10-14T17:00:00');
+  const at = min => new Date(now.getTime() + min * 60000).toISOString();
+  const st = { sessions: [
+    { id: 'early', group: 'g', status: 'scheduled', start: at(40), duration: 60 },
+    { id: 'other', group: 'h', status: 'scheduled', start: at(10), duration: 60 },
+    { id: 'gone', group: 'g', status: 'cancelled', start: at(5), duration: 60 }
+  ] };
+  assert.equal(CK.openSession(st, members[0], now).session, undefined, 'check-in opens 30 minutes before');
+  assert.equal(CK.openSession(st, members[0], now).next.id, 'early');
+  assert.equal(CK.openSession(st, members[0], new Date(now.getTime() + 15 * 60000)).session.id, 'early');
+  assert.equal(CK.openSession(st, members[1], now).session.id, 'other');
+});
+
+test('a renewal can carry a receipt screenshot instead of the transfer number', () => {
+  const KoraCore = require('./core.js');
+  const store = new Map(), storage = { getItem: k => store.get(k) ?? null, setItem: (k, v) => store.set(k, v), removeItem: k => store.delete(k) };
+  const db = KoraCore.create(storage);
+  const mid = db.state.members[0]?.id || db.addMember({ name: 'لاعب', phone: '01012345678', group: db.state.groups[0].id }).id;
+  assert.throws(() => db.request(mid, 'payment', { plan: 'monthly', method: 'إنستاباي', reference: '' }), /صورة الإيصال/);
+  const r = db.request(mid, 'payment', { plan: 'monthly', method: 'إنستاباي', reference: '', receipt: 'data:image/jpeg;base64,AAAA' });
+  assert.equal(r.payload.receipt.startsWith('data:image'), true);
+  db.decide(r.id, true);
+  assert.equal(db.state.requests.find(x => x.id === r.id).status, 'approved');
+});
