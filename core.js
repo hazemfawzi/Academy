@@ -60,8 +60,8 @@
         assert(!m.freezes.some(f=>payload.from<=f.to&&until>=f.from),'فترة التجميد متداخلة مع فترة سابقة');
       } else if(type==='payment'){
         if(payload.charge)chargeOf('monthly',payload.charge);else assert(plans[payload.plan],'اختار الباقة'); assert(['إنستاباي','فودافون كاش','كاش في الفرع'].includes(payload.method),'اختار طريقة الدفع');
-        assert(payload.method==='كاش في الفرع'||String(payload.reference||'').trim().length>=4,'اكتب رقم عملية التحويل (4 أحرف على الأقل)');
-        if(payload.method!=='كاش في الفرع')assert(!state.requests.some(r=>r.type==='payment'&&r.status!=='rejected'&&r.payload.reference===payload.reference),'رقم التحويل موجود في طلب سابق');
+        assert(payload.method==='كاش في الفرع'||String(payload.reference||'').trim().length>=4||(payload.receipt&&!String(payload.reference||'').trim()),'اكتب رقم عملية التحويل (4 أحرف على الأقل) أو ارفع صورة الإيصال');
+        if(payload.method!=='كاش في الفرع'&&payload.reference)assert(!state.requests.some(r=>r.type==='payment'&&r.status!=='rejected'&&r.payload.reference===payload.reference),'رقم التحويل موجود في طلب سابق');
       } else if(type==='makeup'){
         assert(m.makeupCredits>0&&new Date(m.makeupExpiry)>=now(),'رصيد التعويض غير متاح أو منتهي');
         assert(state.sessions.some(s=>s.id===payload.sessionId&&s.status==='scheduled'&&new Date(s.start)>now()),'اختار حصة قادمة متاحة');
@@ -92,7 +92,7 @@
         assert(p.from>=day(now()),'تاريخ التجميد فات؛ اطلب من العضو تاريخًا جديدًا');
         m.freezes.push({from:p.from,to:day(addDays(p.from+'T12:00:00',p.days-1))});m.freezeBalance-=p.days;m.end=addDays(m.end,p.days);
       }
-      if(approved&&r.type==='payment') postPayment(m.id,p.plan,p.method==='كاش في الفرع'?'كاش':p.method,p.reference,p.discount||0,r.id,null,p.charge||null);
+      if(approved&&r.type==='payment') postPayment(m.id,p.plan,p.method==='كاش في الفرع'?'كاش':p.method,p.reference||(p.receipt?'إيصال مرفق '+r.id.slice(-6):''),p.discount||0,r.id,null,p.charge||null);
       if(approved&&r.type==='makeup'){
         const s=session(p.sessionId),g=state.groups.find(g=>g.id===s.group);
         assert(m.makeupCredits>0&&new Date(m.makeupExpiry)>=now(),'رصيد التعويض غير متاح');
