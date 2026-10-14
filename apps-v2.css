@@ -206,3 +206,4 @@
 .ax-tile.ok b{color:var(--ax-ok)}
 .ax-row .ax-btn.small{pointer-events:none}
 .ax-grid-icon.gold{background:linear-gradient(140deg,#d9c48f,#b8954f);color:#2a2414}
+.ax-grid small{max-width:100%;padding:0 6px;box-sizing:border-box;overflow-wrap:anywhere}
