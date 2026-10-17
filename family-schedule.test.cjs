@@ -265,3 +265,34 @@ test('football physical tests: valid ranges, growth velocity, maturity offset, a
   assert.equal(FC.squadRank(st, st.members, 'c', 'sprint10').third, 'low');
   assert.equal(FC.squadRank(st, st.members, 'c', 'jump'), null, 'empty cells are not recorded');
 });
+
+test('football matches, minutes share, acute:chronic load and injuries', () => {
+  const FC = require('./football-core.js');
+  const st = { groups: [{ id: 'u10', sport: 'football', fb: { tier: 'pathway', birthYear: 2017 } }, { id: 'school', sport: 'football', fb: { tier: 'school' } }], members: ['a', 'b', 'c', 'd', 'e', 'f'].map(id => ({ id, group: 'u10' })) };
+  assert.throws(() => FC.addMatch(st, 'school', { opponent: 'نادي', competition: 'ودية', at: '2026-10-01T10:00' }), /فرق المسار/);
+  assert.throws(() => FC.addMatch(st, 'u10', { opponent: 'نادي', competition: 'كاس', at: '2026-10-01T10:00' }), /نوع الماتش/);
+  const ids = [1, 2, 3].map(i => FC.addMatch(st, 'u10', { opponent: 'أكاديمية ' + i, competition: 'دوري المنطقة', at: `2026-10-0${i}T10:00:00` }).id);
+  const x = st.fbMatches[0];
+  assert.deepEqual(x.format, { players: 7, minutes: 50 }, 'U10 plays 7 a side for 50 minutes');
+  assert.throws(() => FC.recordResult(st, ids[0], { us: 1, them: 0, lineup: [{ memberId: 'a', played: true, minutes: 60 }] }), /الدقايق/);
+  assert.throws(() => FC.recordResult(st, ids[0], { us: 0, them: 0, lineup: [{ memberId: 'a', played: true, minutes: 50, goals: 1 }] }), /أهداف اللاعيبة/);
+  assert.throws(() => FC.recordResult(st, ids[0], { us: 1, them: 0, lineup: [] }), /اللي لعبوا/);
+  ids.forEach(id => FC.recordResult(st, id, { us: 2, them: 1, lineup: [{ memberId: 'a', played: true, start: true, minutes: 50, goals: 2, rating: 8 }, { memberId: 'b', played: true, minutes: 10, rating: 6 }, { memberId: 'c', played: false }] }));
+  const t = Object.fromEntries(FC.minutesTable(st, 'u10').map(r => [r.member.id, r]));
+  assert.equal(t.a.minutes, 150); assert.equal(t.a.share, 100); assert.equal(t.a.goals, 6); assert.equal(t.a.rating, 8);
+  assert.equal(t.b.share, 20); assert.equal(t.b.under, true, 'foundation players under 50% of the minutes are flagged');
+  assert.equal(t.a.under, false);
+  const now = new Date('2026-10-17T12:00:00Z');
+  const at = d => new Date(now.getTime() - d * 86400000).toISOString();
+  st.fbLoad = [];
+  for (let d = 28; d >= 1; d -= 2) st.fbLoad.push({ memberId: 'a', at: at(d), rpe: 5, minutes: 60, load: 300 });
+  const w = FC.workload(st, 'a', now);
+  assert.ok(w.ratio > 0.8 && w.ratio < 1.3, 'steady training stays in the safe zone');
+  FC.recordLoad(st, [{ memberId: 'a', rpe: 10, minutes: 150 }, { memberId: 'b', rpe: '' }], { at: at(0.5) });
+  assert.equal(FC.workload(st, 'a', now).zone, 'high', 'a sudden jump is flagged');
+  assert.throws(() => FC.recordLoad(st, [{ memberId: 'a', rpe: 11, minutes: 60 }]), /1 لـ 10/);
+  const inj = FC.addInjury(st, 'c', { part: 'الكاحل' });
+  assert.equal(FC.injured(st, 'c').id, inj.id);
+  FC.setInjury(st, inj.id, 'cleared');
+  assert.equal(FC.injured(st, 'c'), null);
+});

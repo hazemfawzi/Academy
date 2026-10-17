@@ -62,7 +62,7 @@
     };
     const TRACK_ICON = { pathway: '🎯', school: '⚽' };
 
-    FU.openSquad = id => { FU.squadId = id; FU.filter = 'all'; go('squad'); };
+    FU.openSquad = (id, tab) => { FU.squadId = id; FU.filter = 'all'; if (tab) FU.squadTab = tab; go('squad'); };
     PAGES.squad = () => {
       const g = group(FU.squadId) || FC.squads(db.state)[0];
       if (!g) return PAGES.pathway();
@@ -100,9 +100,19 @@
     };
     ['pathway', 'squad', 'fbplayer'].forEach(k => { PAGES[k + '_after'] = () => {}; });
     { const baseSquad = PAGES.squad, basePlayer = PAGES.fbplayer, basePath = PAGES.pathway;
-      PAGES.squad = () => { const html = baseSquad(), g = group(FU.squadId) || FC.squads(db.state)[0]; if (!g || !FC.isSquad(g)) return html; const i = html.lastIndexOf('</div>'); return html.slice(0, i) + FU.physicalSection(g.id) + html.slice(i); };
-      PAGES.fbplayer = () => { const html = basePlayer(), p = db.member(FU.playerId); if (!p) return html; const at = html.indexOf('<section class="fb-card"><h3>خطة التطوير الفردية'); return at < 0 ? html : html.slice(0, at) + FU.growthCard(p, FC.playersOf(db.state, p.group)) + html.slice(at); };
-      PAGES.pathway = () => { const html = basePath(), all = FC.squads(db.state).flatMap(g => FC.playersOf(db.state, g.id)), spurt = all.filter(p => FC.growth(db.state, p)?.spurt).length; return html.replace('<div><small>أهداف تطوير جارية</small>', `<div class="${spurt ? 'warn' : ''}"><small>في طفرة نمو</small><b>${spurt}</b></div><div><small>أهداف تطوير جارية</small>`); };
+      FU.squadTab = 'dev';
+      PAGES.squad = () => {
+        const html = baseSquad(), g = group(FU.squadId) || FC.squads(db.state)[0]; if (!g || !FC.isSquad(g)) return html;
+        const cut = html.indexOf('</header>') + 9, head = html.slice(0, cut), dev = html.slice(cut, html.lastIndexOf('</div>'));
+        const tabs = [['dev', 'التطوير'], ['physical', 'البدني والنمو'], ['matches', 'الماتشات والدقائق'], ['load', 'الأحمال والإصابات']];
+        const body = FU.squadTab === 'physical' ? FU.physicalSection(g.id) : FU.squadTab === 'matches' ? FU.matchesSection(g.id) : FU.squadTab === 'load' ? FU.loadSection(g.id) : dev;
+        return `${head}<nav class="tp-tabs fb-tabs">${tabs.map(([k, l]) => `<button type="button" class="${FU.squadTab === k ? 'selected' : ''}" onclick="FootballUI.squadTab='${k}';render()">${l}</button>`).join('')}</nav>${body}</div>`;
+      };
+      PAGES.fbplayer = () => { const html = basePlayer(), p = db.member(FU.playerId); if (!p) return html; const at = html.indexOf('<section class="fb-card"><h3>خطة التطوير الفردية'); return at < 0 ? html : html.slice(0, at) + FU.growthCard(p, FC.playersOf(db.state, p.group)) + FU.playerMatches(p) + html.slice(at); };
+      PAGES.pathway = () => { const html = basePath(), all = FC.squads(db.state).flatMap(g => FC.playersOf(db.state, g.id)), spurt = all.filter(p => FC.growth(db.state, p)?.spurt).length, hurt = all.filter(p => FC.injured(db.state, p.id)).length;
+        const next = (db.state.fbMatches || []).filter(x => x.status !== 'played' && new Date(x.at) > new Date()).sort((a, b) => new Date(a.at) - new Date(b.at)).slice(0, 4);
+        return html.replace('<div><small>أهداف تطوير جارية</small>', `<div class="${spurt ? 'warn' : ''}"><small>في طفرة نمو</small><b>${spurt}</b></div><div class="${hurt ? 'warn' : ''}"><small>مصابين</small><b>${hurt}</b></div><div><small>أهداف تطوير جارية</small>`)
+          .replace('<div class="fb-phases">', `${next.length ? `<section class="fb-card fb-next"><h3>الماتشات الجاية</h3>${next.map(x => `<button type="button" class="fb-next-row" onclick="FootballUI.openSquad('${x.squadId}','matches')"><b>${E(FC.squadName(group(x.squadId).fb.birthYear))}</b><span>ضد ${E(x.opponent)}</span><small>${E(when(x.at))} · ${E(x.competition)}</small></button>`).join('')}</section>` : ''}<div class="fb-phases">`); };
     }
 
     /* ---------- football groups: pathway squads and football school groups, never mixed ---------- */
@@ -205,6 +215,67 @@
       <p class="py-help">الأخضر = أحسن تلت في الفريق، والبرتقالي = أقل تلت. قارن اللاعب بنفسه قبل ما تقارنه بزمايله، خصوصًا وقت طفرة النمو.</p></section>`;
   };
 
+  /* =========================================================== matches, minutes, load */
+  const when = v => fmt(v, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+  const resultTag = x => { if (x.status !== 'played') return '<span class="fb-badge">قادم</span>'; const r = x.score.us > x.score.them ? ['فوز', 'ok'] : x.score.us < x.score.them ? ['خسارة', 'bad'] : ['تعادل', '']; return `<span class="fb-res ${r[1]}">${x.score.us} – ${x.score.them} · ${r[0]}</span>`; };
+  FU.matchesSection = gid => {
+    const g = group(gid), list = FC.matches(db.state, gid), up = list.filter(x => x.status !== 'played'), played = list.filter(x => x.status === 'played').reverse(), table = FC.minutesTable(db.state, gid), ph = FC.phaseOf(FC.uOf(g.fb.birthYear));
+    const w = played.filter(x => x.score.us > x.score.them).length, dr = played.filter(x => x.score.us === x.score.them).length;
+    const row = x => `<div class="fb-match"><div class="fb-match-when"><b>${E(when(x.at))}</b><small>${E(x.competition)} · ${x.home ? 'على أرضنا' : 'خارج'}${x.venue ? ' · ' + E(x.venue) : ''}</small></div><div class="fb-match-vs"><b>${E(x.opponent)}</b><small>${x.format.players} ضد ${x.format.players} · ${x.format.minutes} دقيقة</small></div>${resultTag(x)}<span class="py-actions">${x.status === 'played' ? `<button type="button" class="sb-btn" onclick="FootballUI.resultForm('${x.id}')">التشكيل والدقائق</button>` : `<button type="button" class="sb-btn primary" onclick="FootballUI.resultForm('${x.id}')">تسجيل النتيجة</button>`}</span></div>`;
+    return `<section class="fb-card"><header class="fb-card-head"><h3>ماتشات الفريق <small>${played.length} ماتش · ${w} فوز · ${dr} تعادل · ${played.length - w - dr} خسارة</small></h3><button type="button" class="sb-btn primary" onclick="FootballUI.matchForm('${gid}')">+ ماتش</button></header>
+      <p class="py-help">ماتشات رسمية وودية قدام أكاديميات وأندية تانية، مش بين مجموعات التمرين. في مرحلة ${E(ph.name)} الهدف ${FC.MINUTES_TARGET[ph.id] ? `إن كل لاعب ياخد ${FC.MINUTES_TARGET[ph.id]}% على الأقل من الدقائق` : 'المنافسة والاختيار حسب الأداء'}.</p>
+      ${up.length ? `<h4 class="fb-sub">القادمة</h4>${up.map(row).join('')}` : ''}${played.length ? `<h4 class="fb-sub">اتلعبت</h4>${played.map(row).join('')}` : '<p class="fb-empty">لسه مفيش ماتشات اتلعبت.</p>'}</section>
+      <section class="fb-card"><h3>الدقائق والمشاركة</h3><div class="fb-test-table"><table><thead><tr><th>اللاعب</th><th>المركز</th><th>مشاركات</th><th>أساسي</th><th>الدقائق</th><th>من المتاح</th><th>أهداف</th><th>صناعة</th><th>متوسط التقييم</th></tr></thead><tbody>${table.sort((a, b) => b.minutes - a.minutes).map(r => `<tr class="${r.under ? 'fb-under' : ''}"><td><button type="button" class="fb-link" onclick="FootballUI.openPlayer('${r.member.id}')">${E(r.member.name)}</button>${FC.injured(db.state, r.member.id) ? ' <span class="fb-badge warn">مصاب</span>' : ''}</td><td>${E(pos(r.member)?.short || '—')}</td><td>${r.apps}</td><td>${r.starts}</td><td>${r.minutes}</td><td><span class="fb-share"><i style="width:${Math.min(100, r.share)}%"></i></span>${r.share}%${r.under ? ' ⚠' : ''}</td><td>${r.goals}</td><td>${r.assists}</td><td>${r.rating ?? '—'}</td></tr>`).join('')}</tbody></table></div>
+      ${table.some(r => r.under) ? `<p class="fb-warn">⚠ ${table.filter(r => r.under).length} لاعب أقل من ${table[0].target}% من الدقائق. الدقايق جزء من التطوير في السن ده؛ ادّيهم وقت أكتر في الماتشات الجاية.</p>` : ''}</section>`;
+  };
+
+  FU.playerMatches = m => {
+    const t = FC.minutesTable(db.state, m.group).find(r => r.member.id === m.id), w = FC.workload(db.state, m.id), inj = FC.injured(db.state, m.id), next = FC.matches(db.state, m.group).find(x => x.status !== 'played');
+    return `<section class="fb-card"><h3>الماتشات والأحمال</h3><div class="fb-growth"><div><small>مشاركات</small><b>${t?.apps ?? 0}</b><span>${t?.starts ?? 0} أساسي</span></div><div><small>الدقائق</small><b>${t?.minutes ?? 0}</b><span>${t?.share ?? 0}% من المتاح${t?.under ? ' ⚠' : ''}</span></div><div><small>أهداف · صناعة</small><b>${t?.goals ?? 0} · ${t?.assists ?? 0}</b></div><div><small>متوسط التقييم</small><b>${t?.rating ?? '—'}</b></div><div><small>حمل الأسبوع</small><b>${w.acute}</b><span>${w.ratio != null ? 'النسبة ' + w.ratio : ''}</span></div>${inj ? `<div class="fb-injured"><small>إصابة</small><b>${E(inj.part)}</b><span>${E(FC.INJURY[inj.status])}</span></div>` : ''}</div>${next ? `<p class="py-help">الماتش الجاي: ${E(next.opponent)} · ${E(when(next.at))}</p>` : ''}</section>`;
+  };
+  FU.matchForm = gid => {
+    const d = new Date(); d.setDate(d.getDate() + ((5 - d.getDay() + 7) % 7 || 7)); d.setHours(10, 0, 0, 0);
+    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    V.open(`<div class="ma-form fb-form"><h3>ماتش جديد · ${E(FC.squadName(group(gid).fb.birthYear))}</h3><label>الفريق المنافس<input id="fbm-opp" placeholder="مثلًا: أكاديمية الشروق"></label><label>النوع<select id="fbm-comp">${FC.COMPETITIONS.map(c => `<option>${c}</option>`).join('')}</select></label><label>الميعاد<input id="fbm-at" type="datetime-local" value="${local}"></label><div class="rg-seg"><label><input type="radio" name="fbm-home" value="true" checked><span>على أرضنا</span></label><label><input type="radio" name="fbm-home" value="false"><span>خارج</span></label></div><label>الملعب<input id="fbm-venue" placeholder="اختياري"></label><button type="button" class="sb-btn primary ax-btn" onclick="FootballUI.saveMatch('${gid}')">حفظ</button></div>`);
+  };
+  FU.saveMatch = gid => V.run(() => { const v = id => document.getElementById(id)?.value; db.update(st => FC.addMatch(st, gid, { opponent: v('fbm-opp'), competition: v('fbm-comp'), at: v('fbm-at'), home: document.querySelector('[name=fbm-home]:checked')?.value, venue: v('fbm-venue') })); after(); toast('اتضاف الماتش'); });
+  FU.resultForm = mid => {
+    const x = db.state.fbMatches.find(r => r.id === mid), players = FC.playersOf(db.state, x.squadId), byId = Object.fromEntries((x.lineup || []).map(l => [l.memberId, l]));
+    V.open(`<div class="ma-form fb-form fb-test-form"><h3>${E(x.opponent)} · ${E(when(x.at))}</h3><div class="fb-score"><label>أهدافنا<input id="fbr-us" type="number" min="0" value="${x.score?.us ?? ''}"></label><span>–</span><label>أهدافهم<input id="fbr-them" type="number" min="0" value="${x.score?.them ?? ''}"></label></div>
+      <p class="py-help">${x.format.players} ضد ${x.format.players} · ${x.format.minutes} دقيقة. علّم اللي لعب واكتب دقايقه؛ المصاب مش متاح.</p>
+      <div class="fb-test-table"><table><thead><tr><th>اللاعب</th><th>لعب</th><th>أساسي</th><th>الدقائق</th><th>أهداف</th><th>صناعة</th><th>تقييم /10</th></tr></thead><tbody>${players.map(p => { const l = byId[p.id], inj = FC.injured(db.state, p.id);
+        return `<tr data-mid="${p.id}" class="${inj ? 'fb-off' : ''}"><td>${E(p.name)} <small>${E(pos(p)?.short || '')}</small>${inj ? ' <span class="fb-badge warn">مصاب</span>' : ''}</td><td><input type="checkbox" data-f="played" ${l ? 'checked' : ''} ${inj ? 'disabled' : ''}></td><td><input type="checkbox" data-f="start" ${l?.start ? 'checked' : ''} ${inj ? 'disabled' : ''}></td><td><input data-f="minutes" type="number" min="1" max="${x.format.minutes}" value="${l?.minutes ?? x.format.minutes}" ${inj ? 'disabled' : ''}></td><td><input data-f="goals" type="number" min="0" value="${l?.goals ?? 0}" ${inj ? 'disabled' : ''}></td><td><input data-f="assists" type="number" min="0" value="${l?.assists ?? 0}" ${inj ? 'disabled' : ''}></td><td><input data-f="rating" type="number" min="1" max="10" value="${l?.rating ?? ''}" ${inj ? 'disabled' : ''}></td></tr>`; }).join('')}</tbody></table></div>
+      <label>ملاحظة المدرب<input id="fbr-note" value="${E(x.note || '')}"></label><button type="button" class="sb-btn primary ax-btn" onclick="FootballUI.saveResult('${mid}')">حفظ النتيجة</button></div>`);
+    document.getElementById('modal')?.classList.add('fn-wide');
+  };
+  FU.saveResult = mid => V.run(() => {
+    const lineup = [...document.querySelectorAll('.fb-test-table tr[data-mid]')].map(tr => { const f = k => tr.querySelector(`[data-f=${k}]`); return { memberId: tr.dataset.mid, played: f('played').checked, start: f('start').checked, minutes: f('minutes').value, goals: f('goals').value, assists: f('assists').value, rating: f('rating').value }; });
+    db.update(st => FC.recordResult(st, mid, { us: document.getElementById('fbr-us').value, them: document.getElementById('fbr-them').value, lineup, note: document.getElementById('fbr-note').value }));
+    after(); toast('اتسجلت النتيجة والدقائق');
+  });
+
+  const zone = { high: ['حمل عالي', 'bad'], low: ['حمل قليل', 'warn'], ok: ['مناسب', 'ok'] };
+  FU.loadSection = gid => {
+    const players = FC.playersOf(db.state, gid), rows = players.map(p => ({ p, w: FC.workload(db.state, p.id), inj: FC.injured(db.state, p.id) }));
+    const inj = (db.state.fbInjuries || []).filter(r => players.some(p => p.id === r.memberId)).sort((a, b) => (a.status === 'cleared') - (b.status === 'cleared') || new Date(b.at) - new Date(a.at));
+    return `<section class="fb-card"><header class="fb-card-head"><h3>أحمال التدريب <small>المجهود × الدقائق · آخر 7 أيام مقارنة بمتوسط 4 أسابيع</small></h3><button type="button" class="sb-btn primary" onclick="FootballUI.loadForm('${gid}')">تسجيل مجهود الحصة</button></header>
+      <div class="fb-test-table"><table><thead><tr><th>اللاعب</th><th>آخر مجهود</th><th>حمل الأسبوع</th><th>متوسط الأسبوع (4 أسابيع)</th><th>النسبة</th><th>الحالة</th></tr></thead><tbody>${rows.sort((a, b) => (b.w.ratio || 0) - (a.w.ratio || 0)).map(({ p, w, inj }) => `<tr><td><button type="button" class="fb-link" onclick="FootballUI.openPlayer('${p.id}')">${E(p.name)}</button></td><td>${w.last ? `${w.last.rpe}/10 · ${E(short(w.last.at))}` : '—'}</td><td>${w.acute}</td><td>${w.chronic}</td><td>${w.ratio ?? '—'}</td><td>${inj ? `<span class="fb-badge warn">${E(FC.INJURY[inj.status])}</span>` : w.zone ? `<span class="fb-badge ${zone[w.zone][1]}">${zone[w.zone][0]}</span>` : '—'}</td></tr>`).join('')}</tbody></table></div>
+      <p class="py-help">النسبة بين 0.8 و1.3 مناسبة. فوق 1.5 الزيادة سريعة ومعاها خطر إصابة أعلى؛ خفف الحمل أو زوده تدريجيًا. اللاعب بيقيّم مجهوده من 1 لـ 10 بعد الحصة.</p></section>
+      <section class="fb-card"><header class="fb-card-head"><h3>الإصابات</h3><button type="button" class="sb-btn" onclick="FootballUI.injuryForm('${gid}')">+ إصابة</button></header>
+      ${inj.map(r => `<div class="fb-inj ${r.status}"><b>${E(db.member(r.memberId).name)}</b><span>${E(r.part)}${r.kind ? ' · ' + E(r.kind) : ''}</span><small>من ${E(short(r.at))}${r.expected ? ' · رجوع متوقع ' + E(short(r.expected)) : ''}</small><span class="fb-badge ${r.status === 'cleared' ? 'ontime' : 'warn'}">${E(FC.INJURY[r.status])}</span>${r.status !== 'cleared' ? `<span class="py-actions">${r.status === 'active' ? `<button type="button" class="sb-btn" onclick="FootballUI.injuryStatus('${r.id}','rehab')">بدأ التأهيل</button>` : ''}<button type="button" class="sb-btn" onclick="FootballUI.injuryStatus('${r.id}','cleared')">رجع للملعب</button></span>` : ''}</div>`).join('') || '<p class="fb-empty">مفيش إصابات مسجلة.</p>'}</section>`;
+  };
+  FU.loadForm = gid => {
+    const g = group(gid), players = FC.playersOf(db.state, gid), s = db.state.sessions.filter(x => x.group === gid && new Date(x.start) <= new Date()).sort((a, b) => new Date(b.start) - new Date(a.start))[0];
+    V.open(`<div class="ma-form fb-form fb-test-form"><h3>مجهود الحصة · ${E(FC.squadName(g.fb.birthYear))}</h3><p class="py-help">${s ? E(when(s.start)) + ' · ' : ''}كل لاعب يقول مجهوده من 1 (سهل جدًا) لـ 10 (أقصى مجهود). سيب الخانة فاضية للي ماحضرش.</p>
+      <label>مدة الحصة بالدقيقة<input id="fbl-min" type="number" min="5" max="180" value="${s?.duration || 90}"></label>
+      <div class="fb-test-table"><table><thead><tr><th>اللاعب</th><th>المجهود 1–10</th></tr></thead><tbody>${players.map(p => `<tr data-mid="${p.id}"><td>${E(p.name)}</td><td><input type="number" min="1" max="10" data-rpe ${FC.injured(db.state, p.id) ? 'disabled placeholder="مصاب"' : ''}></td></tr>`).join('')}</tbody></table></div>
+      <button type="button" class="sb-btn primary ax-btn" onclick="FootballUI.saveLoad('${gid}')">حفظ</button></div>`);
+  };
+  FU.saveLoad = gid => V.run(() => { const minutes = document.getElementById('fbl-min').value; let n = 0; db.update(st => { n = FC.recordLoad(st, [...document.querySelectorAll('.fb-test-table tr[data-mid]')].map(tr => ({ memberId: tr.dataset.mid, rpe: tr.querySelector('[data-rpe]').value, minutes }))).length; }); after(); toast(`اتسجل مجهود ${n} لاعب`); });
+  FU.injuryForm = gid => V.open(`<div class="ma-form fb-form"><h3>تسجيل إصابة</h3><label>اللاعب<select id="fbi-m">${FC.playersOf(db.state, gid).map(p => `<option value="${p.id}">${E(p.name)}</option>`).join('')}</select></label><label>مكان الإصابة<input id="fbi-part" placeholder="مثلًا: الكاحل الشمال"></label><label>النوع<input id="fbi-kind" placeholder="مثلًا: التواء درجة أولى"></label><label>الرجوع المتوقع<input id="fbi-exp" type="date"></label><label>ملاحظة<input id="fbi-note"></label><button type="button" class="sb-btn primary ax-btn" onclick="FootballUI.saveInjury()">حفظ</button></div>`);
+  FU.saveInjury = () => V.run(() => { const v = id => document.getElementById(id)?.value; db.update(st => FC.addInjury(st, v('fbi-m'), { part: v('fbi-part'), kind: v('fbi-kind'), expected: v('fbi-exp'), note: v('fbi-note') })); after(); toast('اتسجلت الإصابة'); });
+  FU.injuryStatus = (id, st2) => V.run(() => { db.update(st => FC.setInjury(st, id, st2)); after(); });
+
   /* =========================================================== forms (both pages) */
   const after = () => { V.close(); if (typeof render === 'function' && typeof PAGES !== 'undefined') render(); if (typeof draw === 'function' && typeof APPS !== 'undefined') draw(); };
   FU.assess = id => {
@@ -251,7 +322,7 @@
     const s = list.length ? FC.squadSummary(db.state, group(FU.squadId)) : null;
     return `<div class="ax fb-app"><header class="ax-top"><div class="ax-top-row">${back('home')}<div style="flex:1"><small>مسار الكورة</small><h2>تطوير اللاعيبة</h2></div></div>
       <div class="ax-sports fb-squad-chips">${list.map(g => `<button type="button" class="${g.id === FU.squadId ? 'on' : ''}" onclick="FootballUI.squadId='${g.id}';draw()">${E('تحت ' + FC.uOf(g.fb.birthYear))}</button>`).join('')}</div></header>
-      <div class="ax-body">${s ? `<section class="ax-hero"><small>${E(s.name)} · ${E(s.phase.name)}</small><h3>${s.due ? s.due + ' لاعب محتاج تقييم' : 'كل التقييمات في ميعادها'}</h3><p>${s.players.length} لاعب · متوسط الفريق ${s.corners.overall ?? '—'} · ${s.goals} هدف جاري</p></section>
+      <div class="ax-body">${s ? `<section class="ax-hero"><small>${E(s.name)} · ${E(s.phase.name)}</small><h3>${s.due ? s.due + ' لاعب محتاج تقييم' : 'كل التقييمات في ميعادها'}</h3><p>${s.players.length} لاعب · متوسط الفريق ${s.corners.overall ?? '—'} · ${s.goals} هدف جاري</p>${(() => { const ms = FC.matches(db.state, FU.squadId), open = ms.filter(x => x.status !== 'played' && new Date(x.at) <= new Date()).at(-1) || ms.filter(x => x.status === 'played').at(-1); return `<div class="ax-hero-actions"><button type="button" class="ax-btn light" onclick="FootballUI.loadForm('${FU.squadId}')">مجهود الحصة</button>${open ? `<button type="button" class="ax-btn ghost" onclick="FootballUI.resultForm('${open.id}')">ماتش ${E(open.opponent)}</button>` : ''}<button type="button" class="ax-btn ghost" onclick="FootballUI.injuryForm('${FU.squadId}')">إصابة</button></div>`; })()}</section>
         ${s.players.slice().sort((a, b) => FC.due(db.state, b.id) - FC.due(db.state, a.id)).map(p => { const now = FC.cornerScores(FC.latest(db.state, p.id)), d = FC.due(db.state, p.id);
           return `<div class="ax-card fb-app-row">${avatar(p.name, 42)}<button type="button" class="fb-app-main" onclick="FootballUI.playerSheet('${p.id}')"><b>${E(p.name)}</b><small>${E(pos(p)?.short || '')} · #${E(p.fb?.number ?? '')}</small>${bars(now)}</button><span class="fb-app-end"><strong>${now?.overall ?? '—'}</strong><button type="button" class="ax-btn small ${d ? '' : 'light'}" onclick="FootballUI.assess('${p.id}')">${d ? 'قيّم' : 'تقييم'}</button></span></div>`; }).join('')}` : '<p class="ck-hint">مفيش فرق مسار.</p>'}</div></div>`;
   };
@@ -266,6 +337,7 @@
       <div class="ax-body"><section class="ax-card fb-app-radar">${FU.radar(now, prev, 250)}<div><b>${now?.overall ?? '—'}</b><small>الإجمالي ${trend(now?.overall, prev?.overall)}</small><small>${E(pos(m)?.name || '')} · #${E(m.fb?.number ?? '')}</small>${next ? `<small>التقييم الجاي ${E(short(next))}</small>` : ''}</div></section>
         ${h.at(-1)?.note || h.at(-1)?.strengths ? `<div class="ax-card ax-note"><div><small>${E(h.at(-1).by)} · ${E(short(h.at(-1).at))}</small>${h.at(-1).strengths ? `<p>💪 ${E(h.at(-1).strengths)}</p>` : ''}${h.at(-1).focus ? `<p>🎯 ${E(h.at(-1).focus)}</p>` : ''}${h.at(-1).note ? `<p>${E(h.at(-1).note)}</p>` : ''}</div></div>` : ''}
         <div class="ax-section"><h3>أهدافي</h3></div>${plan.goals.filter(x => x.status === 'active').map(x => `<div class="ax-card fb-mini-goal"><span class="fb-tag" style="--c:${FC.CORNERS[x.corner].color}">${E(FC.CORNERS[x.corner].name)}</span><b>${E(x.text)}</b><small>${E(x.measure)}${x.due ? ' · قبل ' + E(short(x.due)) : ''}</small><div class="fb-progress"><i style="width:${x.progress}%"></i></div></div>`).join('') || '<p class="ck-hint">المدرب هيحدد الأهداف بعد التقييم.</p>'}
+        <div class="ax-section"><h3>الماتشات</h3></div>${FU.playerMatches(m).replace('<section class="fb-card', '<section class="ax-card fb-card').replace('<h3>الماتشات والأحمال</h3>', '')}
         <div class="ax-section"><h3>البدني والنمو</h3></div>${FU.growthCard(m, FC.playersOf(db.state, m.group)).replace('<section class="fb-card', '<section class="ax-card fb-card')}
         ${plan.goals.some(x => x.status === 'achieved') ? `<div class="ax-section"><h3>اتحقق 🏅</h3></div>${plan.goals.filter(x => x.status === 'achieved').map(x => `<div class="ax-card fb-done">✓ ${E(x.text)}</div>`).join('')}` : ''}</div></div>`;
   };

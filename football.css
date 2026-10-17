@@ -154,3 +154,30 @@
 .fb-badge.early{background:#e8eef9;color:#2f5f8f}
 .fb-badge.late{background:#f1e8f5;color:#6e3f86}
 .fb-badge.ontime{background:#e6f3ea;color:#24774a}
+
+.fb-tabs{margin:2px 0 4px}
+.fb-sub{margin:10px 0 4px;font-size:14px;color:var(--t-muted)}
+.fb-match{display:grid;grid-template-columns:1.2fr 1.3fr auto auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--t-line-2,#eef2ef)}
+.fb-match-when,.fb-match-vs{display:grid;gap:2px}
+.fb-match small{font-size:12px;color:var(--t-muted)}
+.fb-res{font-weight:800;font-size:14px;border-radius:999px;padding:4px 12px;background:#eef2ef}
+.fb-res.ok{background:#e1f1e6;color:#1d5a35}
+.fb-res.bad{background:#fbe5e3;color:#8c2a24}
+.fb-share{display:inline-block;width:60px;height:6px;border-radius:999px;background:#e3eae5;overflow:hidden;margin-inline-end:6px;vertical-align:middle}
+.fb-share i{display:block;height:100%;background:#2d604c}
+.fb-test-table tr.fb-under td{background:#fdf6ea}
+.fb-test-table tr.fb-off td{opacity:.55}
+.fb-test-table input[type=checkbox]{width:18px;height:18px}
+.fb-badge.ok{background:#e6f3ea;color:#24774a}
+.fb-badge.bad{background:#fbe5e3;color:#8c2a24}
+.fb-score{display:flex;align-items:end;gap:10px;font-size:22px;font-weight:800}
+.fb-score label{display:grid;gap:4px;font-size:12px;font-weight:700}
+.fb-score input{width:80px;font-size:22px;text-align:center}
+.fb-inj{display:grid;grid-template-columns:1fr 1.3fr 1.3fr auto auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--t-line-2,#eef2ef);font-size:13px}
+.fb-inj.cleared{opacity:.65}
+.fb-inj small{color:var(--t-muted)}
+.fb-injured{border:1px solid #f0cf9c}
+.fb-next{display:grid;gap:6px}
+.fb-next-row{font:inherit;text-align:right;color:inherit;border:1px solid var(--t-line);background:#fff;border-radius:10px;padding:8px 12px;display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:8px;align-items:center;cursor:pointer}
+.fb-next-row small{color:var(--t-muted);font-size:12px}
+@media (max-width:1100px){.fb-match,.fb-inj,.fb-next-row{grid-template-columns:1fr 1fr}}

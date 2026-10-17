@@ -183,7 +183,102 @@
     return i < 0 ? null : { rank: i + 1, of: vals.length, third: i < vals.length / 3 ? 'top' : i >= vals.length * 2 / 3 ? 'low' : 'mid' };
   }
 
-  const api = { DAY, REVIEW_DAYS, PHASES, POSITIONS, LINES, CORNERS, TRACKS, FUNDING, GOAL_STATUS, season, uOf, phaseOf, squadName, quarter, isSquad, squads, playersOf, isPathway, itemsOf, cornerScores, history, latest, due, idp, validateAssessment, addAssessment, saveGoal, review, rae, depth, squadSummary, TESTS, BODY, TIMING, tests, lastValue, prevValue, improved, recordTests, growth, squadRank, ageYears };
+  /* ---------- official matches and minutes ---------- */
+  const COMPETITIONS = ['دوري المنطقة', 'بطولة', 'ودية'];
+  /* Match length and players on the pitch grow with the age group. */
+  const matchFormat = u => u <= 9 ? { players: 5, minutes: 40 } : u <= 11 ? { players: 7, minutes: 50 } : u <= 13 ? { players: 9, minutes: 60 } : u <= 15 ? { players: 11, minutes: 70 } : u <= 17 ? { players: 11, minutes: 80 } : { players: 11, minutes: 90 };
+  /* Younger players are owed a fair share of the minutes; the share falls with age. */
+  const MINUTES_TARGET = { foundation: 50, development: 40, professional: 0 };
+  const matches = (state, gid) => (state.fbMatches || []).filter(x => x.squadId === gid).sort((a, b) => new Date(a.at) - new Date(b.at));
+
+  function addMatch(state, gid, input, meta = {}) {
+    const g = state.groups.find(x => x.id === gid);
+    if (!isSquad(g)) throw Error('الماتشات الرسمية لفرق المسار بس');
+    const opponent = String(input.opponent || '').trim();
+    if (opponent.length < 3) throw Error('اكتب اسم الفريق المنافس');
+    if (!COMPETITIONS.includes(input.competition)) throw Error('اختار نوع الماتش');
+    if (!input.at || isNaN(new Date(input.at))) throw Error('اختار ميعاد الماتش');
+    const f = matchFormat(uOf(g.fb.birthYear, new Date(input.at)));
+    state.fbMatches = state.fbMatches || [];
+    const row = { id: meta.id || 'fbm-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), squadId: gid, opponent, competition: input.competition, home: input.home !== false && input.home !== 'false', venue: String(input.venue || '').trim(), at: new Date(input.at).toISOString(), format: f, status: 'scheduled', score: null, lineup: [] };
+    state.fbMatches.push(row);
+    return row;
+  }
+
+  /* The result: score, and for each player who played — starter or not, minutes,
+     position, goals, assists and the coach's rating (1–10). */
+  function recordResult(state, mid, input) {
+    const x = (state.fbMatches || []).find(r => r.id === mid);
+    if (!x) throw Error('الماتش مش موجود');
+    const us = Number(input.us), them = Number(input.them);
+    if (![us, them].every(v => Number.isInteger(v) && v >= 0 && v <= 30)) throw Error('اكتب النتيجة صح');
+    const squad = new Set(playersOf(state, x.squadId).map(p => p.id)), lineup = [];
+    (input.lineup || []).forEach(e => {
+      const minutes = Number(e.minutes);
+      if (!e.played) return;
+      if (!squad.has(e.memberId)) throw Error('لاعب مش في الفريق');
+      if (!Number.isInteger(minutes) || minutes < 1 || minutes > x.format.minutes) throw Error(`الدقايق من 1 لـ ${x.format.minutes}`);
+      const goals = Number(e.goals) || 0, assists = Number(e.assists) || 0, rating = e.rating === '' || e.rating == null ? null : Number(e.rating);
+      if (rating != null && (!Number.isInteger(rating) || rating < 1 || rating > 10)) throw Error('التقييم من 1 لـ 10');
+      lineup.push({ memberId: e.memberId, start: !!e.start, position: e.position || '', minutes, goals, assists, rating });
+    });
+    if (!lineup.length) throw Error('حدد اللي لعبوا');
+    if (lineup.filter(l => l.start).length > x.format.players) throw Error(`الأساسيين ${x.format.players} بالكتير`);
+    if (lineup.reduce((n, l) => n + l.goals, 0) > us) throw Error('أهداف اللاعيبة أكتر من نتيجة الفريق');
+    Object.assign(x, { status: 'played', score: { us, them }, lineup, note: String(input.note || '').trim() });
+    return x;
+  }
+
+  /* Minutes over the matches played since `from`: share of the minutes the player could
+     have played, appearances, starts, goals, assists and average rating. */
+  function minutesTable(state, gid, from = null) {
+    const g = state.groups.find(x => x.id === gid), played = matches(state, gid).filter(x => x.status === 'played' && (!from || new Date(x.at) >= new Date(from)));
+    const possible = played.reduce((n, x) => n + x.format.minutes, 0), target = MINUTES_TARGET[phaseOf(uOf(g.fb.birthYear)).id];
+    return playersOf(state, gid).map(p => {
+      const rows = played.flatMap(x => x.lineup.filter(l => l.memberId === p.id)), mins = rows.reduce((n, l) => n + l.minutes, 0), rated = rows.filter(l => l.rating != null);
+      const share = possible ? Math.round(mins / possible * 100) : 0;
+      return { member: p, apps: rows.length, starts: rows.filter(l => l.start).length, minutes: mins, possible, share, goals: rows.reduce((n, l) => n + l.goals, 0), assists: rows.reduce((n, l) => n + l.assists, 0), rating: rated.length ? Math.round(rated.reduce((n, l) => n + l.rating, 0) / rated.length * 10) / 10 : null, under: !!target && played.length >= 3 && share < target, target };
+    });
+  }
+
+  /* ---------- training load and injuries ---------- */
+  /* Session load = effort (RPE 1–10, the player's own rating) × minutes. The acute:chronic
+     ratio compares the last 7 days with the weekly average of the last 28. */
+  function recordLoad(state, entries, meta = {}) {
+    const at = meta.at || new Date().toISOString(), rows = [];
+    entries.forEach(e => {
+      if (e.rpe === '' || e.rpe == null) return;
+      const rpe = Number(e.rpe), minutes = Number(e.minutes);
+      if (!Number.isInteger(rpe) || rpe < 1 || rpe > 10) throw Error('المجهود من 1 لـ 10');
+      if (!Number.isInteger(minutes) || minutes < 5 || minutes > 180) throw Error('مدة الحصة من 5 لـ 180 دقيقة');
+      rows.push({ id: 'fbl-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), memberId: e.memberId, at, rpe, minutes, kind: e.kind || meta.kind || 'تمرين', load: rpe * minutes });
+    });
+    if (!rows.length) throw Error('اكتب مجهود لاعب واحد على الأقل');
+    state.fbLoad = state.fbLoad || [];
+    state.fbLoad.push(...rows);
+    return rows;
+  }
+  function workload(state, mid, now = new Date()) {
+    const rows = (state.fbLoad || []).filter(r => r.memberId === mid && new Date(r.at) <= now), t = now.getTime();
+    const sum = days => rows.filter(r => t - new Date(r.at).getTime() <= days * DAY + 3600000).reduce((n, r) => n + r.load, 0);
+    const acute = sum(7), chronic = Math.round(sum(28) / 4), last = rows.sort((a, b) => new Date(b.at) - new Date(a.at))[0];
+    const ratio = chronic ? Math.round(acute / chronic * 100) / 100 : null;
+    return { acute, chronic, ratio, zone: ratio == null ? null : ratio > 1.5 ? 'high' : ratio < 0.8 ? 'low' : 'ok', last };
+  }
+  const INJURY = { active: 'مصاب', rehab: 'تأهيل', cleared: 'رجع للملعب' };
+  function addInjury(state, mid, input, meta = {}) {
+    if (!state.members.some(m => m.id === mid)) throw Error('اللاعب مش موجود');
+    const part = String(input.part || '').trim();
+    if (part.length < 2) throw Error('اكتب مكان الإصابة');
+    state.fbInjuries = state.fbInjuries || [];
+    const row = { id: 'fbi-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), memberId: mid, at: meta.at || new Date().toISOString(), part, kind: String(input.kind || '').trim(), expected: input.expected || '', status: 'active', note: String(input.note || '').trim() };
+    state.fbInjuries.push(row);
+    return row;
+  }
+  function setInjury(state, id, status) { const r = (state.fbInjuries || []).find(x => x.id === id); if (!r) throw Error('الإصابة مش موجودة'); if (!INJURY[status]) throw Error('حالة غير صحيحة'); r.status = status; if (status === 'cleared') r.clearedAt = new Date().toISOString(); return r; }
+  const injured = (state, mid) => (state.fbInjuries || []).find(r => r.memberId === mid && r.status !== 'cleared') || null;
+
+  const api = { DAY, REVIEW_DAYS, PHASES, POSITIONS, LINES, CORNERS, TRACKS, FUNDING, GOAL_STATUS, season, uOf, phaseOf, squadName, quarter, isSquad, squads, playersOf, isPathway, itemsOf, cornerScores, history, latest, due, idp, validateAssessment, addAssessment, saveGoal, review, rae, depth, squadSummary, TESTS, BODY, TIMING, tests, lastValue, prevValue, improved, recordTests, growth, squadRank, ageYears, COMPETITIONS, matchFormat, MINUTES_TARGET, matches, addMatch, recordResult, minutesTable, recordLoad, workload, INJURY, addInjury, setInjury, injured };
   root.FootballCore = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
