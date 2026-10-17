@@ -16,14 +16,15 @@
 
   const SECTIONS = [
     ['home', 'الرئيسية', [['dash', 'الرئيسية']]],
-    ['people', 'اللاعبون والعائلات', [['members', 'اللاعبون'], ['families', 'العائلات']]],
+    ['people', 'اللاعبون والعائلات', [['members', 'اللاعبون'], ['families', 'العائلات'], ['pathway', 'مسار الكورة']]],
     ['calendar', 'البرامج والجدول', [['attendance', 'الجدول والحصص'], ['groups', 'الجروبات'], ['progress', 'المستويات والتقييمات'], ['plans', 'خطط التدريب'], ['sports', 'بناء الرياضات']]],
     ['tasks', 'المبيعات والمتابعة', [['vleads', 'العملاء والتجارب'], ['vrequests', 'الطلبات'], ['vfollowups', 'المتابعات'], ['automation', 'الرسائل الآلية'], ['vwaitlist', 'قائمة الانتظار']]],
     ['money', 'المالية', [['billing', 'التحصيل والفواتير'], ['payroll', 'مستحقات المدربين'], ['vshifts', 'الوردية']]],
     ['chart', 'التقارير', [['reports', 'التقارير وسجل الإجراءات'], ['analytics', 'تحليل الأداء']]],
     ['settings', 'الإعدادات والأدوات', [['settings', 'الإعدادات'], ['users', 'الفريق والصلاحيات'], ['branches', 'الفروع'], ['comms', 'التواصل'], ['resources', 'الملاعب والحجوزات'], ['matches', 'الكورة: الماتشات'], ['nutrition', 'التغذية']]]
   ];
-  const EXTRA = { sportedit: 'calendar', group: 'people', coach: 'settings' };
+  const EXTRA = { sportedit: 'calendar', group: 'people', coach: 'settings', squad: 'people', fbplayer: 'people' };
+  window.WS_SECTIONS = SECTIONS;
   const sectionOf = page => SECTIONS.find(s => s[2].some(([r]) => r === page)) || SECTIONS.find(s => s[0] === EXTRA[page]);
 
   /* Keep NAV in the format the base render expects for page titles. */
