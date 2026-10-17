@@ -155,7 +155,7 @@
           <label>ملاحظات المدرب (خاصة)<textarea rows="5" placeholder="ملاحظات لا يراها اللاعبون…" oninput="FootballLabUI.board.notes=this.value">${E(b.notes)}</textarea></label>
           ${b.id ? `<button type="button" class="lb-delb" onclick="FootballLabUI.remove()">حذف اللوحة</button>` : ''}</aside>
         <section class="lb-main"><div class="lb-tools">
-          <div class="lb-row">${tool('move', '✥', 'تحريك')}${tool('pen', '✎', 'رسم حر')}${tool('line', '—', 'خط')}${tool('arrow', '➜', 'سهم')}${tool('run', '⇢', 'تحرك (متقطع)')}${tool('pass', '⋯➜', 'تمريرة')}${tool('circle', '◯', 'دائرة')}${tool('rect', '▢', 'مستطيل')}${tool('erase', '⌫', 'ممحاة')}${tool('ball', '⚽', 'مكان الكورة')}<span class="lb-sep"></span><button type="button" class="sb-btn quiet small" onclick="FootballLabUI.copySel()" ${LB.sel < 0 ? 'disabled' : ''}>⧉ نسخ</button><button type="button" class="sb-btn quiet small" onclick="FootballLabUI.delSel()" ${LB.sel < 0 ? 'disabled' : ''}>🗑 حذف</button></div>
+          <div class="lb-row">${tool('move', '✥', 'تحريك')}${tool('pen', '✎', 'رسم حر')}${tool('line', '—', 'خط')}${tool('arrow', '➜', 'سهم')}${tool('run', '⇢', 'تحرك (متقطع)')}${tool('pass', '⋯➜', 'تمريرة')}${tool('circle', '◯', 'دائرة')}${tool('rect', '▢', 'مستطيل')}${tool('erase', '⌫', 'ممحاة')}${tool('ball', '⚽', 'مكان الكورة')}<span class="lb-sep"></span><button type="button" class="sb-btn quiet small lb-selbtn" onclick="FootballLabUI.copySel()" ${LB.sel < 0 ? 'disabled' : ''}>⧉ نسخ</button><button type="button" class="sb-btn quiet small lb-selbtn" onclick="FootballLabUI.delSel()" ${LB.sel < 0 ? 'disabled' : ''}>🗑 حذف</button></div>
           <div class="lb-row"><span class="lb-lbl">أدوات التمرين:</span>${tool('cone', '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 3l7 15H5z" fill="#f97316"/><rect x="3" y="18" width="18" height="3" rx="1.5" fill="#f97316"/></svg>', 'قمع')}${tool('goal', '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="10"/><path d="M8 7v10M14 7v10M2 12h20" opacity=".6"/></svg>', 'مرمى صغير')}${tool('ladder', '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ca8a04" stroke-width="1.8"><rect x="1" y="8" width="22" height="8"/><path d="M6 8v8M11 8v8M16 8v8"/></svg>', 'سلم رشاقة')}${tool('pole', '<svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="7" fill="none" stroke="#eab308" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#eab308"/></svg>', 'عمود / حلقة')}${tool('text', '<b style="font-size:17px">T</b>', 'نص على الملعب')}</div>
           <div class="lb-row"><span class="lb-colorset">${['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7', '#111827', '#ffffff'].map(c => `<button type="button" class="${LB.color === c ? 'on' : ''}" style="background:${c}" onclick="FootballLabUI.color='${c}';render()" aria-label="لون"></button>`).join('')}</span><input type="range" min="2" max="10" value="${LB.width}" oninput="FootballLabUI.width=Number(this.value)" aria-label="سُمك الخط"><button type="button" class="sb-btn quiet small" onclick="FootballLabUI.undo()">↶</button><button type="button" class="sb-btn quiet small" onclick="FootballLabUI.redo()">↷</button><button type="button" class="sb-btn quiet small" onclick="FootballLabUI.clearDraw()">🗑 مسح الرسم</button></div>
           <div class="lb-row"><span class="lb-lbl">الفريق:</span>${['a', 'b'].map(t => `<button type="button" class="lb-team ${LB.team === t ? 'on' : ''}" style="background:${TEAM[t]}" onclick="FootballLabUI.team='${t}';render()"></button>`).join('')}${btn('+ لاعب', 'FootballLabUI.addPlayer()', 'quiet small')}${btn('حذف الفريق', 'FootballLabUI.dropTeam()', 'quiet small')}<span class="lb-lbl">تشكيلة:</span>${Object.keys(L.FORMATIONS).map(f => `<button type="button" class="lb-form" onclick="FootballLabUI.formation('${f}')">${f}</button>`).join('')}</div>
@@ -166,7 +166,7 @@
     LB.edit = (bid = '') => { const b = (db.state.fbBoards || []).find(x => x.id === bid); LB.board = b ? JSON.parse(JSON.stringify({ ...b, tags: b.tags.join('، ') })) : blank(); hist = []; fut = []; LB.rec = false; LB.sel = -1; go('tactics'); render(); };
     /* The pitch is redrawn when the field changes; drags and drawings only redraw the items. */
     LB.paint = () => { const g = document.querySelector('#lb-stage .lb-items'), svg = document.querySelector('#lb-stage svg'), [W, H] = SIZE[LB.board.field] || SIZE.full; if (g && svg && svg.getAttribute('viewBox') === `0 0 ${W} ${H}`) { g.innerHTML = itemsHTML(LB.board); return; } const st = document.getElementById('lb-stage'); if (st) { st.innerHTML = LB.svg(LB.board); LB.bind(); } };
-    LB.setTool = k => { LB.tool = k; render(); };
+    LB.setTool = k => { LB.tool = k; if (k !== 'move') LB.sel = -1; render(); };
     LB.undo = () => { if (!hist.length) return; fut.push(snap()); LB.board.items = JSON.parse(hist.pop()); LB.paint(); };
     LB.redo = () => { if (!fut.length) return; hist.push(snap()); LB.board.items = JSON.parse(fut.pop()); LB.paint(); };
     LB.clearDraw = () => { push(); LB.sel = -1; LB.board.items = LB.board.items.filter(x => POINT.has(x.t)); LB.board.frames = []; LB.paint(); LB.showProps(); };
@@ -179,7 +179,7 @@
     const restructured = () => { if (LB.board.frames.length) { LB.board.frames = []; toast('اتمسح تسجيل الحركة لأن العناصر اتغيرت'); } };
     const shift = (x, d) => { if (POINT.has(x.t)) { x.x = Math.min(1, x.x + d); x.y = Math.min(1, x.y + d); } else if (x.pts) x.pts = x.pts.map(p => [p[0] + d, p[1] + d]); else { x.a = [x.a[0] + d, x.a[1] + d]; x.b = [x.b[0] + d, x.b[1] + d]; } };
     LB.copySel = () => { const x = LB.board.items[LB.sel]; if (!x) return; push(); const c = JSON.parse(JSON.stringify(x)); shift(c, .03); if (c.t === 'player') { c.n = Math.max(0, ...LB.board.items.filter(y => y.t === 'player' && y.team === c.team).map(y => Number(y.n) || 0)) + 1; c.cap = false; } LB.board.items.push(c); LB.sel = LB.board.items.length - 1; LB.paint(); LB.showProps(); };
-    LB.delSel = () => { if (LB.sel < 0) return; push(); LB.board.items.splice(LB.sel, 1); LB.sel = -1; restructured(); LB.paint(); LB.showProps(); render(); };
+    LB.delSel = () => { if (LB.sel < 0) return; push(); LB.board.items.splice(LB.sel, 1); LB.sel = -1; restructured(); LB.paint(); LB.showProps(); document.querySelectorAll('.lb-selbtn').forEach(b => { b.disabled = true; }); };
     LB.prop = (k, v) => { const x = LB.board.items[LB.sel]; if (!x) return; if (['rot', 'size', 'w'].includes(k)) v = Number(v); if (k === 'cap' && v) LB.board.items.forEach(y => { if (y.t === 'player' && y.team === x.team) y.cap = false; }); if (v === '' && k !== 'name' && k !== 'n' && k !== 'text') delete x[k]; else x[k] = v; LB.paint(); if (k === 'team' || k === 'rot' && document.activeElement?.type !== 'range') LB.showProps(); };
     /* The selected item's properties, floating over the pitch. */
     LB.showProps = () => {
@@ -200,7 +200,7 @@
       else if (x.t === 'goal') body = rot;
       else if (x.t !== 'ball') body = `<div class="lb-pf">اللون${colors(x.color, false)}</div><label class="lb-pf">السُمك<input type="range" min="2" max="10" value="${x.w || 4}" oninput="FootballLabUI.prop('w',this.value)"></label>`;
       box.hidden = false;
-      box.innerHTML = `<header><b>${title}</b><button type="button" aria-label="إغلاق" onclick="FootballLabUI.sel=-1;FootballLabUI.paint();FootballLabUI.showProps();render()">×</button></header>${body}<footer><button type="button" class="lb-pcopy" onclick="FootballLabUI.copySel()">⧉ نسخ</button><button type="button" class="lb-pdel" onclick="FootballLabUI.delSel()">🗑 حذف</button></footer>`;
+      box.innerHTML = `<header><b>${title}</b><button type="button" aria-label="إغلاق" onclick="FootballLabUI.sel=-1;FootballLabUI.paint();FootballLabUI.showProps();document.querySelectorAll('.lb-selbtn').forEach(b=>b.disabled=true)">×</button></header>${body}<footer><button type="button" class="lb-pcopy" onclick="FootballLabUI.copySel()">⧉ نسخ</button><button type="button" class="lb-pdel" onclick="FootballLabUI.delSel()">🗑 حذف</button></footer>`;
       box.onpointerdown = e => { if (e.target.matches('input,select,button')) push(); };
     };
     LB.record = () => { LB.rec = !LB.rec; if (LB.rec) LB.board.frames = [positions()]; render(); toast(LB.rec ? 'التسجيل شغال: حرّك اللاعيبة' : `اتسجلت ${LB.board.frames.length} حركة`); };
@@ -216,7 +216,8 @@
       const [W, H] = SIZE[LB.board.field] || SIZE.full;
       const at = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse()); return [Math.max(0, Math.min(1, q.x / W)), Math.max(0, Math.min(1, q.y / H))]; };
       let drag = null, draft = null;
-      const select = i => { const was = LB.sel; LB.sel = i; LB.paint(); LB.showProps(); if ((was < 0) !== (i < 0)) render(); };
+      /* Selecting never redraws the page (that would drop the drag); it only toggles the buttons. */
+      const select = i => { LB.sel = i; LB.paint(); LB.showProps(); document.querySelectorAll('.lb-selbtn').forEach(b => { b.disabled = i < 0; }); };
       svg.onpointerdown = e => {
         const it = e.target.closest('.lb-it'), i = it ? Number(it.dataset.i) : -1, p = at(e);
         if (LB.tool === 'erase') { if (i >= 0) { push(); LB.board.items.splice(i, 1); LB.sel = -1; restructured(); LB.paint(); LB.showProps(); } return; }
@@ -245,7 +246,7 @@
       };
     };
     /* Delete removes the selected item; Escape lets go of it. */
-    document.addEventListener('keydown', e => { if (!LB.board || !document.getElementById('lb-stage') || e.target.matches('input,textarea,select')) return; if ((e.key === 'Delete' || e.key === 'Backspace') && LB.sel >= 0) { e.preventDefault(); LB.delSel(); } if (e.key === 'Escape' && LB.sel >= 0) { LB.sel = -1; LB.paint(); LB.showProps(); render(); } });
+    document.addEventListener('keydown', e => { if (!LB.board || !document.getElementById('lb-stage') || e.target.matches('input,textarea,select')) return; if ((e.key === 'Delete' || e.key === 'Backspace') && LB.sel >= 0) { e.preventDefault(); LB.delSel(); } if (e.key === 'Escape' && LB.sel >= 0) { LB.sel = -1; LB.paint(); LB.showProps(); document.querySelectorAll('.lb-selbtn').forEach(b => { b.disabled = true; }); } });
     LB.save = () => V.run(() => { let row; db.update(st => { row = L.saveBoard(st, LB.board, { by: 'الإدارة الفنية' }); }); LB.board.id = row.id; toast('اتحفظت اللوحة'); render(); });
     LB.remove = () => { if (!confirm('حذف اللوحة؟')) return; V.run(() => db.update(st => { st.fbBoards = (st.fbBoards || []).filter(b => b.id !== LB.board.id); })); LB.board = null; render(); };
     LB.export = kind => {
