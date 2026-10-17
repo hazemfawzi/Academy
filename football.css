@@ -227,7 +227,7 @@
 .fb-home-cap em{display:block;height:100%;background:#2d604c;padding:0;border-radius:99px}
 @media(max-width:560px){.fb-home-row{grid-template-columns:auto 1fr}.fb-home-tags{grid-column:1/-1;justify-content:flex-start}}
 /* football forms: one field per row on both pages */
-.fb-form{display:grid;gap:12px;min-width:min(460px,86vw)}
+.fb-form{display:grid;gap:12px;width:100%;min-width:0;box-sizing:border-box}
 .fb-form h3{margin:0 0 2px}
 .fb-form>label{display:grid;gap:6px;margin:0;font-size:13px;font-weight:700;color:var(--t-ink,#29362f)}
 .fb-form>label>input:not([type=checkbox]):not([type=radio]),.fb-form>label>select,.fb-form>label>textarea{width:100%;box-sizing:border-box;font:inherit;font-weight:400;padding:10px 12px;border:1px solid var(--t-line,#dfe7e1);border-radius:10px;background:#fff;margin:0}
@@ -261,3 +261,29 @@
 .fb-rules-grid dd{font-weight:500;font-size:13px;line-height:1.7}
 .fb-staff{padding:0;margin-top:16px;display:grid;gap:16px}
 @media(max-width:700px){.fb-rules-grid,.fb-branch dl{grid-template-columns:1fr}}
+/* home: quick actions and the work journey side by side */
+.fb-home-top{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;align-items:stretch}
+.fb-home-top>.ny-panel{margin:0}
+.fb-quick-panel .fb-quick{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.fb-quick-panel .fb-quick-btn{padding:12px 4px;gap:6px}
+.fb-quick-btn span{color:#2d604c}
+.fb-quick-panel .fb-quick-btn b{font-size:12px;line-height:1.4}
+.fb-journey{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;counter-reset:j}
+.fb-journey li{position:relative}
+.fb-journey li:not(:nth-child(4n))::after{content:'';position:absolute;top:30px;left:-10px;width:10px;height:2px;background:#cfd9d3}
+.fb-journey button{font:inherit;color:inherit;width:100%;height:100%;display:grid;justify-items:center;text-align:center;gap:5px;padding:12px 6px;border:1px solid var(--t-line,#dfe7e1);border-radius:14px;background:var(--t-surface,#fff);cursor:pointer}
+.fb-journey button:hover{border-color:#2d604c;background:#f6faf7}
+.fb-j-ico{position:relative;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#e8f1ec;color:#2d604c;flex:none}
+.fb-j-ico em{position:absolute;top:-4px;inset-inline-end:-6px;min-width:18px;height:18px;border-radius:9px;background:#2d604c;color:#fff;font-style:normal;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 4px}
+.fb-journey b{font-size:13px}
+.fb-journey small{font-size:11px;color:var(--t-muted,#829087)}
+@media(max-width:1100px){.fb-home-top{grid-template-columns:1fr}}
+@media(max-width:560px){.fb-journey,.fb-quick-panel .fb-quick{grid-template-columns:repeat(2,minmax(0,1fr))}.fb-journey li::after{display:none}}
+/* sport settings → football tools */
+.fb-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fb-tool{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--t-line,#dfe7e1);border-radius:12px;background:var(--t-surface,#fff)}
+.fb-tool-main{display:grid;gap:2px;flex:1;min-width:0}.fb-tool-main small{font-size:12px;color:var(--t-muted,#829087)}
+.fb-switch{position:relative;width:42px;height:24px;flex:none}.fb-switch input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer;z-index:1}
+.fb-switch i{position:absolute;inset:0;border-radius:12px;background:#cfd9d3;transition:.2s}.fb-switch i::after{content:'';position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.fb-switch input:checked+i{background:#2d604c}.fb-switch input:checked+i::after{right:21px}
+@media(max-width:700px){.fb-tools{grid-template-columns:1fr}}

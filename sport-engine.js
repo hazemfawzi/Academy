@@ -84,7 +84,7 @@
 
   /* The six sports this preview academy runs, described in full. */
   const PRESETS = {
-    football: { type: 'team', color: '#4c8c6e', modules: ['teams', 'matches', 'league', 'ratings', 'levels', 'parents'], levels: [['مبتدئ'], ['متوسط'], ['متقدم']],
+    football: { type: 'team', color: '#4c8c6e', modules: ['teams', 'ratings', 'levels', 'parents'], levels: [['مبتدئ'], ['متوسط'], ['متقدم']],
       metrics: [['التحكم', 'rating'], ['التمرير', 'rating'], ['التسديد', 'rating'], ['الدفاع والتمركز', 'rating'], ['اللياقة', 'rating']],
       programs: [['براعم', 5, 8, 900], ['أشبال', 9, 12, 1000], ['ناشئين', 13, 17, 1100]] },
     swimming: { type: 'timed', color: '#3f84a8', modules: ['levels', 'skills', 'times', 'lanes', 'parents'],

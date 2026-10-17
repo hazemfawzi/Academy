@@ -177,6 +177,8 @@
 
   function tools() {
     const d = B.draft;
+    /* A sport can describe its own tools (football academies do). */
+    const own = B.toolsFor && B.toolsFor(d); if (own) return own;
     return section('أدوات الرياضة', 'الأداة المفعلة تظهر للمدرب في التطبيق ولولي الأمر في التقدم. المقفولة تختفي فعلًا.', MODULE_GROUPS.map(([title, keys]) => `<h3 class="sb-sub">${title}</h3><div class="sb-modules">${keys.map(k => {
       const m = SC.MODULES[k], state = SC.moduleState(d, k), on = d.modules.includes(k);
       const note = state === 'planned' ? 'قيد التطوير' : state === 'limited' ? 'شاشاته متاحة لـ' + (MS.sport(m.ready)?.name || m.ready) + ' حاليًا' : '';
