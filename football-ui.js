@@ -231,9 +231,87 @@
         const bottom = `<div class="sport-bottom-grid"><div class="fb-home-col">${panel('🎯 فرق مسار الاحتراف', 'فرق بسنة الميلاد · بالاختيار', btnQ('المراحل السنية', "go('pathway')"), squadRows || '<p class="fb-empty">مفيش فرق مسار.</p>')}${panel('⚽ مجموعات مدرسة الكرة', 'بالاشتراك · بالسن والميعاد', btnQ('الفرق والمجموعات', "go('groups')"), schoolRows || '<p class="fb-empty">مفيش مجموعات.</p>')}</div>${panel('الجاي', 'تمارين المسار والمدرسة والماتشات الرسمية', btnQ('الجدول كامل', "go('attendance')"), agenda || '<p class="fb-empty">مفيش حاجة جاية.</p>')}</div>`;
         const head = html.slice(0, k).replace(/داشبورد كورة|داشبورد كرة القدم/, window.Edition?.single ? Edition.title : 'أكاديمية الكورة').replace('<div class="sport-quick-actions">', `<div class="sport-quick-actions"><button type="button" class="btn quiet" onclick="FootballUI.scoutForm()">+ مرشح للاختبار</button>`);
         const tools = html.slice(t, bg).replace('<h3>المستويات والتقييمات</h3>', '<h3>مستويات مدرسة الكرة</h3>').replace(/<h2>أدوات [^<]*<\/h2>/, '<h2>أدوات الأكاديمية</h2>');
-        return head + kpis + tools + bottom + '</div>';
+        const Q = [['➕', 'تسجيل لاعب', 'V.open(V.newMemberForm())', 'mint'], ['🔎', 'مرشح للاختبار', 'FootballUI.scoutForm()', 'purple'], ['📋', `تقييم مستحق${due ? ' (' + due + ')' : ''}`, "FootballUI.quick('assess')", 'amber'], ['🏟️', 'ماتش رسمي', "FootballUI.quick('match')", 'blue'], ['💪', 'مجهود الحصة', "FootballUI.quick('load')", 'cyan'], ['🩹', 'تسجيل إصابة', "FootballUI.quick('injury')", 'pink'], ['📏', 'قياسات بدنية', "FootballUI.quick('tests')", 'mint'], ['💳', 'تحصيل اشتراك', 'AcademyUI.chooseMember()', 'blue']];
+        const quick = `<section class="ny-panel"><header><div><h2>إجراءات سريعة</h2><p>شغل الأكاديمية اليومي: تسجيل، كشافة، تقييم، ماتشات، أحمال وإصابات</p></div></header><div class="fb-quick">${Q.map(([i, l, js, c]) => `<button type="button" class="fb-quick-btn ${c}" onclick="${E(js)}"><span>${i}</span><b>${l}</b></button>`).join('')}</div></section>`;
+        return head.replace(/<div class="sport-quick-actions">[\s\S]*?<\/div>/, '') + kpis + quick + tools + bottom + '</div>';
       };
     }
+
+    /* ---------- settings and tools, built from the academy's own records ---------- */
+    const isFb = () => (window.AcademyUI?.sport) === 'football';
+    const fbGroups = () => db.state.groups.filter(g => g.sport === 'football' && (U().branch === 'all' || g.branch === U().branch));
+    const playersIn = gs => { const ids = new Set(gs.map(g => g.id)); return db.state.members.filter(m => ids.has(m.group)); };
+    const nameOf = g => FC.isSquad(g) ? FC.squadName(g.fb.birthYear) : g.name;
+    const cash = v => new Intl.NumberFormat('en-US').format(Math.round(v)) + ' ج';
+    const wrap = (key, fn) => { const base = PAGES[key]; if (!base) return; PAGES[key] = function () { return isFb() ? fn.apply(this, arguments) : base.apply(this, arguments); }; };
+    const MANAGERS = { 'الشيخ زايد': 'أ. رامي', 'أكتوبر': 'أ. هاني', 'المهندسين': 'أ. وائل' };
+
+    /* Branches: squads, school groups, players and money from the records. */
+    wrap('branches', () => {
+      const all = db.state.groups.filter(g => g.sport === 'football'), branches = [...new Set(all.map(g => g.branch).filter(Boolean))], month = new Date(); month.setDate(1); month.setHours(0, 0, 0, 0);
+      return `<div class="sb-page"><header class="sb-head"><div><small>الإعدادات والأدوات</small><h1>الفروع</h1><p>كل فرع ليه فرق مسار ومجموعات مدرسة وملاعب ومدير. الأرقام من ملفات اللاعبين والفواتير.</p></div></header><div class="pr-grid">${branches.map(b => {
+        const gs = all.filter(g => g.branch === b), sq = gs.filter(FC.isSquad), sc = gs.filter(g => !FC.isSquad(g)), ps = playersIn(gs), ids = new Set(ps.map(m => m.id));
+        const paid = db.state.transactions.filter(t => ids.has(t.memberId) && t.kind === 'payment' && new Date(t.at) >= month).reduce((n, t) => n + t.amount, 0), inv = db.state.invoices.filter(i => ids.has(i.memberId)), billed = inv.reduce((n, i) => n + i.total, 0), got = inv.reduce((n, i) => n + i.paid, 0);
+        const pitches = [...new Set(gs.map(g => g.resource).filter(Boolean))];
+        return `<article class="pr-group fb-branch"><header><span>📍 ${E(b)}</span><small>${E(MANAGERS[b] || 'مدير الفرع')}</small></header>
+          <dl><div><dt>فرق المسار</dt><dd>${sq.length} · ${playersIn(sq).length} لاعب</dd></div><div><dt>مجموعات المدرسة</dt><dd>${sc.length} · ${playersIn(sc).length} لاعب</dd></div><div><dt>تحصيل الشهر</dt><dd>${cash(paid)}</dd></div><div><dt>نسبة التحصيل</dt><dd>${billed ? Math.round(got / billed * 100) + '%' : '—'}</dd></div></dl>
+          <p class="pr-when">الملاعب: ${E(pitches.join('، ') || 'لم تحدد')}</p>
+          <footer>${btn('الفرق والمجموعات', `AcademyUI.setBranch('${b}');go('groups')`)}${btn('لوحة الفرع', `AcademyUI.setBranch('${b}');go('dash')`)}</footer></article>`; }).join('')}</div></div>`;
+    });
+
+    /* Pitches: the week's training sessions and home matches on each pitch, with clashes flagged. */
+    wrap('resources', () => {
+      const gs = fbGroups(), byId = Object.fromEntries(gs.map(g => [g.id, g])), from = new Date(); from.setHours(0, 0, 0, 0);
+      const days = Array.from({ length: 7 }, (_, i) => new Date(from.getTime() + i * 864e5)), to = new Date(from.getTime() + 7 * 864e5);
+      const items = db.state.sessions.filter(x => byId[x.group] && x.status !== 'cancelled' && new Date(x.start) >= from && new Date(x.start) < to).map(x => ({ pitch: x.resource || byId[x.group].resource || 'بدون ملعب', branch: byId[x.group].branch, at: new Date(x.start), mins: x.duration || 60, label: nameOf(byId[x.group]), kind: FC.isSquad(byId[x.group]) ? 'path' : 'school', js: `AcademyUI.sessionDetail('${x.id}')` }))
+        .concat((db.state.fbMatches || []).filter(m => byId[m.squadId] && m.home && new Date(m.at) >= from && new Date(m.at) < to).map(m => ({ pitch: m.venue || byId[m.squadId].resource || 'بدون ملعب', branch: byId[m.squadId].branch, at: new Date(m.at), mins: m.format?.minutes + 20 || 90, label: `${nameOf(byId[m.squadId])} ضد ${m.opponent}`, kind: 'match', js: `FootballUI.openSquad('${m.squadId}','matches')` })));
+      const pitches = [...new Set(gs.map(g => g.resource).filter(Boolean).concat(items.map(i => i.pitch)))].map(p => ({ p, branch: items.find(i => i.pitch === p)?.branch || gs.find(g => g.resource === p)?.branch || '' }));
+      const clash = items.filter(a => items.some(b => a !== b && a.pitch === b.pitch && a.at < new Date(b.at.getTime() + b.mins * 6e4) && b.at < new Date(a.at.getTime() + a.mins * 6e4)));
+      const hours = items.reduce((n, i) => n + i.mins / 60, 0);
+      const cell = (p, d) => items.filter(i => i.pitch === p && i.at.toDateString() === d.toDateString()).sort((a, b) => a.at - b.at).map(i => `<button type="button" class="fb-slot ${i.kind} ${clash.includes(i) ? 'clash' : ''}" onclick="${E(i.js)}"><b>${E(fmt(i.at, { hour: 'numeric', minute: '2-digit' }))}</b>${E(i.label)}</button>`).join('');
+      return `<div class="sb-page"><header class="sb-head"><div><small>الإعدادات والأدوات</small><h1>الملاعب</h1><p>إشغال كل ملعب الأسبوع ده من جدول التمارين والماتشات الرسمية على أرضنا. أي تعارض في نفس الملعب ونفس الوقت بيظهر بالأحمر.</p></div></header>
+        <div class="pg-kpis"><div><small>ملاعب</small><b>${pitches.length}</b></div><div><small>تمارين الأسبوع</small><b>${items.filter(i => i.kind !== 'match').length}</b></div><div><small>ماتشات على أرضنا</small><b>${items.filter(i => i.kind === 'match').length}</b></div><div class="${clash.length ? 'warn' : 'ok'}"><small>تعارضات</small><b>${clash.length}</b></div></div>
+        <section class="sb-section"><header><h2>الأسبوع ده · ${Math.round(hours)} ساعة استخدام</h2></header><div class="v-table"><table class="fb-pitch"><thead><tr><th>الملعب</th>${days.map(d => `<th>${E(fmt(d, { weekday: 'short', day: 'numeric' }))}</th>`).join('')}</tr></thead><tbody>
+        ${pitches.map(({ p, branch }) => `<tr><th><b>${E(p)}</b><small>${E(branch)}</small></th>${days.map(d => `<td>${cell(p, d)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="8">مفيش ملاعب متسجلة للفرق.</td></tr>`}</tbody></table></div>
+        <div class="ms-legend fb-legend"><span class="path">تمرين مسار</span><span class="school">تمرين مدرسة</span><span class="match">ماتش رسمي</span><span class="clash">تعارض</span></div></section></div>`;
+    });
+
+    /* Coaching staff from the squads and groups each coach runs, plus the support staff an academy needs. */
+    const baseUsers = PAGES.users;
+    if (baseUsers) PAGES.users = function () {
+      const html = baseUsers.apply(this, arguments); if (!isFb() || (typeof state !== 'undefined' && state.permTab && state.permTab !== 'coaches')) return html;
+      const cut = html.indexOf('</div>') + 6, gs = fbGroups(), coaches = [...new Set(gs.map(g => g.coach).filter(Boolean))].map(n => ({ n, gs: gs.filter(g => g.coach === n) })).sort((a, b) => b.gs.filter(FC.isSquad).length - a.gs.filter(FC.isSquad).length);
+      const noCoach = gs.filter(g => !g.coach), SUPPORT = [['مدرب لياقة بدنية', 'برامج الأحمال والقياسات البدنية لفرق المسار', 'كابتن حسام'], ['مدرب حراس مرمى', 'تدريب الحراس في كل المراحل السنية', 'كابتن أيمن'], ['أخصائي علاج طبيعي', 'متابعة الإصابات والتأهيل وقرار الرجوع للملعب', ''], ['محلل أداء', 'فيديو الماتشات ودقائق اللعب وتقارير التقييم', ''], ['كشاف', 'رصد المواهب وترشيحات الاختبار', ''], ['مدير فني للأكاديمية', 'منهج التدريب وقرارات آخر الموسم', '']];
+      return html.slice(0, cut) + `<div class="sb-page fb-staff"><div class="pg-kpis"><div><small>مدربين رئيسيين</small><b>${coaches.length}</b></div><div><small>فرق مسار ليها مدرب</small><b>${gs.filter(g => FC.isSquad(g) && g.coach).length} / ${gs.filter(FC.isSquad).length}</b></div><div><small>مجموعات مدرسة ليها مدرب</small><b>${gs.filter(g => !FC.isSquad(g) && g.coach).length} / ${gs.filter(g => !FC.isSquad(g)).length}</b></div><div class="${SUPPORT.some(x => !x[2]) ? 'warn' : 'ok'}"><small>أدوار مساندة ناقصة</small><b>${SUPPORT.filter(x => !x[2]).length}</b></div></div>
+        ${noCoach.length ? `<p class="fb-warn">⚠ ${noCoach.map(g => E(nameOf(g))).join('، ')} من غير مدرب رئيسي.</p>` : ''}
+        <section class="sb-section"><header><h2>الجهاز الفني</h2></header><div class="v-table"><table class="fb-report-table"><thead><tr><th>المدرب</th><th>الفروع</th><th>فرق المسار</th><th>مجموعات المدرسة</th><th>لاعبين</th><th></th></tr></thead><tbody>
+          ${coaches.map(c => `<tr><td><b>${E(c.n)}</b></td><td>${E([...new Set(c.gs.map(g => g.branch))].join('، '))}</td><td>${c.gs.filter(FC.isSquad).map(g => `<span class="sa-chip">${E(nameOf(g))}</span>`).join(' ') || '—'}</td><td>${c.gs.filter(g => !FC.isSquad(g)).map(g => `<span class="sa-chip">${E(g.name.replace('مدرسة الكرة · ', ''))}</span>`).join(' ') || '—'}</td><td>${playersIn(c.gs).length}</td><td>${typeof go === 'function' ? `<button type="button" class="sb-btn small" onclick="go('payroll')">المستحقات</button>` : ''}</td></tr>`).join('')}</tbody></table></div></section>
+        <section class="sb-section"><header><h2>الجهاز المساند</h2></header><div class="fb-home-list">${SUPPORT.map(([r, d, n]) => `<div class="fb-home-row"><span class="fb-home-dot" style="background:${n ? '#2d604c' : '#c3a05c'}"></span><span class="fb-home-main"><b>${E(r)}</b><small>${E(d)}</small></span><span class="fb-home-tags">${n ? `<em class="ok">${E(n)}</em>` : '<em class="warn">مش متعين</em>'}</span></div>`).join('')}</div></section></div>`;
+    };
+
+    /* Messages to a squad, a school group, or the pathway parents. */
+    wrap('comms', () => {
+      const gs = fbGroups(), opts = [['path', 'أولياء أمور مسار الاحتراف', playersIn(gs.filter(FC.isSquad)).length], ['school', 'أولياء أمور مدرسة الكرة', playersIn(gs.filter(g => !FC.isSquad(g))).length], ['late', 'المتأخرين في الدفع', db.state.invoices.filter(i => i.total > i.paid && playersIn(gs).some(m => m.id === i.memberId)).length]].concat(gs.map(g => [g.id, nameOf(g), playersIn([g]).length]));
+      const T = [['تغيير ميعاد', 'تمرين الخميس اتنقل لـ 8 بالليل على نفس الملعب. نشوفكم ⚽'], ['ماتش رسمي', 'ماتش رسمي يوم الجمعة الساعة 10 الصبح. التجمع 9:15 بالطقم الكامل والشين جارد.'], ['تقرير التقييم', 'تقييم الثمانية أسابيع اتسجل، وتقدروا تشوفوه في خطة التطوير على التطبيق.'], ['يوم اختبار', 'يوم اختبار مفتوح للمواليد من 2011 لـ 2017 يوم السبت الساعة 5 العصر.']];
+      return `<div class="grid g2">${window.MessagesUI && MessagesUI.commsCard ? MessagesUI.commsCard() : ''}<div class="card fb-form"><h3>رسالة لفريق أو مجموعة</h3>
+        <label>إلى<select id="fb-msg-to">${opts.map(([v, l, n]) => `<option value="${v}">${E(l)} (${n})</option>`).join('')}</select></label>
+        <label>قالب<select onchange="document.getElementById('fb-msg-body').value=this.value">${T.map(([l, b]) => `<option value="${E(b)}">${E(l)}</option>`).join('')}</select></label>
+        <label>الرسالة<textarea id="fb-msg-body" rows="5">${E(T[0][1])}</textarea></label>
+        <button type="button" class="sb-btn primary ax-btn" onclick="toast('اتبعتت لـ '+(document.getElementById('fb-msg-to').selectedOptions[0].textContent.match(/\((\d+)\)/)||[0,0])[1]+' ولي أمر على الواتساب')">إرسال واتساب</button></div></div>`;
+    });
+
+    /* Academy rules the pathway runs on, next to the club identity. */
+    const baseSettings = PAGES.settings;
+    if (baseSettings) PAGES.settings = function () {
+      const html = baseSettings.apply(this, arguments); if (!isFb()) return html;
+      const d = window.SportEngine?.get('football'), ph = FC.PHASES;
+      const usage = html.replace(/الاستخدام: [\d,]+ من/, `الاستخدام: ${playersIn(db.state.groups.filter(g => g.sport === 'football')).length} من`);
+      return `<section class="sb-section fb-rules" style="margin-bottom:16px"><header><h2>⚽ قواعد أكاديمية الكورة</h2>${btn('إعدادات الكورة', "SportBuilder.open('football')")}</header>
+        <dl class="fb-rules-grid"><div><dt>الموسم</dt><dd>من أغسطس لـ يوليو · الموسم الحالي ${E(FC.season().name)}</dd></div><div><dt>القيد</dt><dd>فرق المسار بسنة الميلاد (تحت X = سنة نهاية الموسم − سنة الميلاد)</dd></div>
+        <div><dt>المراحل</dt><dd>${ph.map(p => `${E(p.name)} ${E(p.ages)}`).join(' · ')}</dd></div><div><dt>التقييم</dt><dd>كل ${FC.REVIEW_DAYS / 7} أسابيع على 4 أركان · بحد أقصى 4 أهداف تطوير جارية</dd></div>
+        <div><dt>حصة الدقايق</dt><dd>${ph.map(p => `${E(p.name)} ${FC.MINUTES_TARGET[p.id] ? FC.MINUTES_TARGET[p.id] + '%' : 'بالأداء'}`).join(' · ')}</dd></div><div><dt>الأحمال</dt><dd>نسبة أسبوعية آمنة 0.8–1.5 · أعلى من 1.5 تنبيه</dd></div>
+        <div><dt>مدرسة الكرة</dt><dd>${(d?.programs || []).map(p => `${E(p.name)} ${p.ageMin}–${p.ageMax}`).join(' · ')}</dd></div><div><dt>التمويل</dt><dd>${FC.FUNDING.join(' · ')}</dd></div></dl></section>` + usage;
+    };
 
     /* A pathway player's file is the development profile. */
     if (window.Refine?.profile) { const profile = Refine.profile; Refine.profile = id => { const m = db.member(id); if (m && FC.isPathway(db.state, m)) { V.close && V.close(); FU.openPlayer(id); } else profile(id); }; }
@@ -371,6 +449,17 @@
   });
   FU.reviewForm = id => V.open(`<div class="ma-form fb-form"><h3>مراجعة خطة ${E(db.member(id).name)}</h3><label class="fb-check"><input type="checkbox" id="fb-r-parent" checked> المراجعة كانت مع ولي الأمر</label><label>اللي اتفقنا عليه<textarea id="fb-r-note" rows="3"></textarea></label><button type="button" class="sb-btn primary ax-btn" onclick="FootballUI.saveReview('${id}')">حفظ المراجعة</button></div>`);
   FU.saveReview = id => V.run(() => { db.update(st => FC.review(st, id, { withParent: document.getElementById('fb-r-parent').checked, note: document.getElementById('fb-r-note').value }, { by: group(db.member(id).group)?.coach || '' })); after(); toast('اتسجلت المراجعة'); });
+
+  /* Quick actions that need a squad or a player first. */
+  FU.quick = kind => {
+    const list = FC.squads(db.state).filter(g => { const U = window.AcademyUI; return !U || U.branch === 'all' || g.branch === U.branch; });
+    if (kind === 'assess') {
+      const rows = list.flatMap(g => FC.playersOf(db.state, g.id).filter(p => FC.due(db.state, p.id)).map(p => ({ p, g })));
+      return V.open(`<div class="ma-form fb-form"><h3>تقييمات مستحقة</h3><p class="py-help">آخر تقييم عدّى عليه 8 أسابيع أو مفيش تقييم خالص.</p><div class="fb-home-list">${rows.map(({ p, g }) => `<button type="button" class="fb-home-row" onclick="FootballUI.assess('${p.id}')"><span class="fb-home-dot" style="background:${FC.phaseOf(FC.uOf(g.fb.birthYear)).color}"></span><span class="fb-home-main"><b>${E(p.name)}</b><small>${E(FC.squadName(g.fb.birthYear))} · ${E(pos(p)?.name || '')}</small></span><span class="fb-home-tags"><em class="warn">تقييم</em></span></button>`).join('') || '<p class="fb-empty">كل التقييمات في ميعادها.</p>'}</div></div>`);
+    }
+    const title = { match: 'ماتش رسمي لأي فريق؟', load: 'مجهود حصة أي فريق؟', injury: 'إصابة في أي فريق؟', tests: 'قياسات أي فريق؟' }[kind], fn = { match: 'matchForm', load: 'loadForm', injury: 'injuryForm', tests: 'testForm' }[kind];
+    V.open(`<div class="ma-form fb-form"><h3>${title}</h3><div class="fb-home-list">${list.map(g => `<button type="button" class="fb-home-row" onclick="FootballUI.${fn}('${g.id}')"><span class="fb-home-dot" style="background:${FC.phaseOf(FC.uOf(g.fb.birthYear)).color}"></span><span class="fb-home-main"><b>${E(FC.squadName(g.fb.birthYear))}</b><small>${E(g.coach || '')} · ${E(g.branch)} · ${FC.playersOf(db.state, g.id).length} لاعب</small></span></button>`).join('')}</div></div>`);
+  };
 
   /* =========================================================== scouting and trials */
   const STAGE_COLOR = { spotted: '#8a9a91', invited: '#2f6f8f', trial: '#b8954f', offer: '#2d604c', joined: '#1f7a4d', rejected: '#a24b3c' };

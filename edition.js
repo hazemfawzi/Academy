@@ -26,13 +26,13 @@
     return { ...s, groups, members, sessions: s.sessions.filter(x => gid.has(x.group)), transactions: s.transactions.filter(mine), invoices: s.invoices.filter(mine), requests: s.requests.filter(mine), followups: s.followups.filter(mine), waitlist: (s.waitlist || []).filter(w => !w.group || gid.has(w.group)), leads: s.leads.filter(l => (!l.group || gid.has(l.group)) && (!l.sport || l.sport === ED.sport)) };
   };
   /* Football academies speak of squads and groups, not casual "جروبات". */
-  const TERMS = ED.sport === 'football' ? [[/كل الجروبات/g, 'كل الفرق والمجموعات'], [/الجروبات/g, 'الفرق والمجموعات'], [/جروبات/g, 'فرق ومجموعات'], [/جروبًا/g, 'فريقًا أو مجموعة'], [/الجروب/g, 'الفريق'], [/جروب/g, 'مجموعة']] : [];
+  const TERMS = ED.sport === 'football' ? [[/كل الجروبات/g, 'كل الفرق والمجموعات'], [/الجروبات/g, 'الفرق والمجموعات'], [/جروبات/g, 'فرق ومجموعات'], [/جروبًا/g, 'فريقًا أو مجموعة'], [/الجروب/g, 'الفريق'], [/جروب/g, 'مجموعة'], [/الأعضاء/g, 'اللاعبين'], [/أعضاء/g, 'لاعبين'], [/العضو(?!ي)/g, 'اللاعب'], [/عضو(?!ي)/g, 'لاعب']] : [];
   ED.terms = root => {
     if (!TERMS.length || !root) return;
     const fix = t => TERMS.reduce((v, [a, b]) => v.replace(a, b), t);
     const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    for (let n = walk.nextNode(); n; n = walk.nextNode()) if (n.nodeValue.includes('جروب')) n.nodeValue = fix(n.nodeValue);
-    root.querySelectorAll('[placeholder],[aria-label],[title]').forEach(el => ['placeholder', 'aria-label', 'title'].forEach(a => { const v = el.getAttribute(a); if (v && v.includes('جروب')) el.setAttribute(a, fix(v)); }));
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) if (/جروب|عضو|أعضاء/.test(n.nodeValue)) n.nodeValue = fix(n.nodeValue);
+    root.querySelectorAll('[placeholder],[aria-label],[title]').forEach(el => ['placeholder', 'aria-label', 'title'].forEach(a => { const v = el.getAttribute(a); if (v && /جروب|عضو|أعضاء/.test(v)) el.setAttribute(a, fix(v)); }));
   };
   document.documentElement.dataset.edition = ED.sport || 'all';
   if (!ED.single) return;
@@ -56,6 +56,8 @@
     trim(NAV, 1);
     for (let i = NAV.length - 1; i >= 0; i--) if (!NAV[i][1].length) NAV.splice(i, 1);
     if (window.Dashboard) window.Dashboard.scope = ED.scope;
+    /* The prototype's own group list (nutrition and older screens) keeps only this sport. */
+    if (typeof GROUPS !== 'undefined' && window.MS?.GROUP_SPORT) { const mine = GROUPS.filter(g => (window.MS.GROUP_SPORT[g.id] || 'football') === ED.sport); GROUPS.splice(0, GROUPS.length, ...mine); }
     const analytics = PAGES.analytics;
     if (analytics) PAGES.analytics = () => analytics().replace('لكل الفروع والرياضات', `لكل فروع ${ED.title}`).replace('كل الفروع والرياضات /', `${ED.title} /`);
     const open = V.open;

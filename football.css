@@ -226,3 +226,38 @@
 .fb-home-cap i{width:56px;height:6px;border-radius:99px;background:var(--t-line);overflow:hidden;display:block}
 .fb-home-cap em{display:block;height:100%;background:#2d604c;padding:0;border-radius:99px}
 @media(max-width:560px){.fb-home-row{grid-template-columns:auto 1fr}.fb-home-tags{grid-column:1/-1;justify-content:flex-start}}
+/* football forms: one field per row on both pages */
+.fb-form{display:grid;gap:12px;min-width:min(460px,86vw)}
+.fb-form h3{margin:0 0 2px}
+.fb-form>label{display:grid;gap:6px;margin:0;font-size:13px;font-weight:700;color:var(--t-ink,#29362f)}
+.fb-form>label>input:not([type=checkbox]):not([type=radio]),.fb-form>label>select,.fb-form>label>textarea{width:100%;box-sizing:border-box;font:inherit;font-weight:400;padding:10px 12px;border:1px solid var(--t-line,#dfe7e1);border-radius:10px;background:#fff;margin:0}
+.fb-form>label>textarea{resize:vertical;min-height:84px}
+.fb-form>label>input[type=range]{padding:0;border:0;accent-color:#2d604c}
+.fb-form>label>output{font-weight:400;color:var(--t-muted,#829087)}
+.fb-form>label.fb-check{display:flex;align-items:center;gap:8px;font-weight:600}
+.fb-form>label.fb-check input{width:18px;height:18px;accent-color:#2d604c}
+.fb-form>.ax-btn,.fb-form>.sb-btn{justify-self:start;min-width:140px}
+.fb-form .py-help{margin:0}
+.fb-form>label[hidden],.fb-form [hidden]{display:none!important}
+.fb-quick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.fb-quick-btn{font:inherit;cursor:pointer;display:grid;justify-items:center;gap:8px;padding:16px 8px;border:1px solid var(--t-line,#dfe7e1);border-radius:14px;background:var(--t-surface,#fff);color:inherit}
+.fb-quick-btn span{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:19px;background:#eef3ef}
+.fb-quick-btn.amber span{background:#fbefd9}.fb-quick-btn.blue span{background:#e3ecf8}.fb-quick-btn.purple span{background:#efe7f6}.fb-quick-btn.pink span{background:#f8e4e6}.fb-quick-btn.cyan span{background:#dff1f2}
+.fb-quick-btn b{font-size:13px}
+.fb-quick-btn:hover{border-color:#2d604c}
+@media(max-width:700px){.fb-quick{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* pitches, branches, rules */
+.fb-pitch{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.fb-pitch th,.fb-pitch td{border:1px solid var(--t-line,#e3eae5);padding:6px;vertical-align:top;text-align:start}
+.fb-pitch thead th{background:var(--t-surface-2,#f4f1ea);font-weight:700}
+.fb-pitch tbody th{width:150px;background:var(--t-surface,#fff)}
+.fb-pitch tbody th small{display:block;color:var(--t-muted);font-weight:400}
+.fb-slot{font:inherit;font-size:11px;display:block;width:100%;text-align:start;border:0;border-radius:8px;padding:5px 7px;margin-bottom:4px;cursor:pointer;line-height:1.5;background:#eef3ef;color:#1f4637}
+.fb-slot b{display:block}
+.fb-slot.path,.fb-legend .path{background:#e3eef1;color:#245a6e}.fb-slot.school,.fb-legend .school{background:#eef3ef;color:#1f4637}.fb-slot.match,.fb-legend .match{background:#2d604c;color:#fff}.fb-slot.clash,.fb-legend .clash{outline:2px solid #c0392b;background:#fbe3e0;color:#7a1f14}
+.fb-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.fb-legend span{font-size:12px;padding:3px 10px;border-radius:99px}
+.fb-branch dl,.fb-rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.fb-branch dt,.fb-rules-grid dt{font-size:12px;color:var(--t-muted)}.fb-branch dd,.fb-rules-grid dd{margin:2px 0 0;font-weight:700;font-size:14px}
+.fb-rules-grid dd{font-weight:500;font-size:13px;line-height:1.7}
+.fb-staff{padding:0;margin-top:16px;display:grid;gap:16px}
+@media(max-width:700px){.fb-rules-grid,.fb-branch dl{grid-template-columns:1fr}}
