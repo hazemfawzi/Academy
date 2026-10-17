@@ -119,7 +119,71 @@
     return { group: g, u, phase: phaseOf(u), name: squadName(g.fb.birthYear, now), players, due: players.filter(p => due(state, p.id, now)).length, goals: players.reduce((n, p) => n + idp(state, p.id).goals.filter(x => x.status === 'active').length, 0), corners: Object.fromEntries([...Object.keys(CORNERS), 'overall'].map(k => [k, avg(k)])), rae: rae(players), depth: depth(players) };
   }
 
-  const api = { DAY, REVIEW_DAYS, PHASES, POSITIONS, LINES, CORNERS, TRACKS, FUNDING, GOAL_STATUS, season, uOf, phaseOf, squadName, quarter, isSquad, squads, playersOf, isPathway, itemsOf, cornerScores, history, latest, due, idp, validateAssessment, addAssessment, saveGoal, review, rae, depth, squadSummary };
+  /* ---------- physical tests and growth ---------- */
+  const TESTS = {
+    sprint10: { name: 'سرعة 10 متر', unit: 'ث', better: 'lower', min: 1.4, max: 3.6 },
+    sprint30: { name: 'سرعة 30 متر', unit: 'ث', better: 'lower', min: 3.6, max: 7.5 },
+    agility: { name: 'رشاقة 5-10-5', unit: 'ث', better: 'lower', min: 3.8, max: 8 },
+    jump: { name: 'الوثب العمودي', unit: 'سم', better: 'higher', min: 8, max: 85 },
+    yoyo: { name: 'تحمل Yo-Yo', unit: 'م', better: 'higher', min: 40, max: 3200 }
+  };
+  const BODY = { height: { name: 'الطول', unit: 'سم', min: 95, max: 215 }, weight: { name: 'الوزن', unit: 'كجم', min: 14, max: 140 }, sitting: { name: 'طول الجلوس', unit: 'سم', min: 45, max: 115 } };
+  const tests = (state, mid) => (state.fbTests || []).filter(t => t.memberId === mid).sort((a, b) => new Date(a.at) - new Date(b.at));
+  const lastValue = (rows, key) => { for (let i = rows.length - 1; i >= 0; i--) { const v = rows[i].values?.[key] ?? rows[i][key]; if (v != null) return { value: v, at: rows[i].at, index: i }; } return null; };
+  const prevValue = (rows, key) => { const l = lastValue(rows, key); return l ? lastValue(rows.slice(0, l.index), key) : null; };
+  const improved = (key, now, before) => now == null || before == null ? 0 : (TESTS[key]?.better === 'lower' ? before - now : now - before);
+
+  /* One measuring session for a squad: each entry may carry any tests and body measures. */
+  function recordTests(state, entries, meta = {}) {
+    const at = meta.at || new Date().toISOString(), rows = [];
+    entries.forEach(e => {
+      const values = {}, body = {};
+      Object.entries(TESTS).forEach(([k, t]) => { const raw = e.values?.[k]; if (raw === '' || raw == null) return; const v = Number(raw); if (!Number.isFinite(v) || v < t.min || v > t.max) throw Error(`${t.name}: قيمة غير منطقية (${raw})`); values[k] = Math.round(v * 100) / 100; });
+      Object.entries(BODY).forEach(([k, t]) => { const raw = e[k]; if (raw === '' || raw == null) return; const v = Number(raw); if (!Number.isFinite(v) || v < t.min || v > t.max) throw Error(`${t.name}: قيمة غير منطقية (${raw})`); body[k] = Math.round(v * 10) / 10; });
+      if (body.sitting && body.height && body.sitting >= body.height * 0.65) throw Error('طول الجلوس لازم يكون أقل بكتير من الطول');
+      if (!Object.keys(values).length && !Object.keys(body).length) return;
+      rows.push({ id: meta.newId ? meta.newId() : 'fbt-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), memberId: e.memberId, at, by: meta.by || '', values, ...body });
+    });
+    if (!rows.length) throw Error('اكتب قياس واحد على الأقل');
+    state.fbTests = state.fbTests || [];
+    state.fbTests.push(...rows);
+    return rows;
+  }
+
+  const ageYears = (dob, at) => (new Date(at) - new Date(dob + 'T12:00:00')) / (365.25 * DAY);
+  /* Growth from the measurements: growth velocity (cm a year between the last two
+     heights at least two months apart), maturity offset from sitting height (Mirwald),
+     the age at peak height velocity, and the expected adult height from the parents. */
+  function growth(state, m, now = new Date()) {
+    const rows = tests(state, m.id).filter(r => r.height), last = rows[rows.length - 1];
+    if (!last) return null;
+    const before = rows.slice(0, -1).reverse().find(r => new Date(last.at) - new Date(r.at) >= 60 * DAY);
+    const velocity = before ? Math.round((last.height - before.height) / ((new Date(last.at) - new Date(before.at)) / (365.25 * DAY)) * 10) / 10 : null;
+    const girl = m.gender === 'f', age = m.dob ? ageYears(m.dob, last.at) : null;
+    let offset = null;
+    if (age && last.sitting && last.weight) {
+      const leg = last.height - last.sitting, s = last.sitting, w = last.weight, h = last.height;
+      offset = girl ? -9.376 + 0.0001882 * leg * s + 0.0022 * age * leg + 0.005841 * age * s - 0.002658 * age * w + 0.07693 * (w / h * 100)
+        : -9.236 + 0.0002708 * leg * s - 0.001663 * age * leg + 0.007216 * age * s + 0.02292 * (w / h * 100);
+      offset = Math.round(offset * 10) / 10;
+    }
+    const phvAge = offset != null ? Math.round((age - offset) * 10) / 10 : null, mean = girl ? 11.8 : 13.8;
+    const timing = phvAge == null ? null : phvAge < mean - 1 ? 'early' : phvAge > mean + 1 ? 'late' : 'ontime';
+    const p = m.fb?.parents, adult = p?.father && p?.mother ? Math.round((p.father + p.mother + (girl ? -13 : 13)) / 2) : null;
+    const spurt = (velocity != null && velocity >= (girl ? 6 : 7)) || (offset != null && Math.abs(offset) <= 0.5);
+    return { height: last.height, weight: last.weight, sitting: last.sitting, at: last.at, velocity, offset, phvAge, timing, adult, pctAdult: adult ? Math.round(last.height / adult * 100) : null, spurt, series: rows.map(r => ({ at: r.at, height: r.height, weight: r.weight })) };
+  }
+  const TIMING = { early: 'نضج مبكر', ontime: 'نضج في المعدل', late: 'نضج متأخر' };
+
+  /* Where a player's latest value sits in the squad: 1 is best. */
+  function squadRank(state, players, mid, key) {
+    const vals = players.map(p => ({ id: p.id, v: lastValue(tests(state, p.id), key)?.value })).filter(x => x.v != null);
+    vals.sort((a, b) => TESTS[key].better === 'lower' ? a.v - b.v : b.v - a.v);
+    const i = vals.findIndex(x => x.id === mid);
+    return i < 0 ? null : { rank: i + 1, of: vals.length, third: i < vals.length / 3 ? 'top' : i >= vals.length * 2 / 3 ? 'low' : 'mid' };
+  }
+
+  const api = { DAY, REVIEW_DAYS, PHASES, POSITIONS, LINES, CORNERS, TRACKS, FUNDING, GOAL_STATUS, season, uOf, phaseOf, squadName, quarter, isSquad, squads, playersOf, isPathway, itemsOf, cornerScores, history, latest, due, idp, validateAssessment, addAssessment, saveGoal, review, rae, depth, squadSummary, TESTS, BODY, TIMING, tests, lastValue, prevValue, improved, recordTests, growth, squadRank, ageYears };
   root.FootballCore = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (!window.V || !window.SportEngine) return;
-  const db = V.db, VERSION = 9;
+  const db = V.db, VERSION = 10;
   if ((db.state.sportDemoVersion || 0) >= VERSION) return;
   const firstRun = (db.state.sportDemoVersion || 0) < 1;
 
@@ -346,6 +346,28 @@
   /* Version 9: football school groups are named as school groups, never as "جروب". */
   if ((db.state.sportDemoVersion || 0) < 9) V.run(() => db.update(s => {
     s.groups.filter(g => g.sport === 'football' && g.fb?.tier === 'school').forEach(g => { g.name = g.name.replace(/^جروب\s+/, 'مدرسة الكرة · '); });
+    s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 9);
+  }));
+
+  /* Version 10: three measuring sessions for every pathway player — tests improving with
+     age and training, heights following a growth curve (some in their growth spurt), and
+     the parents' heights for the expected adult height. */
+  if ((db.state.sportDemoVersion || 0) < 10 && window.FootballCore) V.run(() => db.update(s => {
+    const FC = window.FootballCore, H = t => hash('ph' + t), r2 = v => Math.round(v * 100) / 100, r1 = v => Math.round(v * 10) / 10;
+    const meanH = a => a < 9 ? 128 + (a - 8) * 5 : a < 12 ? 133 + (a - 9) * 5.2 : a < 15 ? 148.6 + (a - 12) * 6.6 : Math.min(176, 168.4 + (a - 15) * 2.8);
+    s.fbTests = s.fbTests || [];
+    if (s.fbTests.length) { s.sportDemoVersion = VERSION; return; }
+    s.members.filter(m => FC.isPathway(s, m) && m.dob).forEach(m => {
+      const h = H(m.id), talent = ((h % 9) - 4) / 10, father = 168 + h % 17, mother = 154 + (h >>> 4) % 15;
+      m.fb.parents = m.fb.parents || { father, mother };
+      const ageNow = FC.ageYears(m.dob, now), early = h % 4 === 0, velocity = ageNow >= 12.5 && ageNow <= 14.8 && (h % 3 === 0 || m.id === 'fb-p-youssef') ? 8.5 + (h % 3) / 2 : 5 + (h % 4) / 2;
+      const hNow = meanH(ageNow) + ((father + mother) / 2 - 168) * 0.5 + (early ? 4 : 0);
+      [-150, -75, -7].forEach((off, k) => {
+        const at = daysFrom(off - h % 4), age = FC.ageYears(m.dob, at), height = r1(hNow - velocity * ((-off) / 365.25)), bmi = 16.4 + (age - 9) * 0.38 + (h % 5) / 5, x0 = age - 9 + k * 0.15 + talent * 3, x = t => x0 + (((h >>> (t * 3)) % 7) - 3) * 0.35;
+        s.fbTests.push({ id: `fbt-${m.id}-${k}`, memberId: m.id, at: iso(at), by: s.groups.find(g => g.id === m.group)?.coach || '', height, weight: r1(bmi * (height / 100) ** 2), sitting: r1(height * (0.515 + (early ? 0.008 : 0))),
+          values: { sprint10: r2(Math.max(1.6, 2.32 - x(1) * 0.065)), sprint30: r2(Math.max(4, 5.55 - x(2) * 0.19)), agility: r2(Math.max(4.3, 6.05 - x(3) * 0.16)), jump: Math.round(Math.min(70, 22 + x(4) * 3.1)), yoyo: Math.round(Math.max(120, 320 + x(5) * 130) / 40) * 40 } });
+      });
+    });
     s.sportDemoVersion = VERSION;
   }));
 })();
