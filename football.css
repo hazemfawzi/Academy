@@ -287,3 +287,4 @@
 .fb-switch i{position:absolute;inset:0;border-radius:12px;background:#cfd9d3;transition:.2s}.fb-switch i::after{content:'';position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
 .fb-switch input:checked+i{background:#2d604c}.fb-switch input:checked+i::after{right:21px}
 @media(max-width:700px){.fb-tools{grid-template-columns:1fr}}
+.fb-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important}@media(max-width:700px){.fb-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}}

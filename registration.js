@@ -22,7 +22,7 @@
     R = {
       step: 0, mode: keepFamily?.mode || 'child', leadId: lead?.id || '', error: '', done: null,
       family: keepFamily ? { ...keepFamily.family } : { phone: lead?.phone || '', name: lead?.name || '', relation: 'الأب' },
-      player: { name: '', dob: '', gender: '', medical: '', phone: '', emergencySame: true, emergencyName: '', emergencyPhone: '' },
+      player: { name: '', dob: '', gender: '', nationality: 'مصري', photo: '', medical: '', phone: '', emergencySame: true, emergencyName: '', emergencyPhone: '' },
       sport: edition(), programId: '', branch: '', group: '', levelId: '',
       fb: { track: '', position: '', foot: 'يمين', funding: 'اشتراك', partial: 50 }, consent: false, medicalReceived: false
     };
@@ -52,6 +52,7 @@
   };
 
   /* ---------- views ---------- */
+  const NATIONS = ['مصري', 'سعودي', 'إماراتي', 'كويتي', 'قطري', 'بحريني', 'عماني', 'أردني', 'فلسطيني', 'لبناني', 'سوري', 'عراقي', 'سوداني', 'ليبي', 'تونسي', 'جزائري', 'مغربي', 'يمني', 'أخرى'];
   const field = (label, html, hint = '') => `<label class="rg-field"><span>${E(label)}</span>${html}${hint ? `<small>${E(hint)}</small>` : ''}</label>`;
   const input = (key, value, attrs = '') => `<input value="${E(value)}" oninput="Registration.set('${key}',this.value)" ${attrs}>`;
   const choice = (name, value, current, title, desc, action) => `<label class="rg-choice ${current === value ? 'on' : ''}"><input type="radio" name="${name}" value="${E(value)}" ${current === value ? 'checked' : ''} onchange="${E(action)}"><span><b>${E(title)}</b>${desc ? `<small>${E(desc)}</small>` : ''}</span></label>`;
@@ -67,9 +68,10 @@
 
   function stepPlayer() {
     const a = age();
-    return `${R.mode === 'child' ? field('اسم الطفل', input('player.name', R.player.name)) : `<p class="rg-note">${E(R.player.name)} · <bdi>${E(R.player.phone)}</bdi></p>`}
+    return `<div class="rg-photo-row"><label class="rg-photo">${R.player.photo ? `<img src="${R.player.photo}" alt="صورة اللاعب">` : '<span>📷</span>'}<input type="file" accept="image/*" onchange="Registration.photo(this)"></label><div class="rg-photo-main">${R.mode === 'child' ? field('اسم الطفل', input('player.name', R.player.name)) : `<p class="rg-note">${E(R.player.name)} · <bdi>${E(R.player.phone)}</bdi></p>`}<small class="rg-hint">${R.player.photo ? 'اضغط على الصورة لتغييرها' : 'صورة اللاعب (اختياري): بتظهر في الكارت وكشف الحضور'}</small></div></div>
       <div class="rg-row rg-row-top">${field('تاريخ الميلاد', `<input type="date" value="${E(R.player.dob)}" max="${db.day(new Date())}" onchange="Registration.set('player.dob',this.value);Registration.set('group','');Registration.refresh()">`, a != null ? `السن ${a} سنة${football() && birthYear() ? ' · ' + FC().squadName(birthYear()) : ''}` : 'بيحدد البرامج والجروبات المناسبة')}
       ${field('النوع', `<div class="rg-seg">${[['m', 'ذكر'], ['f', 'أنثى']].map(([v, l]) => `<label><input type="radio" name="rg-gender" value="${v}" ${R.player.gender === v ? 'checked' : ''} onchange="Registration.set('player.gender','${v}')"><span>${l}</span></label>`).join('')}</div>`, '\u00a0')}</div>
+      ${field('الجنسية', `<select onchange="Registration.set('player.nationality',this.value)">${NATIONS.map(n => `<option ${R.player.nationality === n ? 'selected' : ''}>${n}</option>`).join('')}</select>`)}
       ${field('ملاحظات صحية', `<textarea rows="2" oninput="Registration.set('player.medical',this.value)" placeholder="حساسية، ربو، إصابة سابقة… اتركها فاضية لو لا يوجد">${E(R.player.medical)}</textarea>`, 'تظهر للمدرب في كشف الحضور')}
       ${R.mode === 'child' ? `<label class="rg-check"><input type="checkbox" ${R.player.emergencySame ? 'checked' : ''} onchange="Registration.set('player.emergencySame',this.checked);Registration.refresh()"> جهة الطوارئ هي ولي الأمر</label>` : ''}
       ${R.mode === 'adult' || !R.player.emergencySame ? `<div class="rg-row">${field('اسم جهة الطوارئ', input('player.emergencyName', R.player.emergencyName))}${field('موبايل الطوارئ', input('player.emergencyPhone', R.player.emergencyPhone, 'inputmode="tel" maxlength="11"'))}</div>` : ''}`;
@@ -106,7 +108,7 @@
   function stepReview() {
     const g = groupRow(), d = def(), p = program(), fam = familyFound(), pos = football() && R.fb.position ? FC().POSITIONS[R.fb.position].name : '';
     const rows = [
-      ['اللاعب', `${R.player.name}${age() != null ? ' · ' + age() + ' سنة' : ''}${R.player.gender ? ' · ' + (R.player.gender === 'm' ? 'ذكر' : 'أنثى') : ''}`],
+      ['اللاعب', `${R.player.name}${age() != null ? ' · ' + age() + ' سنة' : ''}${R.player.gender ? ' · ' + (R.player.gender === 'm' ? 'ذكر' : 'أنثى') : ''} · ${R.player.nationality || 'مصري'}${R.player.photo ? ' · 📷' : ''}`],
       [R.mode === 'child' ? 'ولي الأمر' : 'الموبايل', R.mode === 'child' ? `${fam ? fam.name : R.family.name} · ${R.family.phone}${fam ? ' (عائلة مسجلة)' : ''}` : R.player.phone],
       ...(football() ? [['المسار', FC().TRACKS[R.fb.track]], ['المركز', `${pos || 'يتحدد مع المدرب'} · القدم ${R.fb.foot}`]] : [['البرنامج', `${d.name} · ${p.name}`]]),
       [pathway() ? 'الفريق' : football() ? 'المجموعة' : 'الجروب', `${pathway() ? FC().squadName(g.fb.birthYear) : g.name} · ${g.branch}`], ['المواعيد', describe(g) + (g.coach ? ' · ' + g.coach : '')],
@@ -177,6 +179,7 @@
     const disc = pathway() ? discount() : (sibling() || (R.mode === 'child' ? F.discountFor(familyId) : 0));
     const emergency = R.mode === 'child' && R.player.emergencySame ? { name: fam.name, phone: fam.phone } : { name: R.player.emergencyName.trim(), phone: R.player.emergencyPhone };
     const m = db.addMember({ name: R.player.name, phone: R.mode === 'adult' ? R.player.phone : '', group: g.id, guardian: R.mode === 'child' ? { name: fam.name, phone: fam.phone, relation: fam.relation } : null, dob: R.player.dob, gender: R.player.gender, medical: R.player.medical, emergency, familyId, programId: p.id, consent: R.consent, source: R.leadId ? 'عميل محتمل' : 'الاستقبال', ...(football() ? { fb: { track: R.fb.track, position: R.fb.position, foot: R.fb.foot, ...(pathway() ? { funding: R.fb.funding === 'منحة جزئية' ? `منحة جزئية` : R.fb.funding, scholarship: discount(), number: '', registration: '', joined: db.day(new Date()) } : {}) } } : {}) });
+    db.update(st => { const x = st.members.find(y => y.id === m.id); if (x) { x.nationality = R.player.nationality || 'مصري'; if (R.player.photo) x.photo = R.player.photo; } });
     if (R.levelId && !pathway()) window.Progress?.promote(m.id, R.levelId, 'تقييم البداية عند التسجيل', 'الاستقبال');
     const inv = db.bill(m.id, { label: `${d.name} · ${p.name}`, price: p.price, sessions: p.sessions, days: 30, programId: p.id }, disc, discountName());
     if (d.registration.medical && !R.medicalReceived) db.update(st => st.followups.unshift({ id: db.id('task'), memberId: m.id, kind: 'medical', owner: 'الاستقبال', due: db.day(new Date()), status: 'open', note: 'استلام الشهادة الطبية قبل أول حصة', created: new Date().toISOString() }));
@@ -191,6 +194,8 @@
     markup(leadId = '') { fresh(leadId); return `<div id="rg-root" class="rg">${view()}</div>`; },
     inline() { if (!R || R.done === 'closed') fresh(); return `<div id="rg-root" class="rg rg-inline">${view()}</div>`; },
     open(leadId = '') { V.open(G.markup(leadId)); },
+    /* The player's photo, shrunk to a small square so it fits the saved record. */
+    photo(inp) { const f = inp.files && inp.files[0]; if (!f) return; if (!/^image\//.test(f.type)) { R.error = 'اختار صورة'; return paint(); } const r = new FileReader(); r.onload = () => { const img = new Image(); img.onload = () => { const c = document.createElement('canvas'), n = 240, k = Math.min(img.width, img.height); c.width = c.height = n; c.getContext('2d').drawImage(img, (img.width - k) / 2, (img.height - k) / 2, k, k, 0, 0, n, n); R.player.photo = c.toDataURL('image/jpeg', 0.82); paint(); }; img.src = r.result; }; r.readAsDataURL(f); },
     /* A trial candidate who accepted the offer: registration opens filled from the trial. */
     scout(cid) {
       const c = window.FootballCore?.candidate(db.state, cid); if (!c) return;
@@ -224,4 +229,66 @@
   /* Every older entry point now opens this flow. */
   V.newMemberForm = (leadId = '') => G.markup(leadId);
   if (typeof APPS !== 'undefined' && APPS.manager) { APPS.manager.F.newm = () => `<div class="ma-body">${G.inline()}</div>`; }
+
+  /* ---------- adding players: one by one, from Excel, or by a link the parents fill ---------- */
+  const ICONS = { one: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6', xls: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M9 12l6 6M15 12l-6 6', card: 'M3 5h18v14H3zM7 10a2 2 0 1 0 4 0 2 2 0 0 0-4 0M6 16c.7-1.5 2-2 3-2s2.3.5 3 2M14 9h4M14 13h4' };
+  const ico = k => `<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ICONS[k]}"/></svg>`;
+  G.addPlayers = () => V.open(G.addMarkup());
+  G.addMarkup = () => (`<div class="rg-add" data-no-fit><h3>إضافة لاعبين</h3><p class="rg-note">ضيف اللاعبين مرة واحدة، وبعدها كل حاجة (الجدول، الرسائل، الفواتير، التقييم) بتترتبط بيهم تلقائي.</p>
+    <div class="rg-add-grid">${[['one', 'لاعب واحد', 'لو هتضيف لاعب أو اتنين: خطوات قصيرة وبعدها الفريق أو المجموعة', 'إضافة يدوي', 'V.close();Registration.open()'], ['xls', 'استيراد من Excel', 'لو عندك قايمة لاعبين: ارفع الملف، راجع، واختار الفرق', 'استيراد', 'Registration.importForm()'], ['card', 'رابط التسجيل', 'ولي الأمر يسجّل ابنه بنفسه ويوافق على الشروط', 'جهّز الرابط', 'Registration.applyLink()']].map(([k, t, d, b, js]) => `<div class="rg-add-card"><b>${t}</b><span>${ico(k)}</span><p>${d}</p><button type="button" class="rg-btn primary" onclick="${js}">${b}</button></div>`).join('')}</div></div>`);
+  /* «إضافة لاعب» everywhere opens the three ways; a lead being converted goes straight to the form. */
+  V.newMemberForm = (leadId = '') => leadId ? G.markup(leadId) : G.addMarkup();
+
+  /* Import: a CSV saved from Excel or rows pasted straight from it. */
+  const COLS = [['name', 'الاسم'], ['dob', 'تاريخ الميلاد'], ['guardian', 'ولي الأمر'], ['phone', 'موبايل ولي الأمر'], ['position', 'المركز'], ['nationality', 'الجنسية']];
+  let IMP = null;
+  G.template = () => { const rows = [COLS.map(c => c[1]).join(','), 'يوسف أحمد علي,2015-03-14,أحمد علي,01012345678,ST,مصري', 'عمر خالد حسن,2013-09-02,خالد حسن,01198765432,CB,مصري']; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + rows.join('\n')], { type: 'text/csv;charset=utf-8' })); a.download = 'لاعبين.csv'; a.click(); };
+  const POS = () => window.FootballCore ? Object.entries(FootballCore.POSITIONS) : [];
+  const posOf = v => { v = String(v || '').trim(); const p = POS().find(([k, x]) => k.toLowerCase() === v.toLowerCase() || x.name === v || x.short === v); return p ? p[0] : ''; };
+  const dateOf = v => { v = String(v || '').trim(); let m = v.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/); if (m) return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`; m = v.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/); return m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : ''; };
+  G.parse = text => {
+    const lines = String(text || '').replace(/\r/g, '').split('\n').map(l => l.trim()).filter(Boolean);
+    if (!lines.length) return [];
+    const sep = lines[0].includes('\t') ? '\t' : lines[0].includes(';') ? ';' : ',';
+    const head = lines[0].split(sep).map(h => h.trim()), hasHead = head.some(h => COLS.some(c => c[1] === h || c[0] === h.toLowerCase()));
+    const idx = COLS.map(([k, l], i) => { const j = head.findIndex(h => h === l || h.toLowerCase() === k); return hasHead ? j : i; });
+    return lines.slice(hasHead ? 1 : 0).map(l => { const c = l.split(sep).map(x => x.trim()); const r = Object.fromEntries(COLS.map(([k], i) => [k, idx[i] >= 0 ? c[idx[i]] || '' : ''])); r.dob = dateOf(r.dob); r.position = posOf(r.position); r.nationality = r.nationality || 'مصري';
+      r.errors = [r.name.split(/\s+/).length < 2 && 'الاسم ثنائي', !r.dob && 'تاريخ الميلاد', !/^01[0125]\d{8}$/.test(r.phone) && 'الموبايل', db.state.members.some(m => m.name === r.name && m.dob === r.dob) && 'مسجل قبل كده'].filter(Boolean); return r; });
+  };
+  G.importForm = () => { IMP = { rows: [], mode: 'auto', group: '' }; V.open(`<div class="ma-form fb-form" id="rg-imp"><h3>استيراد لاعبين من Excel</h3><p class="py-help">احفظ الشيت كـ CSV وارفعه، أو انسخ الصفوف من Excel والصقها هنا. الأعمدة: ${COLS.map(c => c[1]).join('، ')}.</p>
+    <label>ملف CSV<input type="file" accept=".csv,.txt,text/csv" onchange="Registration.readFile(this)"></label>
+    <label>أو الصق الصفوف<textarea id="rg-paste" rows="5" placeholder="${E(COLS.map(c => c[1]).join('\t'))}"></textarea></label>
+    <div class="rg-actions"><button type="button" class="rg-btn" onclick="Registration.template()">تنزيل نموذج</button><button type="button" class="rg-btn primary" onclick="Registration.preview(document.getElementById('rg-paste').value)">مراجعة ←</button></div></div>`); };
+  G.readFile = inp => { const f = inp.files && inp.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { document.getElementById('rg-paste').value = String(r.result).replace(/^﻿/, ''); }; r.readAsText(f, 'utf-8'); };
+  const squadFor = r => window.FootballCore ? FootballCore.squads(db.state).find(g => g.fb.birthYear === Number(r.dob.slice(0, 4))) : null;
+  const targetOf = r => IMP.mode === 'auto' ? squadFor(r) : db.state.groups.find(g => g.id === IMP.group);
+  /* Step 2 comes on its own: where the new players go. */
+  G.preview = text => { IMP.rows = G.parse(text); if (!IMP.rows.length) return toast('مفيش صفوف'); G.groupsStep(); };
+  G.groupsStep = () => {
+    const ok = IMP.rows.filter(r => !r.errors.length), bad = IMP.rows.length - ok.length, sport = window.Edition?.sport || 'football';
+    const school = db.state.groups.filter(g => g.sport === sport && !(window.FootballCore?.isSquad(g)));
+    V.open(`<div class="ma-form fb-form"><h3>اختار الفريق أو المجموعة</h3><p class="py-help">${ok.length} لاعب جاهز${bad ? ` · ${bad} صفوف فيها مشاكل هتتشال` : ''}. بعد الاستيراد كل لاعب بيظهر في جدول فريقه ورسايله وفواتيره.</p>
+      <label>يدخلوا فين؟<select onchange="Registration.impMode(this.value)"><option value="auto" ${IMP.mode === 'auto' ? 'selected' : ''}>فرق مسار الاحتراف حسب سنة الميلاد</option>${school.map(g => `<option value="${g.id}" ${IMP.mode === 'group' && IMP.group === g.id ? 'selected' : ''}>${E(g.name)}</option>`).join('')}</select></label>
+      <div class="v-table"><table class="fb-report-table"><thead><tr><th>اللاعب</th><th>الميلاد</th><th>ولي الأمر</th><th>يدخل</th><th></th></tr></thead><tbody>${IMP.rows.map(r => { const g = !r.errors.length && targetOf(r); return `<tr><td><b>${E(r.name)}</b>${r.position ? ` <small>${E(window.FootballCore?.POSITIONS[r.position]?.short || '')}</small>` : ''}</td><td>${E(r.dob || '—')}</td><td>${E(r.guardian || '')} <bdi>${E(r.phone)}</bdi></td><td>${g ? E(window.FootballCore?.isSquad(g) ? FootballCore.squadName(g.fb.birthYear) : g.name) : r.errors.length ? '' : '<span class="fb-alert">مفيش فريق لسنته</span>'}</td><td>${r.errors.length ? `<span class="fb-alert">${E(r.errors.join('، '))}</span>` : '✓'}</td></tr>`; }).join('')}</tbody></table></div>
+      <button type="button" class="sb-btn primary ax-btn" onclick="Registration.runImport()">استيراد ${ok.filter(r => targetOf(r)).length} لاعب</button></div>`);
+  };
+  G.impMode = v => { if (v === 'auto') IMP.mode = 'auto'; else { IMP.mode = 'group'; IMP.group = v; } G.groupsStep(); };
+  G.runImport = () => V.run(() => {
+    const rows = IMP.rows.filter(r => !r.errors.length && targetOf(r)); if (!rows.length) throw Error('مفيش لاعبين ينفع يتسجلوا');
+    rows.forEach(r => { const g = targetOf(r), m = db.addMember({ name: r.name, phone: '', group: g.id, guardian: { name: r.guardian || 'ولي الأمر', phone: r.phone, relation: 'ولي الأمر' }, dob: r.dob, source: 'استيراد Excel', ...(g.sport === 'football' ? { fb: { track: window.FootballCore?.isSquad(g) ? 'pathway' : 'school', position: r.position, foot: 'يمين', ...(window.FootballCore?.isSquad(g) ? { funding: 'اشتراك' } : {}) } } : {}) }); db.update(st => { const x = st.members.find(y => y.id === m.id); if (x) x.nationality = r.nationality; }); });
+    V.close(); if (typeof render === 'function') render(); toast(`اتسجل ${rows.length} لاعب واتوزعوا على فرقهم`);
+  });
+
+  /* A link and a QR code for the parents; the apps open registration when it is followed. */
+  G.applyLink = () => {
+    const base = location.href.replace(/[^/]*$/, ''), url = `${base}apps.html?${window.Edition?.single ? 'edition=' + Edition.sport + '&' : ''}apply=1`;
+    let qr = ''; if (typeof qrcode === 'function') { const q = qrcode(0, 'M'); q.addData(url); q.make(); const n = q.getModuleCount(), t = n + 6; let d = ''; for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (q.isDark(y, x)) d += `M${x + 3} ${y + 3}h1v1h-1z`; qr = `<svg width="170" height="170" viewBox="0 0 ${t} ${t}" shape-rendering="crispEdges" role="img" aria-label="كود رابط التسجيل"><rect width="${t}" height="${t}" fill="#fff"/><path d="${d}" fill="#13261d"/></svg>`; }
+    V.open(`<div class="ma-form fb-form rg-apply"><h3>رابط التسجيل لأولياء الأمور</h3><p class="py-help">ولي الأمر يفتح الرابط أو يصوّر الكود، يسجّل بيانات ابنه، يختار المسار والفريق، ويوافق على الشروط. التسجيل بيوصلك في اللاعبين والفاتورة بتتعمل لوحدها.</p>
+      <div class="rg-apply-qr">${qr}</div><label>الرابط<input readonly value="${E(url)}" onclick="this.select()"></label>
+      <div class="rg-actions"><button type="button" class="rg-btn" onclick="navigator.clipboard&&navigator.clipboard.writeText('${E(url)}');toast('اتنسخ الرابط')">نسخ الرابط</button><a class="rg-btn primary" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent('سجّل ابنك في الأكاديمية من هنا: ' + url)}">مشاركة واتساب</a></div></div>`);
+  };
+  if (typeof APPS !== 'undefined' && new URLSearchParams(location.search).get('apply') === '1') setTimeout(() => V.open(G.markup()), 400);
+
+  /* A player's photo replaces the drawn portrait wherever the name is shown. */
+  if (window.KoraAvatars?.portrait) { const portrait = KoraAvatars.portrait; KoraAvatars.portrait = function (name) { const m = db.state.members.find(x => x.name === name && x.photo); return m ? `<img class="rg-portrait" src="${m.photo}" alt="${E(name)}">` : portrait.apply(this, arguments); }; }
 })();

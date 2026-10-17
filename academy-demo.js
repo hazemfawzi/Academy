@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (!window.V || !window.SportEngine) return;
-  const db = V.db, VERSION = 13;
+  const db = V.db, VERSION = 14;
   if ((db.state.sportDemoVersion || 0) >= VERSION) return;
   const firstRun = (db.state.sportDemoVersion || 0) < 1;
 
@@ -460,6 +460,42 @@
         if (!m.guardian && m.phone) m.guardian = { name: 'ولي أمر ' + m.name.split(' ').slice(-1)[0], phone: m.phone, relation: 'ولي الأمر' };
       });
     });
+    s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 13);
+  }));
+
+  /* Version 14: conversations and support tickets — group chats with their coach and
+     players, a few direct chats with the office, and tickets in every state. */
+  if ((db.state.sportDemoVersion || 0) < 14 && window.DeskCore) V.run(() => db.update(s => {
+    const D = window.DeskCore, FC = window.FootballCore;
+    if ((s.chats || []).some(t => t.messages.length) || (s.tickets || []).length) { s.sportDemoVersion = VERSION; return; }
+    const ago = (d, h = 0) => ({ now: new Date(now.getTime() - d * dayMs - h * 3600000) });
+    const say = (tid, from, text, d, h) => D.send(s, tid, from, text, { ...ago(d, h), id: 'msg-' + hash(tid + text).toString(36) });
+    const school = s.groups.find(g => g.sport === 'football' && !(FC && FC.isSquad(g)) && s.members.some(m => m.group === g.id));
+    if (school) {
+      const t = D.groupThread(s, school.id, ago(30)), ms = s.members.filter(m => m.group === school.id), c = 'coach:' + school.coach;
+      say(t.id, 'admin', 'أهلًا بيكم في شات المجموعة 👋 هنا بننزل أي تغيير في المواعيد أو الأخبار.', 6, 4);
+      say(t.id, c, 'تمرين بكرة الساعة 7 الصبح على الملعب الخماسي 1. التجمع قبلها بربع ساعة ومعاكم مية.', 1, 10);
+      if (ms[0]) say(t.id, 'member:' + ms[0].id, 'تمام يا كابتن، هنكون موجودين 👍', 1, 9);
+      if (ms[1]) say(t.id, 'member:' + ms[1].id, 'كابتن، ابني عنده امتحان الأسبوع ده، هيغيب حصة الخميس.', 1, 8);
+      say(t.id, c, 'ربنا معاه، مفيش مشكلة. سجلناه اعتذار.', 1, 7);
+    }
+    const squad = FC && FC.squads(s)[1];
+    if (squad) {
+      const t = D.groupThread(s, squad.id, ago(30)), ms = s.members.filter(m => m.group === squad.id), c = 'coach:' + squad.coach;
+      say(t.id, c, 'ماتش الدوري يوم الخميس. التشكيل هيتعلن بعد تمرين الثلاثاء. اللي عنده إصابة يبلغني النهارده.', 2, 6);
+      if (ms[2]) say(t.id, 'member:' + ms[2].id, 'كابتن عندي شد خفيف في الخلفية من آخر تمرين.', 2, 5);
+      say(t.id, c, 'متلعبش النهارده، وقابل أخصائي العلاج بكرة قبل التمرين.', 2, 4);
+      say(t.id, 'admin', 'الأتوبيس هيتحرك من الأكاديمية 8:45 يوم الماتش.', 0, 3);
+    }
+    const coachName = (school || squad)?.coach;
+    if (coachName) { const d = D.directThread(s, 'admin', 'coach:' + coachName, ago(10)); say(d.id, 'coach:' + coachName, 'محتاجين 10 كور جديدة ومجموعة أقماع للمجموعة.', 3, 2); say(d.id, 'admin', 'اتطلبت، هتوصل يوم الأحد.', 3, 1); }
+    const kid = s.members.find(m => m.guardian && s.groups.some(g => g.id === m.group && g.sport === 'football'));
+    if (kid) { const d = D.directThread(s, 'admin', 'member:' + kid.id, ago(5)); say(d.id, 'member:' + kid.id, 'ممكن أعرف ميعاد التقييم الجاي؟', 0, 5); }
+    const players = s.members.filter(m => s.groups.some(g => g.id === m.group && g.sport === 'football'));
+    const T = [[0, 'billing', 'high', 'التحويل مش ظاهر في التطبيق', 'حولت الاشتراك إنستاباي امبارح ولسه مكتوب عليه متبقي.', 'open', 0.3], [3, 'schedule', 'normal', 'عايز أنقل ابني لمجموعة المغرب', 'مواعيد الصبح مش مناسبة مع المدرسة، ينفع ننقل لمجموعة المغرب؟', 'progress', 1], [6, 'technical', 'normal', 'كود الحضور مش بيفتح', 'لما بفتح كود الحضور في التطبيق الشاشة بتفضل بيضا.', 'open', 0.6], [9, 'coach', 'low', 'استفسار عن خطة التطوير', 'عايز أفهم الأهداف اللي في خطة التطوير بتتقاس إزاي.', 'closed', 8]];
+    T.forEach(([i, cat, pr, subj, body, st, d], k) => { const m = players[i * 3 % Math.max(1, players.length)]; if (!m) return; const t = D.openTicket(s, { from: 'member:' + m.id, subject: subj, body, category: cat, priority: pr }, { ...ago(d + 0.5), id: 'tk-demo-' + k });
+      if (st !== 'open') { D.replyTicket(s, t.id, 'admin', st === 'closed' ? 'الأهداف بتتقاس بالمقياس المكتوب جنب كل هدف، والمدرب بيحدّث التقدم كل أسبوعين. لو محتاج تفاصيل كلّم المدرب في الشات.' : 'تمام، فيه مكان في مجموعة المغرب. هنأكدلك النقل النهارده.', ago(d)); D.setTicket(s, t.id, { status: st, assignee: st === 'closed' ? 'الإدارة' : 'الاستقبال' }, ago(d)); } });
+    if (coachName) D.openTicket(s, { from: 'coach:' + coachName, subject: 'الملعب الخماسي 2 محتاج صيانة', body: 'الشبكة مقطوعة والأرضية فيها حفرة جنب المرمى.', category: 'other', priority: 'normal' }, { ...ago(1), id: 'tk-demo-coach' });
     s.sportDemoVersion = VERSION;
   }));
 })();
