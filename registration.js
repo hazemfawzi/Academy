@@ -180,6 +180,7 @@
     if (R.levelId && !pathway()) window.Progress?.promote(m.id, R.levelId, 'تقييم البداية عند التسجيل', 'الاستقبال');
     const inv = db.bill(m.id, { label: `${d.name} · ${p.name}`, price: p.price, sessions: p.sessions, days: 30, programId: p.id }, disc, discountName());
     if (d.registration.medical && !R.medicalReceived) db.update(st => st.followups.unshift({ id: db.id('task'), memberId: m.id, kind: 'medical', owner: 'الاستقبال', due: db.day(new Date()), status: 'open', note: 'استلام الشهادة الطبية قبل أول حصة', created: new Date().toISOString() }));
+    if (R.scoutId) db.update(st => { const c = window.FootballCore.candidate(st, R.scoutId); if (c && c.stage === 'offer') { c.memberId = m.id; window.FootballCore.move(st, c.id, 'joined', { squadId: g.id }); } });
     if (R.leadId) { try { db.moveLead(R.leadId, 'won', 'اتسجل ' + m.name + ' في ' + g.name); } catch (e) { /* the lead stays open if it cannot be closed */ } }
     return { memberId: m.id, invoiceId: inv.id, due: inv.total - inv.paid, pathway: pathway() };
   }
@@ -190,6 +191,16 @@
     markup(leadId = '') { fresh(leadId); return `<div id="rg-root" class="rg">${view()}</div>`; },
     inline() { if (!R || R.done === 'closed') fresh(); return `<div id="rg-root" class="rg rg-inline">${view()}</div>`; },
     open(leadId = '') { V.open(G.markup(leadId)); },
+    /* A trial candidate who accepted the offer: registration opens filled from the trial. */
+    scout(cid) {
+      const c = window.FootballCore?.candidate(db.state, cid); if (!c) return;
+      fresh();
+      Object.assign(R, { scoutId: c.id, sport: 'football', branch: c.branch || '' });
+      Object.assign(R.family, { name: c.guardian || '', phone: c.phone || '' });
+      Object.assign(R.player, { name: c.name, dob: c.dob });
+      Object.assign(R.fb, { track: 'pathway', position: c.position, foot: c.foot || 'يمين', funding: c.offer?.funding || 'اشتراك', partial: c.offer?.pct || 50 });
+      V.open(`<div id="rg-root" class="rg">${view()}</div>`);
+    },
     set(path, value) { const [a, b] = path.split('.'); if (b) R[a][b] = value; else R[a] = value; R.error = ''; const box = document.getElementById('rg-error'); if (box) box.hidden = true; },
     refresh: paint,
     mode(m) { R.mode = m; if (m === 'adult' && !R.player.name && R.family.name) { R.player.name = R.family.name; R.player.phone = R.family.phone; } paint(); },

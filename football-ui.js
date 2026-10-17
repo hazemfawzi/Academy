@@ -22,7 +22,7 @@
     if (admin) SE.adminTools = id => clean(id, admin(id));
   }
   window.SportDescriptions = Object.assign(window.SportDescriptions || {}, { football: 'مدرسة الكرة بالاشتراك ومسار الاحتراف: فرق بسنة الميلاد، تقييم كل 8 أسابيع على 4 محاور، وخطة تطوير لكل لاعب.' });
-  window.SportExtraTools = Object.assign(window.SportExtraTools || {}, { football: [['المراحل السنية', 'فرق المسار والتقييمات المستحقة وخطط التطوير', "go('pathway')", true]] });
+  window.SportExtraTools = Object.assign(window.SportExtraTools || {}, { football: [['المراحل السنية', 'فرق المسار والتقييمات المستحقة وخطط التطوير', "go('pathway')", true], ['الكشافة والاختبارات', 'مرشحين واختبارات وترشيحات مدرسة الكرة', "go('scouting')", true]] });
 
   /* Four-corner radar: latest assessment filled, the one before as a dashed outline. */
   FU.radar = (now, prev, size = 220) => {
@@ -181,7 +181,7 @@
         const html = baseProgress(); if (ProgressUI.sport !== 'football') return html;
         const list = scoped().map(g => FC.squadSummary(db.state, g)), n = list.reduce((k, x) => k + x.players.length, 0), due = list.reduce((k, x) => k + x.due, 0);
         return html.replace('<small>المستويات والتقييمات</small>', '<small>مدرسة الكرة · المستويات</small>')
-          .replace('<div class="pg-kpis">', `<div class="fb-tracks"><div><b>${TRACK_ICON.school} مدرسة الكرة: المستويات</b><small>الصفحة دي للاعبين بالاشتراك: مستوى ومهارات وترقية.</small></div><button type="button" class="fb-track-link" onclick="go('pathway')"><b>${TRACK_ICON.pathway} مسار الاحتراف: ${n} لاعب</b><small>بيتقيموا على الأركان الأربعة كل 8 أسابيع${due ? ` · ${due} تقييم مستحق` : ''} ← المراحل السنية</small></button></div><div class="pg-kpis">`);
+          .replace('<div class="pg-kpis">', `<div class="fb-tracks"><div><b>${TRACK_ICON.school} مدرسة الكرة: المستويات</b><small>الصفحة دي للاعبين بالاشتراك: مستوى ومهارات وترقية. اللاعب المتميز؟ <a href="#" onclick="FootballUI.nominateForm();return false">رشّحه لاختبار المسار</a></small></div><button type="button" class="fb-track-link" onclick="go('pathway')"><b>${TRACK_ICON.pathway} مسار الاحتراف: ${n} لاعب</b><small>بيتقيموا على الأركان الأربعة كل 8 أسابيع${due ? ` · ${due} تقييم مستحق` : ''} ← المراحل السنية</small></button></div><div class="pg-kpis">`);
       };
     }
 
@@ -200,6 +200,7 @@
         <h4>🎯 فرق مسار الاحتراف</h4><div class="v-table"><table class="fb-report-table"><thead><tr><th>الفريق</th><th>لاعبين</th><th>متوسط التقييم</th><th>تقييم مستحق</th><th>أهداف تطوير</th><th>مباريات رسمية (فوز)</th><th>تحت حصة الدقايق</th><th>حمل عالي</th><th>مصابين</th><th>اختبار بدني آخر 90 يوم</th></tr></thead><tbody>
         ${rows.map(r => `<tr><td><button type="button" class="pg-name" onclick="FootballUI.openSquad('${r.x.group.id}')">${E(r.x.name)}</button></td>${cell(r.x.players.length)}${cell(r.x.corners.overall ?? '—')}${cell(r.x.due, r.x.due)}${cell(r.x.goals)}${cell(`${r.played} · فاز ${r.won}`)}${cell(r.under, r.under)}${cell(r.high, r.high)}${cell(r.hurt, r.hurt)}${cell(`${r.tested}/${r.x.players.length}`, r.tested < r.x.players.length)}</tr>`).join('') || '<tr><td colspan="10">مفيش فرق مسار.</td></tr>'}</tbody></table></div>
         <p class="py-help">التمويل: ${FC.FUNDING.map(f => `${f} ${all.filter(p => p.fb?.funding === f).length}`).join(' · ')}</p>
+        ${(() => { const f = FC.funnel(db.state, from); return `<h4>🔎 الكشافة والاختبارات</h4><div class="fb-tracks"><div><b>${f.total} مرشح · انضم ${f.stages.find(x => x.id === 'joined').now}</b><small>${f.stages.filter(x => !['joined', 'rejected'].includes(x.id)).map(x => `${E(x.name)} ${x.now}`).join(' · ')} · لم يُقبل ${f.stages.find(x => x.id === 'rejected').now}</small></div><button type="button" class="fb-track-link" onclick="go('scouting')"><b>نسبة الانضمام ${f.conversion ?? '—'}%</b><small>${f.sources.filter(x => x.n).map(x => `${E(x.source)} ${x.n}`).join(' · ')} ← الكشافة</small></button></div>`; })()}
         <h4>⚽ مدرسة الكرة</h4><div class="fb-tracks"><div><b>${db.state.groups.filter(g => g.sport === 'football' && !FC.isSquad(g)).length} مجموعات · ${school.length} لاعب</b><small>متوسط الحضور ${att.length ? Math.round(att.reduce((n, m) => n + m.attendance, 0) / att.length) + '%' : '—'}</small></div><div><b>المستويات</b><small>${levels.map(([l, n]) => `${E(l)} ${n}`).join(' · ') || '—'}</small></div></div></section>`;
     };
     const baseReports = PAGES.reports;
@@ -342,6 +343,84 @@
   FU.reviewForm = id => V.open(`<div class="ma-form fb-form"><h3>مراجعة خطة ${E(db.member(id).name)}</h3><label class="fb-check"><input type="checkbox" id="fb-r-parent" checked> المراجعة كانت مع ولي الأمر</label><label>اللي اتفقنا عليه<textarea id="fb-r-note" rows="3"></textarea></label><button type="button" class="sb-btn primary ax-btn" onclick="FootballUI.saveReview('${id}')">حفظ المراجعة</button></div>`);
   FU.saveReview = id => V.run(() => { db.update(st => FC.review(st, id, { withParent: document.getElementById('fb-r-parent').checked, note: document.getElementById('fb-r-note').value }, { by: group(db.member(id).group)?.coach || '' })); after(); toast('اتسجلت المراجعة'); });
 
+  /* =========================================================== scouting and trials */
+  const STAGE_COLOR = { spotted: '#8a9a91', invited: '#2f6f8f', trial: '#b8954f', offer: '#2d604c', joined: '#1f7a4d', rejected: '#a24b3c' };
+  const ACTION = { invited: 'دعوة لاختبار', trial: 'تسجيل نتيجة الاختبار', offer: 'عرض انضمام', joined: 'تسجيل في المسار', rejected: 'اعتذار' };
+  const ageOf = c => FC.uOf(Number(c.dob.slice(0, 4)));
+  const schoolPlayers = () => db.state.members.filter(m => { const g = group(m.group); return g?.sport === 'football' && !FC.isSquad(g); }).filter(m => !(db.state.fbScouting || []).some(c => c.memberId === m.id && !['joined', 'rejected'].includes(c.stage)));
+  FU.scoutCard = c => { const sq = group(c.squadId) || FC.squadFor(db.state, c.dob.slice(0, 4), c.branch);
+    return `<article class="fb-cand" style="--c:${STAGE_COLOR[c.stage]}"><button type="button" class="fb-cand-head" onclick="FootballUI.candidate('${c.id}')"><b>${E(c.name)}</b><small>تحت ${ageOf(c)} · ${E(FC.POSITIONS[c.position]?.name || '')} · ${E(c.foot)}</small></button>
+      <small class="fb-cand-src">${c.memberId ? '⚽ ' : ''}${E(c.source)}${c.club ? ' · ' + E(c.club) : ''}</small>
+      ${c.stage === 'invited' && c.trialAt ? `<small>📅 ${E(fmt(c.trialAt, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }))}${sq ? ' · مع ' + E(FC.squadName(sq.fb.birthYear)) : ''}</small>` : ''}
+      ${c.trial ? `<small>نتيجة الاختبار <b>${c.trial.avg}</b>/5 · ${KEYS.map(k => `${E(FC.CORNERS[k].name)} ${c.trial.scores[k]}`).join(' · ')}</small>` : ''}
+      ${c.offer ? `<small>العرض: ${E(c.offer.funding)}${c.offer.pct ? ' ' + c.offer.pct + '%' : ''}</small>` : ''}
+      <footer>${FC.NEXT_OF(c.stage).map(k => `<button type="button" class="sb-btn small ${k === 'rejected' ? '' : 'primary'}" onclick="FootballUI.moveForm('${c.id}','${k}')">${ACTION[k]}</button>`).join('')}</footer></article>`; };
+  FU.scoutForm = () => {
+    const pos = Object.entries(FC.POSITIONS), branches = [...new Set(FC.squads(db.state).map(g => g.branch))];
+    V.open(`<div class="ma-form fb-form"><h3>مرشح جديد للمسار</h3><p class="py-help">لاعب من بره الأكاديمية شافه كشاف أو اتقدم لاختبار. هيتعزم على تمرين مع فريق سنه ويتقيّم على الأركان الأربعة.</p>
+      <label>اسم اللاعب<input id="sc-name" placeholder="الاسم ثنائي على الأقل"></label><label>تاريخ الميلاد<input id="sc-dob" type="date"></label>
+      <label>المركز<select id="sc-pos">${pos.map(([k, p]) => `<option value="${k}">${E(p.name)}</option>`).join('')}</select></label>
+      <label>القدم<select id="sc-foot">${['يمين', 'شمال', 'الاتنين'].map(f => `<option>${f}</option>`).join('')}</select></label>
+      <label>المصدر<select id="sc-src">${FC.SCOUT_SOURCES.filter(x => x !== 'ترشيح من مدرسة الكرة').map(x => `<option>${x}</option>`).join('')}</select></label>
+      <label>النادي أو الأكاديمية الحالية<input id="sc-club" placeholder="اختياري"></label>
+      ${branches.length > 1 ? `<label>الفرع<select id="sc-branch">${branches.map(b => `<option>${E(b)}</option>`).join('')}</select></label>` : `<input type="hidden" id="sc-branch" value="${E(branches[0] || '')}">`}
+      <label>ولي الأمر<input id="sc-guardian"></label><label>موبايل ولي الأمر<input id="sc-phone" inputmode="tel" placeholder="01xxxxxxxxx"></label>
+      <label>ليه لفت النظر<textarea id="sc-note" rows="2" placeholder="مثلًا: سرعة كبيرة وتسديد بالقدمين"></textarea></label>
+      <button type="button" class="sb-btn primary ax-btn" onclick="FootballUI.saveScout()">إضافة للكشافة</button></div>`);
+  };
+  FU.saveScout = () => V.run(() => { const v = x => document.getElementById(x)?.value || ''; db.update(st => FC.addCandidate(st, { name: v('sc-name'), dob: v('sc-dob'), position: v('sc-pos'), foot: v('sc-foot'), source: v('sc-src'), club: v('sc-club'), branch: v('sc-branch'), guardian: v('sc-guardian'), phone: v('sc-phone'), note: v('sc-note') }, { by: 'الكشاف' })); after(); toast('اتضاف المرشح'); });
+  FU.nominateForm = (mid = '') => {
+    const list = schoolPlayers().filter(m => m.dob), pick = mid ? db.member(mid) : null;
+    V.open(`<div class="ma-form fb-form"><h3>ترشيح من مدرسة الكرة للمسار</h3><p class="py-help">لاعب موهوب في مجموعات المدرسة؟ رشّحه، وهيدخل اختبار مع فريق سنه زي أي مرشح. لو اتقبل بينتقل للفريق بملفه وتاريخه.</p>
+      ${pick ? `<input type="hidden" id="nm-mid" value="${pick.id}"><p><b>${E(pick.name)}</b> · ${E(group(pick.group)?.name || '')}</p>` : `<label>اللاعب<select id="nm-mid">${list.map(m => `<option value="${m.id}">${E(m.name)} · ${E(group(m.group)?.name || '')} · مواليد ${E(m.dob.slice(0, 4))}</option>`).join('')}</select></label>`}
+      <label>المركز اللي بيلعب فيه<select id="nm-pos">${Object.entries(FC.POSITIONS).map(([k, p]) => `<option value="${k}">${E(p.name)}</option>`).join('')}</select></label>
+      <label>القدم<select id="nm-foot">${['يمين', 'شمال', 'الاتنين'].map(f => `<option>${f}</option>`).join('')}</select></label>
+      <label>سبب الترشيح<textarea id="nm-note" rows="2" placeholder="مثلًا: أعلى مستوى في مجموعته وبيتطور بسرعة"></textarea></label>
+      <button type="button" class="sb-btn primary ax-btn" onclick="FootballUI.saveNominate()">ترشيح</button></div>`);
+  };
+  FU.saveNominate = () => V.run(() => { const v = x => document.getElementById(x)?.value || ''; if (!v('nm-mid')) throw Error('مفيش لاعبين مدرسة متاحين للترشيح'); const mid = v('nm-mid'); db.update(st => FC.nominate(st, mid, { position: v('nm-pos'), foot: v('nm-foot'), note: v('nm-note') }, { by: group(db.member(mid).group)?.coach || 'المدرب' })); after(); toast('اترشح للاختبار'); });
+  FU.moveForm = (cid, stage) => {
+    const c = FC.candidate(db.state, cid); if (!c) return;
+    if (stage === 'joined' && !c.memberId && window.Registration?.scout) return Registration.scout(cid);
+    const sq = FC.squadFor(db.state, c.dob.slice(0, 4), c.branch), when = new Date(Date.now() + 3 * 864e5); when.setHours(17, 0, 0, 0);
+    const local = d => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    const body = stage === 'invited' ? `<p class="py-help">الاختبار تمرين أو اتنين مع ${sq ? E(FC.squadName(sq.fb.birthYear)) : 'فريق سنه'}${sq?.coach ? ' (المدرب ' + E(sq.coach) + ')' : ''}.</p><label>ميعاد الاختبار<input id="mv-at" type="datetime-local" value="${local(when)}"></label>`
+      : stage === 'trial' ? `<p class="py-help">من 1 لـ 5 مقارنة بلاعبين الفريق اللي اتمرن معاهم.</p>${KEYS.map(k => `<div class="fb-rate"><span style="color:${FC.CORNERS[k].color}">${E(FC.CORNERS[k].name)}</span><span class="fb-seg" role="radiogroup" aria-label="${E(FC.CORNERS[k].name)}">${[1, 2, 3, 4, 5].map(v => `<label><input type="radio" name="mv-${k}" value="${v}" ${v === 3 ? 'checked' : ''}><span>${v}</span></label>`).join('')}</span></div>`).join('')}<label>عدد تمارين الاختبار<input id="mv-sessions" type="number" min="1" max="6" value="2"></label>`
+      : stage === 'offer' ? `<label>التمويل<select id="mv-funding" onchange="document.getElementById('mv-pct-f').hidden=this.value!=='منحة جزئية'">${FC.FUNDING.map(f => `<option>${f}</option>`).join('')}</select></label><label id="mv-pct-f" hidden>نسبة المنحة %<input id="mv-pct" type="number" min="10" max="90" step="5" value="50"></label>`
+      : stage === 'joined' ? `<p class="py-help">${E(c.name)} هينتقل من مجموعته في المدرسة لـ ${sq ? E(FC.squadName(sq.fb.birthYear)) : 'فريق سنه'} بتمويل ${E(c.offer?.funding || 'اشتراك')}.</p>` : '';
+    V.open(`<div class="ma-form fb-form"><h3>${ACTION[stage]} · ${E(c.name)}</h3>${body}<label>${stage === 'rejected' ? 'السبب (هيتبلغ لولي الأمر)' : 'ملاحظة'}<textarea id="mv-note" rows="2"></textarea></label>
+      <button type="button" class="sb-btn primary ax-btn" onclick="FootballUI.saveMove('${cid}','${stage}')">${ACTION[stage]}</button></div>`);
+  };
+  FU.saveMove = (cid, stage) => V.run(() => {
+    const v = x => document.getElementById(x)?.value || '', scores = Object.fromEntries(KEYS.map(k => [k, Number(document.querySelector(`[name="mv-${k}"]:checked`)?.value)]));
+    db.update(st => FC.move(st, cid, stage, { at: v('mv-at'), scores, sessions: v('mv-sessions'), funding: v('mv-funding'), pct: v('mv-pct'), note: v('mv-note') }, { by: 'الإدارة الفنية' }));
+    after(); toast({ invited: 'اتبعتت الدعوة', trial: 'اتسجلت النتيجة', offer: 'اتسجل العرض', joined: 'انضم للمسار', rejected: 'اتسجل القرار' }[stage]);
+  });
+  FU.candidate = cid => { const c = FC.candidate(db.state, cid); if (!c) return;
+    V.open(`<div class="ma-form fb-form"><h3>${E(c.name)}</h3><p class="py-help">مواليد ${E(c.dob)} · تحت ${ageOf(c)} · ${E(FC.POSITIONS[c.position]?.name || '')} · ${E(c.source)}${c.guardian ? ' · ولي الأمر ' + E(c.guardian) : ''}${c.phone ? ' ' + E(c.phone) : ''}</p>
+      ${c.trial ? bars(Object.fromEntries(KEYS.map(k => [k, c.trial.scores[k] * 20]))) : ''}
+      <ol class="fb-log">${c.log.map(l => `<li><b>${E(FC.SCOUT_STAGES[l.stage])}</b> <small>${E(short(l.at))}${l.by ? ' · ' + E(l.by) : ''}</small>${l.note ? `<p>${E(l.note)}</p>` : ''}</li>`).join('')}</ol>
+      <div class="fb-actions">${FC.NEXT_OF(c.stage).map(k => `<button type="button" class="sb-btn ${k === 'rejected' ? '' : 'primary'}" onclick="FootballUI.moveForm('${c.id}','${k}')">${ACTION[k]}</button>`).join('')}${c.memberId && c.stage === 'joined' ? `<button type="button" class="sb-btn" onclick="V.close();FootballUI.openPlayer('${c.memberId}')">ملف التطوير</button>` : ''}</div></div>`); };
+
+  if (typeof PAGES !== 'undefined') {
+    window.PAGE_TITLES = Object.assign(window.PAGE_TITLES || {}, { scouting: 'الكشافة والاختبارات' });
+    FU.scoutView = 'open';
+    PAGES.scouting = () => {
+      const all = FC.candidates(db.state), f = FC.funnel(db.state, new Date(FC.season().start, 7, 1)), open = ['spotted', 'invited', 'trial', 'offer'];
+      const soon = all.filter(c => c.stage === 'invited' && c.trialAt && new Date(c.trialAt) > new Date(Date.now() - 864e5)).sort((a, b) => new Date(a.trialAt) - new Date(b.trialAt));
+      const closed = all.filter(c => !open.includes(c.stage)), max = Math.max(1, ...f.stages.map(s => s.reached));
+      return `<div class="sb-page fb-page"><header class="sb-head"><div><small>مسار الاحتراف · موسم ${E(FC.season().name)}</small><h1>الكشافة والاختبارات</h1><p>كل لاعب جديد للمسار بيعدّي بنفس الطريق: رصد ← دعوة لاختبار مع فريق سنه ← تقييم على الأركان الأربعة ← عرض انضمام بتمويله ← تسجيل. ولاعبين مدرسة الكرة الموهوبين بيترشحوا من مدربينهم ويدخلوا نفس الطريق.</p></div>
+        <div class="fb-actions">${`<button type="button" class="sb-btn" onclick="FootballUI.nominateForm()">⚽ ترشيح من مدرسة الكرة</button><button type="button" class="sb-btn primary" onclick="FootballUI.scoutForm()">+ مرشح جديد</button>`}</div></header>
+        <section class="fb-card"><h3>قمع الموسم</h3><div class="fb-funnel">${f.stages.filter(s => s.id !== 'rejected').map(s => `<div><span>${E(s.name)}</span><i><em style="width:${s.reached / max * 100}%;background:${STAGE_COLOR[s.id]}"></em></i><b>${s.reached}</b></div>`).join('')}</div>
+          <p class="py-help">${f.total} مرشح الموسم ده · نسبة الانضمام ${f.conversion ?? '—'}% · لم يُقبل ${f.stages.find(s => s.id === 'rejected').now}. المصادر: ${f.sources.filter(s => s.n).map(s => `${E(s.source)} ${s.n}${s.joined ? ` (انضم ${s.joined})` : ''}`).join(' · ') || '—'}</p></section>
+        ${soon.length ? `<section class="fb-card fb-next"><h3>اختبارات جاية</h3>${soon.map(c => `<button type="button" class="fb-next-row" onclick="FootballUI.candidate('${c.id}')"><b>${E(c.name)}</b><span>تحت ${ageOf(c)} · ${E(FC.POSITIONS[c.position]?.name || '')}</span><small>${E(fmt(c.trialAt, { weekday: 'long', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }))}</small></button>`).join('')}</section>` : ''}
+        <nav class="tp-tabs fb-tabs">${[['open', `جاري (${all.length - closed.length})`], ['closed', `منتهي (${closed.length})`]].map(([k, l]) => `<button type="button" class="${FU.scoutView === k ? 'selected' : ''}" onclick="FootballUI.scoutView='${k}';render()">${l}</button>`).join('')}</nav>
+        ${FU.scoutView === 'closed' ? `<div class="fb-board fb-board-2">${['joined', 'rejected'].map(k => `<section><h4 style="color:${STAGE_COLOR[k]}">${FC.SCOUT_STAGES[k]} <small>${closed.filter(c => c.stage === k).length}</small></h4>${closed.filter(c => c.stage === k).map(FU.scoutCard).join('') || '<p class="fb-empty">—</p>'}</section>`).join('')}</div>`
+          : `<div class="fb-board">${open.map(k => `<section><h4 style="color:${STAGE_COLOR[k]}">${FC.SCOUT_STAGES[k]} <small>${all.filter(c => c.stage === k).length}</small></h4>${all.filter(c => c.stage === k).map(FU.scoutCard).join('') || '<p class="fb-empty">مفيش</p>'}</section>`).join('')}</div>`}</div>`;
+    };
+    PAGES.scouting_after = () => {};
+  }
+
   /* =========================================================== apps */
   if (typeof APPS === 'undefined' || !APPS.coach) return;
   const icon = (n, s = 20) => typeof ic === 'function' ? ic(n, s) : '';
@@ -373,7 +452,17 @@
         <div class="ax-section"><h3>البدني والنمو</h3></div>${FU.growthCard(m, FC.playersOf(db.state, m.group)).replace('<section class="fb-card', '<section class="ax-card fb-card')}
         ${plan.goals.some(x => x.status === 'achieved') ? `<div class="ax-section"><h3>اتحقق 🏅</h3></div>${plan.goals.filter(x => x.status === 'achieved').map(x => `<div class="ax-card fb-done">✓ ${E(x.text)}</div>`).join('')}` : ''}</div></div>`;
   };
-  APPS.member.sub.fbidp = 'home'; APPS.coach.sub.fbdev = 'home';
+  /* Coach: nominate talented football school players for a pathway trial. */
+  APPS.coach.F.fbnom = () => {
+    const AA = window.AcademyApps, me = AA.scope().groups[0]?.coach, mine = db.state.groups.filter(g => g.sport === 'football' && !FC.isSquad(g) && (!me || g.coach === me)), gids = new Set((mine.length ? mine : db.state.groups.filter(g => g.sport === 'football' && !FC.isSquad(g))).map(g => g.id));
+    const players = db.state.members.filter(m => gids.has(m.group)), noms = (db.state.fbScouting || []).filter(c => c.source === 'ترشيح من مدرسة الكرة' && (!me || c.by === me || gids.has(db.state.members.find(m => m.id === c.memberId)?.group)));
+    const open = id => (db.state.fbScouting || []).find(c => c.memberId === id && !['joined', 'rejected'].includes(c.stage));
+    return `<div class="ax fb-app"><header class="ax-top"><div class="ax-top-row">${back('home')}<div style="flex:1"><small>مدرسة الكرة ← مسار الاحتراف</small><h2>ترشيح للمسار</h2></div></div></header>
+      <div class="ax-body"><p class="ck-hint">لاعب موهوب في مجموعتك؟ رشّحه، وهيتعزم على اختبار مع فريق سنه في المسار.</p>
+      ${noms.length ? `<div class="ax-section"><h3>ترشيحاتي</h3></div>${noms.map(c => `<div class="ax-card fb-app-row">${avatar(c.name, 38)}<div class="fb-app-main"><b>${E(c.name)}</b><small>${E(FC.SCOUT_STAGES[c.stage])}${c.trialAt && c.stage === 'invited' ? ' · ' + E(short(c.trialAt)) : ''}</small></div></div>`).join('')}` : ''}
+      <div class="ax-section"><h3>لاعيبة مجموعاتي</h3></div>${players.map(m => { const c = open(m.id); return `<div class="ax-card fb-app-row">${avatar(m.name, 38)}<div class="fb-app-main"><b>${E(m.name)}</b><small>${E(group(m.group)?.name || '')}${m.dob ? ' · مواليد ' + E(m.dob.slice(0, 4)) : ''}</small></div>${c ? `<span class="sa-chip">${E(FC.SCOUT_STAGES[c.stage])}</span>` : m.dob ? `<button type="button" class="sb-btn small" onclick="FootballUI.nominateForm('${m.id}')">رشّح</button>` : ''}</div>`; }).join('') || '<p class="ck-hint">مفيش لاعيبة مدرسة في مجموعاتك.</p>'}</div></div>`;
+  };
+  APPS.member.sub.fbidp = 'home'; APPS.coach.sub.fbdev = 'home'; APPS.coach.sub.fbnom = 'home';
   const baseProgress = APPS.member.F.progress;
   APPS.member.F.progress = () => { const AA = window.AcademyApps, m = AA?.viewer ? AA.viewer() : db.member('m0'); return FC.isPathway(db.state, m) ? APPS.member.F.fbidp() : baseProgress(); };
 })();

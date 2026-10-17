@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (!window.V || !window.SportEngine) return;
-  const db = V.db, VERSION = 11;
+  const db = V.db, VERSION = 12;
   if ((db.state.sportDemoVersion || 0) >= VERSION) return;
   const firstRun = (db.state.sportDemoVersion || 0) < 1;
 
@@ -356,7 +356,7 @@
     const FC = window.FootballCore, H = t => hash('ph' + t), r2 = v => Math.round(v * 100) / 100, r1 = v => Math.round(v * 10) / 10;
     const meanH = a => a < 9 ? 128 + (a - 8) * 5 : a < 12 ? 133 + (a - 9) * 5.2 : a < 15 ? 148.6 + (a - 12) * 6.6 : Math.min(176, 168.4 + (a - 15) * 2.8);
     s.fbTests = s.fbTests || [];
-    if (s.fbTests.length) { s.sportDemoVersion = VERSION; return; }
+    if (s.fbTests.length) { s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 10); return; }
     s.members.filter(m => FC.isPathway(s, m) && m.dob).forEach(m => {
       const h = H(m.id), talent = ((h % 9) - 4) / 10, father = 168 + h % 17, mother = 154 + (h >>> 4) % 15;
       m.fb.parents = m.fb.parents || { father, mother };
@@ -375,7 +375,7 @@
      line-ups and minutes, five weeks of session effort, and a few injuries. */
   if ((db.state.sportDemoVersion || 0) < 11 && window.FootballCore) V.run(() => db.update(s => {
     const FC = window.FootballCore, H = t => hash('mt' + t);
-    if ((s.fbMatches || []).length) { s.sportDemoVersion = VERSION; return; }
+    if ((s.fbMatches || []).length) { s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 11); return; }
     const OPP = ['أكاديمية الشروق', 'نادي النصر الرياضي', 'أكاديمية النجوم', 'نادي الصفوة', 'أكاديمية المستقبل', 'نادي الرواد', 'أكاديمية الأبطال', 'نادي الجزيرة الرياضي'];
     s.fbMatches = []; s.fbLoad = []; s.fbInjuries = [];
     FC.squads(s).forEach((g, gi) => {
@@ -408,6 +408,33 @@
       });
       const hurt = players.filter(p => H(p.id) % 11 === 5).slice(0, 1);
       hurt.forEach((p, i) => s.fbInjuries.push({ id: `fbi-${p.id}`, memberId: p.id, at: iso(daysFrom(-9 - gi)), part: ['الكاحل الشمال', 'العضلة الخلفية', 'الركبة اليمين'][gi % 3], kind: ['التواء درجة أولى', 'شد عضلي', 'التهاب أوتار (أوسجود)'][gi % 3], expected: iso(daysFrom(6 + gi)).slice(0, 10), status: gi % 2 ? 'rehab' : 'active', note: '' }));
+    });
+    s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 11);
+  }));
+
+  /* Version 12: scouting — candidates spotted, invited, on trial, offered and decided, and
+     two football school players nominated by their coaches. */
+  if ((db.state.sportDemoVersion || 0) < 12 && window.FootballCore) V.run(() => db.update(s => {
+    const FC = window.FootballCore;
+    if ((s.fbScouting || []).length) { s.sportDemoVersion = VERSION; return; }
+    s.fbScouting = [];
+    const y = FC.season(now).end, at = d => ({ now: daysFrom(d) }), branch = FC.squads(s)[0]?.branch || '';
+    const add = (d, input, steps) => { const c = FC.addCandidate(s, { branch, phone: '010' + String(10000000 + hash(input.name) % 89999999).padStart(8, '0'), ...input }, { ...at(d), id: 'fbc-' + hash(input.name).toString(36), by: 'الكشاف' }); steps.forEach(([k, v, dd]) => FC.move(s, c.id, k, v, { ...at(dd), by: 'الإدارة الفنية' })); return c; };
+    const trialAt = d => { const t = daysFrom(d); t.setHours(17, 0, 0, 0); return t.toISOString(); };
+    add(-40, { name: 'آدم شريف', dob: `${y - 12}-02-11`, position: 'ST', source: 'كشاف', club: 'مركز شباب الحي', guardian: 'شريف سامح', note: 'بيسجل كتير في دوري المدارس' }, [['invited', { at: trialAt(-30) }, -35], ['trial', { scores: { technical: 4, tactical: 4, physical: 5, psychosocial: 4 }, sessions: 2 }, -28], ['offer', { funding: 'منحة جزئية', pct: 50 }, -25], ['joined', {}, -20]]);
+    add(-30, { name: 'مالك حسام', dob: `${y - 14}-09-03`, position: 'CB', source: 'يوم اختبار مفتوح', guardian: 'حسام علي', note: 'طويل وقوي في الكرات العالية' }, [['invited', { at: trialAt(-21) }, -27], ['trial', { scores: { technical: 2, tactical: 3, physical: 4, psychosocial: 3 }, sessions: 2 }, -20], ['rejected', { note: 'المستوى الفني محتاج شغل؛ ننصح بمدرسة الكرة سنة ونعيد التقييم' }, -18]]);
+    add(-12, { name: 'عمر الشناوي', dob: `${y - 10}-05-20`, position: 'GK', source: 'توصية مدرب', club: 'أكاديمية النجوم', guardian: 'أحمد الشناوي', note: 'رد فعل سريع وشجاع' }, [['invited', { at: trialAt(-5) }, -10], ['trial', { scores: { technical: 4, tactical: 3, physical: 4, psychosocial: 5 }, sessions: 2 }, -3], ['offer', { funding: 'منحة كاملة' }, -1]]);
+    add(-8, { name: 'زين ياسر', dob: `${y - 16}-01-15`, position: 'W', source: 'كشاف', club: 'نادي الرواد', guardian: 'ياسر كمال', note: 'سرعة عالية في المساحات' }, [['invited', { at: trialAt(-2) }, -6], ['trial', { scores: { technical: 4, tactical: 3, physical: 5, psychosocial: 3 }, sessions: 1 }, -1]]);
+    add(-6, { name: 'يحيى منصور', dob: `${y - 12}-10-28`, position: 'CM', source: 'تقديم ولي أمر', guardian: 'منصور فتحي', note: 'مواليد آخر السنة، ذكي في التمرير' }, [['invited', { at: trialAt(3) }, -4]]);
+    add(-3, { name: 'سليم عادل', dob: `${y - 14}-04-07`, position: 'AM', source: 'تقديم ولي أمر', guardian: 'عادل رمزي', note: 'لاعب في نادي الحي' }, [['invited', { at: trialAt(5) }, -2]]);
+    add(-2, { name: 'مازن رفعت', dob: `${y - 11}-07-30`, position: 'FB', source: 'كشاف', club: 'دوري المدارس', guardian: 'رفعت حسن', note: 'شافه الكشاف في بطولة المدارس' }, []);
+    /* School players nominated by their coaches (they need a birth date). */
+    const school = s.members.filter(m => { const g = s.groups.find(x => x.id === m.group); return g?.sport === 'football' && !FC.isSquad(g); });
+    const young = m => m.dob && FC.uOf(Number(m.dob.slice(0, 4)), now) >= 8 && FC.uOf(Number(m.dob.slice(0, 4)), now) <= 17;
+    school.filter(young).concat(school.filter(m => !young(m))).slice(0, 2).forEach((m, i) => {
+      if (!young(m)) m.dob = `${y - 11 - i}-0${3 + i}-12`;
+      const c = FC.nominate(s, m.id, { position: i ? 'DM' : 'W', note: i ? 'أهدى لاعب في المجموعة وبيقرأ اللعب' : 'أسرع لاعب في مجموعته ومهاري' }, { now: daysFrom(-9 + i * 4), id: 'fbc-nom-' + i, by: s.groups.find(x => x.id === m.group)?.coach || 'المدرب' });
+      if (!i) FC.move(s, c.id, 'invited', { at: trialAt(2) }, { now: daysFrom(-7), by: 'الإدارة الفنية' });
     });
     s.sportDemoVersion = VERSION;
   }));
