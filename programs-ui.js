@@ -42,7 +42,7 @@
     const branches = [...new Set(db.state.groups.map(x => x.branch).filter(Boolean))];
     const sportId = g?.sport || (U.sport !== 'all' ? U.sport : SE.list().find(d => d.on !== false)?.id);
     const d = SE.get(sportId);
-    const coaches = [...new Set(db.state.groups.map(x => x.coach).filter(Boolean))];
+    const coaches = [...new Set(db.state.groups.filter(x => !window.Edition?.sport || x.sport === Edition.sport).map(x => x.coach).filter(Boolean))];
     V.open(`<div class="ac-form pr-form"><h2>${g ? 'تعديل جدول ' + E(g.name) : 'جروب جديد'}</h2>
       <div class="rg-row"><label class="rg-field"><span>اسم الجروب</span><input id="pr-name" value="${E(g?.name || '')}" placeholder="مثال: سباحة أطفال · مستوى 1"></label>
       <label class="rg-field"><span>الرياضة</span><select id="pr-sport" ${g ? 'disabled' : ''} onchange="ProgramsUI.sportChanged()">${SE.list().filter(x => x.on !== false || x.id === sportId).map(x => `<option value="${x.id}" ${x.id === sportId ? 'selected' : ''}>${E(x.name)}</option>`).join('')}</select></label></div>
@@ -50,7 +50,7 @@
       <label class="rg-field"><span>السعة</span><input id="pr-cap" type="number" min="1" max="100" value="${g?.capacity || d?.capacity || 16}"></label></div>
       <span class="sb-label">أيام التدريب</span><div class="pr-days">${S.ORDER.map(n => `<label><input type="checkbox" value="${n}" ${g?.days?.includes(n) ? 'checked' : ''}><span>${S.DAYS[n]}</span></label>`).join('')}</div>
       <div class="rg-row"><label class="rg-field"><span>الميعاد</span><input id="pr-time" type="time" value="${E(g?.time || '17:00')}"></label>
-      <label class="rg-field"><span>${E(d?.terms.coach || 'المدرب')}</span><input id="pr-coach" list="pr-coaches" value="${E(g?.coach || '')}"><datalist id="pr-coaches">${coaches.map(c => `<option value="${E(c)}">`).join('')}</datalist></label>
+      <label class="rg-field"><span>${E(d?.terms.coach || 'المدرب')}</span><select id="pr-coach" onchange="document.getElementById('pr-coach-new').hidden=this.value!=='__new'"><option value="">اختار المدرب المسؤول</option>${coaches.map(c => `<option ${g?.coach === c ? 'selected' : ''}>${E(c)}</option>`).join('')}<option value="__new">+ مدرب جديد…</option></select><input id="pr-coach-new" hidden placeholder="اسم المدرب الجديد"><small class="rg-hint">كل مجموعة لازم يكون ليها مدرب مسؤول.</small></label>
       <label class="rg-field"><span>مكان التدريب</span><select id="pr-resource">${(d?.resources || []).map(r => `<option ${r.name === g?.resource ? 'selected' : ''}>${E(r.name)}</option>`).join('')}${g?.resource && !(d?.resources || []).some(r => r.name === g.resource) ? `<option selected>${E(g.resource)}</option>` : ''}</select></label></div>
       <div class="rg-row"><label class="rg-field"><span>من سن</span><input id="pr-age-min" type="number" min="2" max="90" value="${g?.ageMin ?? 6}"></label><label class="rg-field"><span>إلى سن</span><input id="pr-age-max" type="number" min="2" max="90" value="${g?.ageMax ?? 12}"></label></div>
       <p class="rg-note">${g ? 'الحصص القادمة اللي اتولدت تلقائيًا ولسه مفيهاش حضور بتتعدل للميعاد الجديد.' : 'بعد الحفظ، الحصص بتتولد لأسبوعين قدام.'}</p>
@@ -63,7 +63,7 @@
       const name = val('pr-name').trim(), capacity = Number(val('pr-cap'));
       if (!name) throw Error('اكتب اسم الجروب');
       if (!Number.isInteger(capacity) || capacity < 1 || capacity > 100) throw Error('السعة من 1 إلى 100');
-      const schedule = S.validateSchedule({ days: [...document.querySelectorAll('.pr-days input:checked')].map(x => Number(x.value)), time: val('pr-time'), coach: val('pr-coach'), resource: val('pr-resource'), ageMin: val('pr-age-min'), ageMax: val('pr-age-max') });
+      const schedule = S.validateSchedule({ days: [...document.querySelectorAll('.pr-days input:checked')].map(x => Number(x.value)), time: val('pr-time'), coach: val('pr-coach') === '__new' ? val('pr-coach-new') : val('pr-coach'), resource: val('pr-resource'), ageMin: val('pr-age-min'), ageMax: val('pr-age-max') });
       db.update(st => {
         if (id) {
           const g = st.groups.find(x => x.id === id);

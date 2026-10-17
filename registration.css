@@ -71,3 +71,22 @@
 .rg-inline-num{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:13px}
 .rg-inline-num input{width:70px;text-align:center}
 .rg-row-top .rg-seg span{min-height:46px}
+/* photo and nationality */
+.rg-photo-row{display:flex;gap:14px;align-items:flex-start}
+.rg-photo{position:relative;width:76px;height:76px;flex:none;border-radius:50%;background:#eef3ef;border:2px dashed #b9cbbf;display:grid;place-items:center;cursor:pointer;overflow:hidden;font-size:26px}
+.rg-photo img{width:100%;height:100%;object-fit:cover}
+.rg-photo input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.rg-photo-main{flex:1;min-width:0}
+.rg-portrait{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+/* add players: three ways */
+#modal:has(.rg-add){width:min(880px,94vw)}
+#modal:has(.fb-report-table){width:min(760px,94vw)}
+.rg-add h3{margin:0 0 6px}
+.rg-add-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+.rg-add-card{display:grid;justify-items:center;text-align:center;gap:10px;padding:18px 14px;border:1px solid var(--t-line,#dfe7e1);border-radius:16px;background:#fbfcfb}
+.rg-add-card b{font-size:17px;color:#1f4637}
+.rg-add-card span{width:72px;height:72px;border-radius:50%;background:#e8f1ec;color:#2d604c;display:grid;place-items:center}
+.rg-add-card p{margin:0;font-size:13px;color:var(--t-muted,#829087);line-height:1.7;min-height:44px}
+@media(max-width:640px){.rg-add-grid{grid-template-columns:1fr}.rg-add-card{grid-template-columns:auto 1fr;justify-items:start;text-align:start}.rg-add-card span{grid-row:span 2;width:56px;height:56px}.rg-add-card p{min-height:0}.rg-add-card button{grid-column:1/-1;width:100%}}
+.rg-apply-qr{display:grid;place-items:center}
+a.rg-btn{text-decoration:none;display:inline-flex;align-items:center}

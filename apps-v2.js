@@ -104,7 +104,7 @@
       ${note ? `<div class="ax-card ax-note">${avatar(note.by || g?.coach || 'المدرب', 34)}<div><small>${E(note.by || g?.coach || 'المدرب')}</small><p>${E(note.text)}</p></div></div>` : ''}
       ${K.section('الخدمات')}${K.grid([
         { icon: 'star', label: 'البطاقة', action: `PlayerCard.open('${m.id}')`, tone: 'gold' }, { icon: 'chart', label: 'التقدم', action: "go('progress')" }, { icon: 'cal', label: 'الحصص', action: "go('sessions')" }, { icon: 'wallet', label: 'الاشتراك', action: "go('account')" }, { icon: 'bot', label: 'المساعد', action: "go('assistant')" },
-        { icon: 'chat', label: 'الرسائل', action: "go('msgs')" }, { icon: 'inbox', label: 'طلباتي', action: "go('myrequests')" }, { icon: 'more', label: 'المزيد', action: "go('more')" }])}`);
+        { icon: 'chat', label: 'المحادثات', action: "go('chats')" }, { icon: 'inbox', label: 'طلباتي', action: "go('myrequests')" }, { icon: 'more', label: 'المزيد', action: "go('more')" }])}`);
   };
 
   APPS.member.F.sessions = () => {
@@ -139,7 +139,7 @@
   };
 
   APPS.member.F.more = () => page(`<header class="ax-top"><div class="ax-top-row"><div><small>${E(viewer().name)}</small><h2>المزيد</h2></div></div></header>`,
-    K.grid([['inbox', 'طلباتي', 'myrequests'], ['chat', 'ملاحظات المدرب', 'feedback'], ['send', 'الرسائل', 'msgs'], ['users', 'المجتمع', 'community'], ['food', 'التغذية', 'food'], ['star', 'تقييم الحصة', 'rate'], ['search', 'المفقودات', 'lost'], ['cart', 'قائمة المشتريات', 'shop'], ['ball', 'الرياضات', 'sports'], ['more', 'خدمات إضافية', 'legacyservices']].filter(([, , r]) => APPS.member.F[r]).map(([i, l, r]) => ({ icon: i, label: l, action: `go('${r}')` }))));
+    K.grid([['inbox', 'طلباتي', 'myrequests'], ['chat', 'ملاحظات المدرب', 'feedback'], ['send', 'المحادثات', 'chats'], ['inbox', 'الدعم', 'support'], ['users', 'المجتمع', 'community'], ['food', 'التغذية', 'food'], ['star', 'تقييم الحصة', 'rate'], ['search', 'المفقودات', 'lost'], ['cart', 'قائمة المشتريات', 'shop'], ['ball', 'الرياضات', 'sports'], ['more', 'خدمات إضافية', 'legacyservices']].filter(([, , r]) => APPS.member.F[r]).map(([i, l, r]) => ({ icon: i, label: l, action: `go('${r}')` }))));
 
   /* =========================================================== coach */
   const scopeSessions = () => AA.scope().sessions;
@@ -153,7 +153,7 @@
     const health = roster.filter(m => m.medical), unpaid = roster.filter(m => !(m.remaining > 0 && new Date(m.end) >= new Date()));
     const eligible = a.members.filter(m => m.sportLevel && P.eligibility(m)?.eligible).length;
     const tools = SE.tools(AA.sport);
-    return page(`<header class="ax-top"><div class="ax-top-row"><div><small>مساحة التدريب</small><h2>${E(coach)}</h2></div><span class="ax-top-actions">${window.Payroll ? `<button type="button" class="ax-icon-btn" aria-label="مستحقاتي" onclick="go('earnings')">${icon('wallet', 20)}</button>` : ''}<button type="button" class="ax-icon-btn" aria-label="تصفية" onclick="AppKit.filters()">${icon('list', 20)}</button></span></div>${sportChips()}</header>`,
+    return page(`<header class="ax-top"><div class="ax-top-row"><div><small>مساحة التدريب</small><h2>${E(coach)}</h2></div><span class="ax-top-actions">${window.Desk ? `<button type="button" class="ax-icon-btn dk-top-btn" aria-label="المحادثات" onclick="go('chats')">${icon('chat', 20)}${Desk.unreadFor('coach:' + (a.groups[0]?.coach || '')) ? `<em>${Desk.unreadFor('coach:' + (a.groups[0]?.coach || ''))}</em>` : ''}</button>` : ''}${window.Payroll ? `<button type="button" class="ax-icon-btn" aria-label="مستحقاتي" onclick="go('earnings')">${icon('wallet', 20)}</button>` : ''}<button type="button" class="ax-icon-btn" aria-label="تصفية" onclick="AppKit.filters()">${icon('list', 20)}</button></span></div>${sportChips()}</header>`,
       `${next ? `<section class="ax-hero" ${sportTone(d)}><small>${live ? 'الحصة الآن' : 'الحصة القادمة · ' + E(K.until(next.start))}</small><h3>${E(g?.name)}</h3><p>${E(fmt(next.start, { weekday: 'long', hour: 'numeric', minute: '2-digit' }))} · ${E(next.resource || g?.resource || '')}</p>
         <div class="ax-hero-row">${K.stack(roster.map(m => m.name))}<span>${live ? Object.values(next.present).filter(Boolean).length + ' حاضر' : roster.filter(m => next.rsvp[m.id] === 'confirmed').length + ' أكد'} من ${roster.length}</span></div>
         <div class="ax-hero-actions"><button type="button" class="ax-btn light" onclick="AcademyApps.sessionId='${next.id}';go('attend')">${icon('check', 18)} ${live ? 'سجّل الحضور' : 'كشف الحضور'}</button>${window.PlayerCard ? `<button type="button" class="ax-btn ghost" onclick="PlayerCard.rateSession('${next.id}')">${icon('star', 18)} تقييم الحصة</button>` : ''}${window.Checkin ? `<button type="button" class="ax-btn ghost" onclick="go('scan')">${icon('qr', 18)} مسح الأكواد</button>` : ''}${window.Training ? `<button type="button" class="ax-btn ghost" onclick="Training.sheet('${next.id}')">${icon('list', 18)} خطة الحصة</button>` : ''}</div></section>` : K.empty('لا توجد حصص قادمة', 'الحصص بتتولد من جدول الجروب.')}
@@ -271,7 +271,7 @@
       ${K.section('آخر الإيصالات')}${a.transactions.slice().sort((x, y) => new Date(y.at) - new Date(x.at)).slice(0, 5).map(t => K.row({ name: db.member(t.memberId).name, title: db.member(t.memberId).name, sub: `${money(t.amount)} · ${E(t.method)} · ${E(fmt(t.at, { day: 'numeric', month: 'short' }))}`, trailing: icon('chev', 18), action: `V.receipt('${t.id}')` })).join('')}`);
   };
 
-  APPS.manager.F.gmore = () => page(staffTop('المزيد', 'خدمات الفرع'), K.grid([['users', 'اللاعبون', 'members'], ['plus', 'تسجيل لاعب', 'newm'], ['wallet', 'التحصيل', 'collect'], ['inbox', 'الطلبات', 'requests'], ['chat', 'الرسائل', 'gchats'], ['list', 'المتابعات', 'followups'], ['users', 'العملاء المحتملون', 'leads'], ['clock', 'قائمة الانتظار', 'waitlist'], ['box', 'الوردية', 'shifts'], ['search', 'المفقودات', 'glost'], ['users', 'مجتمع النادي', 'community']].filter(([, , r]) => APPS.manager.F[r]).map(([i, l, r]) => ({ icon: i, label: l, action: `go('${r}')` }))));
+  APPS.manager.F.gmore = () => page(staffTop('المزيد', 'خدمات الفرع'), K.grid([['chat', 'المحادثات', 'chats'], ['inbox', 'الدعم', 'support'], ['users', 'اللاعبون', 'members'], ['plus', 'تسجيل لاعب', 'newm'], ['wallet', 'التحصيل', 'collect'], ['inbox', 'الطلبات', 'requests'], ['chat', 'الرسائل', 'gchats'], ['list', 'المتابعات', 'followups'], ['users', 'العملاء المحتملون', 'leads'], ['clock', 'قائمة الانتظار', 'waitlist'], ['box', 'الوردية', 'shifts'], ['search', 'المفقودات', 'glost'], ['users', 'مجتمع النادي', 'community']].filter(([, , r]) => APPS.manager.F[r]).map(([i, l, r]) => ({ icon: i, label: l, action: `go('${r}')` }))));
 
   /* Bottom tabs: the sport switch lives in the header now. */
   const configure = AA.configure.bind(AA);

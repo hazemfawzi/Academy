@@ -332,3 +332,31 @@ test('football scouting: candidates, trial scores, offers, school nominations an
   assert.equal(f.stages.find(s => s.id === 'offer').reached, 2);
   assert.equal(f.conversion, 50);
 });
+
+test('internal chat: group members, direct chats, unread counts and support tickets', () => {
+  const D = require('./desk-core.js');
+  const now = new Date('2026-10-17T12:00:00Z');
+  const st = { groups: [{ id: 'A', coach: 'كابتن محمود' }, { id: 'B', coach: 'كابتن رامي' }], members: [{ id: 'm1', group: 'A' }, { id: 'm2', group: 'A' }, { id: 'm3', group: 'B' }] };
+  const g = D.groupThread(st, 'A', { now });
+  assert.deepEqual(D.participants(st, g), ['admin', 'coach:كابتن محمود', 'member:m1', 'member:m2']);
+  D.send(st, g.id, 'coach:كابتن محمود', 'تمرين بكرة 5 العصر', { now });
+  assert.throws(() => D.send(st, g.id, 'member:m3', 'أنا مش في المجموعة'), /أعضاء/);
+  assert.throws(() => D.send(st, g.id, 'member:m1', '   '), /اكتب/);
+  assert.equal(D.unread(st, g, 'member:m1'), 1);
+  D.markRead(st, g.id, 'member:m1', { now: new Date(now.getTime() + 1000) });
+  assert.equal(D.unread(st, g, 'member:m1'), 0);
+  const d = D.directThread(st, 'member:m3', 'admin', { now });
+  assert.equal(D.directThread(st, 'admin', 'member:m3').id, d.id, 'the same pair reuses one chat');
+  D.send(st, d.id, 'member:m3', 'عايز أغيّر الميعاد', { now });
+  assert.equal(D.threadsFor(st, 'member:m3').length, 2, 'a player sees the group chat and own direct chat');
+  assert.ok(D.threadsFor(st, 'coach:كابتن رامي').some(t => t.groupId === 'B'));
+  assert.ok(!D.threadsFor(st, 'coach:كابتن رامي').some(t => t.id === d.id), 'coaches do not read other people\'s direct chats');
+  assert.throws(() => D.openTicket(st, { from: 'member:m1', subject: 'مشكلة دفع', body: 'x', category: 'billing' }), /سطر/);
+  const t = D.openTicket(st, { from: 'member:m1', subject: 'الدفع مش ظاهر', body: 'حولت إنستاباي ومش ظاهر في التطبيق', category: 'billing', priority: 'high' }, { now });
+  assert.equal(t.no, 1001);
+  D.replyTicket(st, t.id, 'admin', 'بنراجع التحويل', { now });
+  assert.equal(t.status, 'progress', 'an office reply moves a new ticket to in progress');
+  D.setTicket(st, t.id, { status: 'closed' });
+  assert.throws(() => D.replyTicket(st, t.id, 'member:m1', 'تمام'), /مقفول/);
+  assert.equal(D.ticketsFor(st, 'member:m2').length, 0);
+});
