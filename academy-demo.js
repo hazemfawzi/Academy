@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (!window.V || !window.SportEngine) return;
-  const db = V.db, VERSION = 14;
+  const db = V.db, VERSION = 15;
   if ((db.state.sportDemoVersion || 0) >= VERSION) return;
   const firstRun = (db.state.sportDemoVersion || 0) < 1;
 
@@ -467,7 +467,7 @@
      players, a few direct chats with the office, and tickets in every state. */
   if ((db.state.sportDemoVersion || 0) < 14 && window.DeskCore) V.run(() => db.update(s => {
     const D = window.DeskCore, FC = window.FootballCore;
-    if ((s.chats || []).some(t => t.messages.length) || (s.tickets || []).length) { s.sportDemoVersion = VERSION; return; }
+    if ((s.chats || []).some(t => t.messages.length) || (s.tickets || []).length) { s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 14); return; }
     const ago = (d, h = 0) => ({ now: new Date(now.getTime() - d * dayMs - h * 3600000) });
     const say = (tid, from, text, d, h) => D.send(s, tid, from, text, { ...ago(d, h), id: 'msg-' + hash(tid + text).toString(36) });
     const school = s.groups.find(g => g.sport === 'football' && !(FC && FC.isSquad(g)) && s.members.some(m => m.group === g.id));
@@ -496,6 +496,21 @@
     T.forEach(([i, cat, pr, subj, body, st, d], k) => { const m = players[i * 3 % Math.max(1, players.length)]; if (!m) return; const t = D.openTicket(s, { from: 'member:' + m.id, subject: subj, body, category: cat, priority: pr }, { ...ago(d + 0.5), id: 'tk-demo-' + k });
       if (st !== 'open') { D.replyTicket(s, t.id, 'admin', st === 'closed' ? 'الأهداف بتتقاس بالمقياس المكتوب جنب كل هدف، والمدرب بيحدّث التقدم كل أسبوعين. لو محتاج تفاصيل كلّم المدرب في الشات.' : 'تمام، فيه مكان في مجموعة المغرب. هنأكدلك النقل النهارده.', ago(d)); D.setTicket(s, t.id, { status: st, assignee: st === 'closed' ? 'الإدارة' : 'الاستقبال' }, ago(d)); } });
     if (coachName) D.openTicket(s, { from: 'coach:' + coachName, subject: 'الملعب الخماسي 2 محتاج صيانة', body: 'الشبكة مقطوعة والأرضية فيها حفرة جنب المرمى.', category: 'other', priority: 'normal' }, { ...ago(1), id: 'tk-demo-coach' });
+    s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 14);
+  }));
+
+  /* Version 15: the coach's lab — skill ratings for one school group (two rounds) and two
+     saved tactical boards. */
+  if ((db.state.sportDemoVersion || 0) < 15 && window.FootballLab) V.run(() => db.update(s => {
+    const L = window.FootballLab, FC = window.FootballCore, S = L.setup(s);
+    if ((s.fbBoards || []).length) { s.sportDemoVersion = VERSION; return; }
+    const g = s.groups.find(x => x.sport === 'football' && !(FC && FC.isSquad(x)) && s.members.some(m => m.group === x.id));
+    if (g) s.members.filter(m => m.group === g.id).slice(0, 14).forEach(m => [40, 6].forEach((d, round) => { const values = {}; S.skills.forEach((k, j) => { if ((hash(m.id + k.id) + j) % 3) values[k.id] = Math.max(1, Math.min(5, 2 + (hash(m.id + k.id) % 3) + round - (j % 2))); }); if (Object.keys(values).length) L.rate(s, m.id, values, { now: daysFrom(-d), by: g.coach }); }));
+    const sq = FC && FC.squads(s)[2];
+    const press = [...L.formation('4-3-3', 'a'), ...L.formation('4-4-2', 'b'), { t: 'ball', x: .58, y: .32 }, { t: 'line', kind: 'run', a: [.62, .18], b: [.74, .22], color: '#eab308', w: 4 }, { t: 'line', kind: 'run', a: [.66, .5], b: [.75, .4], color: '#eab308', w: 4 }, { t: 'line', kind: 'run', a: [.62, .82], b: [.73, .62], color: '#eab308', w: 4 }, { t: 'circle', a: [.68, .14], b: [.84, .48], color: '#ef4444', w: 3 }];
+    L.saveBoard(s, { id: 'board-press', title: 'الضغط العالي بعد فقد الكورة', field: 'full', squad: sq ? sq.id : '', category: 'دفاعي', tags: 'ضغط عالي، تحولات', notes: 'الثلاثي الأمامي يقفل خطوط التمرير للقلبين. لاعب الوسط يغطي الطرف.', items: press }, { now: daysFrom(-3), by: 'الإدارة الفنية' });
+    const corner = [{ t: 'player', team: 'a', n: 9, x: .5, y: .45 }, { t: 'player', team: 'a', n: 5, x: .42, y: .55 }, { t: 'player', team: 'a', n: 4, x: .38, y: .35 }, { t: 'player', team: 'a', n: 11, x: .97, y: .05 }, { t: 'player', team: 'b', n: 1, x: .96, y: .5 }, { t: 'ball', x: .97, y: .04 }, { t: 'line', kind: 'pass', a: [.95, .06], b: [.86, .45], color: '#ffffff', w: 4 }, { t: 'line', kind: 'run', a: [.5, .45], b: [.86, .45], color: '#eab308', w: 4 }, { t: 'line', kind: 'run', a: [.42, .55], b: [.84, .6], color: '#eab308', w: 4 }];
+    L.saveBoard(s, { id: 'board-corner', title: 'ركنية قصيرة على القائم القريب', field: 'half', squad: sq ? sq.id : '', category: 'كرات ثابتة', tags: 'ركنية، رأسيات', notes: 'الإشارة: رفع اليد اليمين.', items: corner }, { now: daysFrom(-1), by: 'الإدارة الفنية' });
     s.sportDemoVersion = VERSION;
   }));
 })();

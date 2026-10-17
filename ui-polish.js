@@ -15,8 +15,10 @@
     root.querySelectorAll(TAGS).forEach(el => {
       if (el.childElementCount || el.closest(SKIP)) return;
       const text = el.textContent.trim(); if (!names.has(text)) return;
-      const row = el.closest('tr,li,[class*="row"],.ax-card,article,.fb-cand,.kd-detail,.it,.dk-msg,.gd-row,label') || el.parentElement;
-      if (row && row !== el && row.querySelector(HAS_AV)) return;
+      /* Look a few levels up, stopping at the row, for an avatar already shown with this name. */
+      let up = el.parentElement, hops = 0, seen = false;
+      while (up && hops < 4 && !seen) { if (up.querySelector(HAS_AV)) seen = true; if (up.matches('tr,li,[class*="row"],.ax-card,article,.fb-cand,.kd-detail,.it,.dk-msg,.gd-row,label,button')) break; up = up.parentElement; hops++; }
+      if (seen) return;
       el.classList.add('pa-named');
       el.insertAdjacentHTML('afterbegin', `<span class="pa-av" aria-hidden="true">${KoraAvatars.portrait(text)}</span>`);
     });

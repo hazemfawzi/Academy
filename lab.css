@@ -1,0 +1,91 @@
+/* Football lab: templates, skill categories, performance cards, tactical board. */
+.lb-chip{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;border:1px solid #dfe7e1;background:#fff;color:#29362f}
+.lb-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:4px 0 14px}
+.lb-for{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}
+.lb-for select{font:inherit;font-weight:400;padding:8px 10px;border:1px solid #dfe7e1;border-radius:10px;background:#fff}
+.lb-drop{position:relative}
+.lb-drop summary{list-style:none;cursor:pointer;font-weight:700;font-size:13px;padding:9px 14px;border:1px solid #dfe7e1;border-radius:12px;background:#fff}
+.lb-drop summary::-webkit-details-marker{display:none}
+.lb-drop>div{position:absolute;z-index:20;top:calc(100% + 6px);inset-inline-start:0;width:320px;max-height:360px;overflow:auto;background:#fff;border:1px solid #dfe7e1;border-radius:14px;box-shadow:0 14px 34px rgba(20,40,30,.18);padding:8px}
+.lb-drop h5{margin:8px 8px 4px;font-size:12px;color:#829087}
+.lb-drop button{display:block;width:100%;text-align:start;font:inherit;font-size:14px;border:0;background:none;padding:8px 10px;border-radius:8px;cursor:pointer;color:#29362f}
+.lb-drop button:hover{background:#f1f7f3}
+
+/* templates */
+.lb-templates{background:linear-gradient(135deg,#f6faf7,#eef4fb);border:1px solid #e3eae5;border-radius:18px;padding:18px}
+.lb-templates h3{margin:0}
+.lb-tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:12px}
+.lb-tcard{position:relative;display:grid;gap:6px;justify-items:start;background:#fff;border:1px solid #e3eae5;border-radius:16px;padding:14px}
+.lb-tcard b{font-size:15px;padding-inline-end:20px}.lb-tcard small{color:#6b7c73;font-size:12px}
+.lb-x{position:absolute;top:8px;inset-inline-end:10px;border:0;background:none;font-size:18px;color:#94a3b8;cursor:pointer}
+.lb-plan{font:inherit;font-size:12px;border:0;background:none;color:#2d604c;text-decoration:underline;cursor:pointer;padding:0}
+.lb-add{justify-self:stretch;font:inherit;font-weight:700;border:0;border-radius:12px;padding:10px;color:#fff;background:linear-gradient(90deg,#2d604c,#1f4637);cursor:pointer;margin-top:4px}
+.lb-blocks{margin:0;padding-inline-start:18px;display:grid;gap:8px}.lb-blocks span{float:left;font-size:12px;color:#829087}.lb-blocks p{margin:2px 0 0;font-size:13px;color:#6b7c73}
+
+/* categories */
+.lb-cats{display:grid;gap:10px}
+.lb-cat{background:#fff;border:1px solid #e3eae5;border-radius:16px;padding:12px 14px}
+.lb-cat header{display:flex;align-items:center;gap:10px}
+.lb-cat header>i{width:12px;height:12px;border-radius:50%;flex:none}
+.lb-cat header b{flex:1}
+.lb-icons{display:flex;gap:4px}.lb-icons button{border:0;background:none;font-size:16px;cursor:pointer;color:#6b7c73;width:30px;height:30px;border-radius:8px}.lb-icons button:hover{background:#f1f5f2}.lb-icons .del{color:#e11d48}
+.lb-skilllist{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+.lb-skill{display:inline-flex;align-items:center;gap:4px;font-size:13px;background:#f4f7f5;border-radius:99px;padding:4px 6px 4px 12px}
+.lb-skill button{border:0;background:none;color:#94a3b8;cursor:pointer;font-size:14px}
+.lb-addskill{display:inline-flex;gap:4px}.lb-addskill input{font:inherit;font-size:13px;border:1px dashed #b9cbbf;border-radius:99px;padding:4px 12px;width:150px}.lb-addskill button{font:inherit;font-size:12px;border:0;background:#2d604c;color:#fff;border-radius:99px;padding:4px 10px;cursor:pointer}
+.lb-colors{display:flex;gap:8px}.lb-colors label{position:relative}.lb-colors input{position:absolute;opacity:0}.lb-colors i{display:block;width:28px;height:28px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px #dfe7e1;cursor:pointer}.lb-colors input:checked+i{box-shadow:0 0 0 2px #1f4637}
+
+/* performance cards */
+.lb-players{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.lb-pcard{font:inherit;color:inherit;text-align:start;display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e3eae5;border-radius:14px;background:#fff;cursor:pointer;width:100%}
+.lb-pcard span{flex:1;display:grid}.lb-pcard small{font-size:12px;color:#829087}
+.lb-pcard em{font-style:normal;font-weight:800;color:#1f4637;background:#e8f1ec;border-radius:10px;padding:6px 10px}.lb-pcard em.none{background:#f1f5f9;color:#94a3b8}
+#modal:has(.lb-card){width:min(720px,94vw)}
+.lb-card{display:grid;gap:12px}
+.lb-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:17px}
+.lb-nav{display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7c73}.lb-nav button{border:1px solid #dfe7e1;background:#fff;border-radius:8px;width:28px;height:28px;cursor:pointer}
+.lb-hero{display:flex;justify-content:space-between;align-items:flex-start;background:linear-gradient(135deg,#d9f5e8,#e0f0fb);border-radius:18px;padding:16px}
+.lb-who{display:flex;align-items:center;gap:12px}.lb-who div{display:grid}.lb-who b{font-size:20px}.lb-who small{color:#6b7c73}
+.lb-date{font-size:12px;color:#6b7c73}
+.lb-grid{display:grid;grid-template-columns:220px 1fr;gap:12px}
+.lb-box{background:#fff;border:1px solid #e3eae5;border-radius:16px;padding:12px}
+.lb-ringbox{display:grid;justify-items:center;align-content:center;gap:6px}.lb-ringbox small{font-size:12px;color:#6b7c73}.lb-ringbox .up{color:#15803d}.lb-ringbox .down{color:#b91c1c}
+.lb-radar{width:100%;max-height:250px}
+.lb-hint{color:#6b7c73;text-align:center;font-size:13px;margin:30px 10px}
+.lb-skills h4{display:flex;align-items:center;gap:6px;margin:10px 0 6px;font-size:13px}.lb-skills h4 i{width:10px;height:10px;border-radius:50%}.lb-skills h4 small{color:#829087;font-weight:400}
+.lb-bar{display:grid;grid-template-columns:150px 1fr 36px;gap:8px;align-items:center;font-size:13px;margin:4px 0}
+.lb-bar i{height:8px;border-radius:99px;background:#eef2ef;overflow:hidden;display:block}.lb-bar em{display:block;height:100%;border-radius:99px}.lb-bar b{font-size:12px;color:#6b7c73}
+.lb-foot{display:flex;gap:8px}
+.lb-av{flex:none}
+@media(max-width:620px){.lb-grid{grid-template-columns:1fr}.lb-bar{grid-template-columns:110px 1fr 32px}}
+
+/* tactical board */
+.lb-boards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.lb-bcard{font:inherit;color:inherit;text-align:start;display:grid;gap:8px;padding:10px;border:1px solid #e3eae5;border-radius:16px;background:#fff;cursor:pointer}
+.lb-bcard span{display:grid;gap:2px}.lb-bcard small{font-size:12px;color:#829087}
+.lb-pitch{width:100%;height:auto;display:block;border-radius:12px}
+.lb-pitch.mini{border-radius:10px;pointer-events:none}
+.lb-tags{display:flex;flex-wrap:wrap;gap:4px}.lb-tags i{font-style:normal;font-size:11px;background:#eef3ef;border-radius:99px;padding:2px 8px}
+.lb-edhead{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.lb-title{flex:1;font:inherit;font-size:17px;font-weight:700;border:1px solid #dfe7e1;border-radius:12px;padding:10px 14px}
+.lb-edgrid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:start}
+.lb-side{order:2;display:grid;gap:12px;background:#fff;border:1px solid #e3eae5;border-radius:16px;padding:14px}
+.lb-side label{display:grid;gap:6px;font-size:13px;font-weight:700}
+.lb-side input,.lb-side select,.lb-side textarea{font:inherit;font-weight:400;padding:9px 12px;border:1px solid #dfe7e1;border-radius:12px;background:#fff;width:100%;box-sizing:border-box}
+.lb-delb{font:inherit;font-size:12px;border:0;background:none;color:#e11d48;cursor:pointer;text-decoration:underline;justify-self:start}
+.lb-main{display:grid;gap:10px}
+.lb-tools{display:grid;gap:8px;background:#fff;border:1px solid #e3eae5;border-radius:16px;padding:10px 12px}
+.lb-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.lb-tool{width:42px;height:42px;border:1px solid #dfe7e1;border-radius:12px;background:#fff;font-size:17px;cursor:pointer}.lb-tool.on{background:#13261d;color:#fff;border-color:#13261d}
+.lb-colorset{display:flex;gap:5px}.lb-colorset button{width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #cfd9d3;cursor:pointer}.lb-colorset button.on{box-shadow:0 0 0 2px #13261d}
+.lb-team{width:28px;height:28px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px #cfd9d3;cursor:pointer}.lb-team.on{box-shadow:0 0 0 3px #13261d}
+.lb-form{font:inherit;font-size:13px;font-weight:700;border:0;background:none;padding:6px 8px;border-radius:8px;cursor:pointer;color:#29362f}.lb-form:hover{background:#f1f7f3}
+.lb-lbl{font-size:12px;color:#829087}
+.lb-exp{margin-inline-start:auto;display:flex;gap:4px}
+.lb-row select{font:inherit;font-size:13px;padding:5px 8px;border:1px solid #dfe7e1;border-radius:8px;background:#fff}
+.lb-stage{touch-action:none;user-select:none}
+.lb-stage .lb-pl,.lb-stage .lb-ball{cursor:grab}
+@media(max-width:1000px){.lb-edgrid{grid-template-columns:1fr}.lb-side{order:3}}
+/* coach app */
+.lb-app .ax-body{display:grid;gap:8px}
+.lb-appboard{display:grid;gap:6px}.lb-appboard small{color:#829087;font-size:12px}.lb-appboard p{margin:0;font-size:13px}
