@@ -21,3 +21,14 @@
 .edition-single #ws-scope label:nth-of-type(2){display:none}
 .edition-single .ax-sports{display:none}
 .edition-single .pg-sports{display:none}
+/* popups never scroll: steps and pages from fit-popups.js */
+.modal,.sheet{overflow-x:hidden}
+[data-fp-hide]{display:none!important}
+.fp-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0 8px;padding-top:12px;border-top:1px solid #e3eae5}
+.fp-btn{font:inherit;font-size:13px;font-weight:700;border:1px solid #cfd9d3;background:#fff;color:#1f4637;border-radius:10px;padding:8px 14px;cursor:pointer;min-width:92px}
+.fp-btn:disabled{opacity:.35;cursor:default}
+.fp-next{background:#2d604c;border-color:#2d604c;color:#fff}
+.fp-ghost{visibility:hidden}
+.fp-steps{display:flex;align-items:center;gap:5px;font-size:12px;color:#6b7c73}
+.fp-steps i{width:7px;height:7px;border-radius:50%;background:#d7e0db}.fp-steps i.done{background:#8fb5a2}.fp-steps i.on{background:#2d604c;width:18px;border-radius:9px}
+.fp-steps b{font-weight:600;margin-inline-start:6px}
