@@ -52,8 +52,9 @@
     PAGES.sports = () => { setTimeout(() => window.SportBuilder?.open(ED.sport)); return settings ? settings() : ''; };
     const others = { matches: 'none', pathway: 'football', scouting: 'football' };
     const trim = (list, at) => list.forEach(sec => { const pages = sec[at]; for (let i = pages.length - 1; i >= 0; i--) { const r = pages[i][0]; if (others[r] && others[r] !== ED.sport) { pages.splice(i, 1); continue; } if (r === 'sports') pages[i][at === 2 ? 1 : 2] = 'إعدادات ' + ED.def.name; if (r === 'pathway') pages[i][at === 2 ? 1 : 2] = 'المراحل السنية'; if (r === 'groups' && ED.sport === 'football') pages[i][at === 2 ? 1 : 2] = 'الفرق والمجموعات'; } });
-    if (window.WS_SECTIONS) trim(window.WS_SECTIONS, 2);
+    if (window.WS_SECTIONS) { trim(window.WS_SECTIONS, 2); for (let i = window.WS_SECTIONS.length - 1; i >= 0; i--) { const sec = window.WS_SECTIONS[i]; if (!sec[2].length) window.WS_SECTIONS.splice(i, 1); else if (sec[0] === 'pathway') sec[1] = 'مسار الاحتراف'; } }
     trim(NAV, 1);
+    for (let i = NAV.length - 1; i >= 0; i--) if (!NAV[i][1].length) NAV.splice(i, 1);
     if (window.Dashboard) window.Dashboard.scope = ED.scope;
     const analytics = PAGES.analytics;
     if (analytics) PAGES.analytics = () => analytics().replace('لكل الفروع والرياضات', `لكل فروع ${ED.title}`).replace('كل الفروع والرياضات /', `${ED.title} /`);

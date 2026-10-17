@@ -11,19 +11,20 @@
   const count = (n, one, two, few, many) => n === 0 ? 'لا ' + many : n === 1 ? one : n === 2 ? two : n <= 10 ? n + ' ' + few : n + ' ' + many;
   const btn = (label, action, cls = '') => `<button type="button" class="sb-btn ${cls}" onclick="${E(action)}">${E(label)}</button>`;
 
-  const ICONS = { home: 'M3 11l9-8 9 8M5 10v11h5v-7h4v7h5V10', people: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.9', calendar: 'M3 5h18v16H3zM7 3v4M17 3v4M3 11h18', tasks: 'M5 3h14v18H5zM8 8h8M8 12h8M8 16h5', money: 'M3 5h18v14H3zM3 10h18M7 15h3', chart: 'M4 20V4M4 20h17M8 16v-4M13 16V8M18 16V5', settings: 'M4 7h16M4 12h16M4 17h16M8 5v4M16 10v4M10 15v4' };
+  const ICONS = { pathway: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8M12 12h.01', home: 'M3 11l9-8 9 8M5 10v11h5v-7h4v7h5V10', people: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.9', calendar: 'M3 5h18v16H3zM7 3v4M17 3v4M3 11h18', tasks: 'M5 3h14v18H5zM8 8h8M8 12h8M8 16h5', money: 'M3 5h18v14H3zM3 10h18M7 15h3', chart: 'M4 20V4M4 20h17M8 16v-4M13 16V8M18 16V5', settings: 'M4 7h16M4 12h16M4 17h16M8 5v4M16 10v4M10 15v4' };
   const icon = k => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${ICONS[k]}"/></svg>`;
 
   const SECTIONS = [
     ['home', 'الرئيسية', [['dash', 'الرئيسية']]],
-    ['people', 'اللاعبون والعائلات', [['members', 'اللاعبون'], ['families', 'العائلات'], ['pathway', 'مسار الكورة'], ['scouting', 'الكشافة والاختبارات']]],
+    ['people', 'اللاعبون والعائلات', [['members', 'اللاعبون'], ['families', 'العائلات']]],
+    ['pathway', 'مسار الكورة', [['pathway', 'المراحل السنية'], ['scouting', 'الكشافة والاختبارات']]],
     ['calendar', 'البرامج والجدول', [['attendance', 'الجدول والحصص'], ['groups', 'الجروبات'], ['progress', 'المستويات والتقييمات'], ['plans', 'خطط التدريب'], ['sports', 'بناء الرياضات']]],
     ['tasks', 'المبيعات والمتابعة', [['vleads', 'العملاء والتجارب'], ['vrequests', 'الطلبات'], ['vfollowups', 'المتابعات'], ['automation', 'الرسائل الآلية'], ['vwaitlist', 'قائمة الانتظار']]],
     ['money', 'المالية', [['billing', 'التحصيل والفواتير'], ['payroll', 'مستحقات المدربين'], ['vshifts', 'الوردية']]],
     ['chart', 'التقارير', [['reports', 'التقارير وسجل الإجراءات'], ['analytics', 'تحليل الأداء']]],
     ['settings', 'الإعدادات والأدوات', [['settings', 'الإعدادات'], ['users', 'الفريق والصلاحيات'], ['branches', 'الفروع'], ['comms', 'التواصل'], ['resources', 'الملاعب والحجوزات'], ['matches', 'الكورة: الماتشات'], ['nutrition', 'التغذية']]]
   ];
-  const EXTRA = { sportedit: 'calendar', group: 'people', coach: 'settings', squad: 'people', fbplayer: 'people' };
+  const EXTRA = { sportedit: 'calendar', group: 'people', coach: 'settings', squad: 'pathway', fbplayer: 'pathway' };
   window.WS_SECTIONS = SECTIONS;
   const sectionOf = page => SECTIONS.find(s => s[2].some(([r]) => r === page)) || SECTIONS.find(s => s[0] === EXTRA[page]);
 
