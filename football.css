@@ -351,3 +351,8 @@
 .fb-ring small{font-size:13px;color:#4b5d54}
 @media(max-width:1000px){.fb-day{grid-template-columns:1fr}.fb-day-rings{justify-content:flex-start;flex-wrap:wrap}}
 @media(max-width:560px){.fb-day h1{font-size:26px}.fb-ring{min-width:90px;padding:10px}.fb-plans{grid-template-columns:1fr}}
+/* KPI icons: line icons tinted with the card's colour */
+.fb-kpis .ny-kpi-top i{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:#fff;font-style:normal}
+.fb-kpis .ny-kpi.mint .ny-kpi-top i{color:#2d7a5c}.fb-kpis .ny-kpi.blue .ny-kpi-top i{color:#3b5fa8}.fb-kpis .ny-kpi.amber .ny-kpi-top i{color:#a8741c}
+.fb-kpis .ny-kpi.purple .ny-kpi-top i{color:#7a52a8}.fb-kpis .ny-kpi.pink .ny-kpi-top i{color:#b0455f}.fb-kpis .ny-kpi.cyan .ny-kpi-top i{color:#2b7f8f}
+.fb-kpis .ny-kpi-top i svg{width:21px;height:21px}
