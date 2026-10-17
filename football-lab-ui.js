@@ -16,7 +16,7 @@
   const av = (name, n = 40) => window.KoraAvatars ? KoraAvatars.render(name, 'lb-av', n) : '';
   const skillsState = () => { if (!db.state.fbSkills) V.run(() => db.update(st => L.setup(st))); return db.state.fbSkills; };
   const after = () => { V.close && V.close(); if (typeof render === 'function' && typeof PAGES !== 'undefined') render(); if (typeof draw === 'function' && typeof APPS !== 'undefined') draw(); };
-  const LB = window.FootballLabUI = { tab: 'templates', group: '', hidden: [], extra: [], cardGroup: '', board: null, tool: 'move', team: 'a', color: '#ef4444', width: 4, rec: false, speed: 1 };
+  const LB = window.FootballLabUI = { sel: -1, tab: 'templates', group: '', hidden: [], extra: [], cardGroup: '', board: null, tool: 'move', team: 'a', color: '#ef4444', width: 4, rec: false, speed: 1 };
 
   /* Short guides at the top of the pages: what the page is for and how to use it. */
   const guide = (title, steps) => `<details class="lb-guide"><summary>💡 ${title}</summary><ol>${steps.map(x => `<li>${x}</li>`).join('')}</ol></details>`;
@@ -63,19 +63,29 @@
       ${[0, 1].map(s => { const x = s ? W - 10 : 10, d = s ? -1 : 1, bw = W * .157, bh = H * .6, sw = W * .052, sh = H * .27; return `<rect x="${s ? x - bw : x}" y="${(H - bh) / 2}" width="${bw}" height="${bh}" ${L1}/><rect x="${s ? x - sw : x}" y="${(H - sh) / 2}" width="${sw}" height="${sh}" ${L1}/><circle cx="${x + d * W * .105}" cy="${H / 2}" r="3" fill="#fff"/>`; }).join('')}`;
   };
   const markers = `<defs>${['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7', '#111827', '#ffffff'].map(c => `<marker id="ar${c.slice(1)}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${c}"/></marker>`).join('')}</defs>`;
+  /* Items that sit on a point (dragged by their centre) as opposed to drawn shapes. */
+  const POINT = new Set(['player', 'ball', 'cone', 'goal', 'ladder', 'pole', 'text']);
+  const ROLE = k => FC?.POSITIONS?.[k]?.short || k;
   const drawItem = (x, W, H, i) => {
-    const P = p => `${p[0] * W},${p[1] * H}`;
-    if (x.t === 'player') return `<g class="lb-it lb-pl" data-i="${i}" transform="translate(${x.x * W} ${x.y * H})"><circle r="17" fill="${TEAM[x.team] || '#ef4444'}" stroke="#fff" stroke-width="3"/><text y="5" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">${x.n ?? ''}</text></g>`;
-    if (x.t === 'ball') return `<g class="lb-it lb-ball" data-i="${i}" transform="translate(${x.x * W} ${x.y * H})"><circle r="9" fill="#fff" stroke="#111" stroke-width="2"/><path d="M-4 -3l4-3 4 3-2 5h-4z" fill="#111"/></g>`;
-    const style = `stroke="${x.color}" stroke-width="${x.w || 4}" fill="none" stroke-linecap="round"`, mk = `marker-end="url(#ar${(x.color || '#111').slice(1)})"`;
-    if (x.t === 'line') return `<line class="lb-it" data-i="${i}" x1="${x.a[0] * W}" y1="${x.a[1] * H}" x2="${x.b[0] * W}" y2="${x.b[1] * H}" ${style} ${x.kind !== 'line' ? mk : ''} ${x.kind === 'run' ? 'stroke-dasharray="12 9"' : x.kind === 'pass' ? 'stroke-dasharray="2 9"' : ''}/>`;
-    if (x.t === 'free') return `<polyline class="lb-it" data-i="${i}" points="${x.pts.map(P).join(' ')}" ${style}/>`;
-    if (x.t === 'circle') return `<ellipse class="lb-it" data-i="${i}" cx="${(x.a[0] + x.b[0]) / 2 * W}" cy="${(x.a[1] + x.b[1]) / 2 * H}" rx="${Math.abs(x.b[0] - x.a[0]) / 2 * W}" ry="${Math.abs(x.b[1] - x.a[1]) / 2 * H}" ${style} fill-opacity=".15" fill="${x.color}"/>`;
-    if (x.t === 'rect') return `<rect class="lb-it" data-i="${i}" x="${Math.min(x.a[0], x.b[0]) * W}" y="${Math.min(x.a[1], x.b[1]) * H}" width="${Math.abs(x.b[0] - x.a[0]) * W}" height="${Math.abs(x.b[1] - x.a[1]) * H}" ${style} fill-opacity=".15" fill="${x.color}"/>`;
+    const P = p => `${p[0] * W},${p[1] * H}`, sel = i === LB.sel, ring = r => sel ? `<circle r="${r}" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="5 4"/>` : '';
+    const at = `transform="translate(${(x.x || 0) * W} ${(x.y || 0) * H})${x.rot ? ` rotate(${x.rot})` : ''}"`;
+    if (x.t === 'player') { const c = x.color || TEAM[x.team] || '#ef4444';
+      return `<g class="lb-it lb-pl" data-i="${i}" transform="translate(${x.x * W} ${x.y * H})">${ring(25)}${x.rot != null && x.rot !== '' ? `<path transform="rotate(${x.rot})" d="M0 -27 L6 -19 L-6 -19z" fill="${c}" stroke="#fff" stroke-width="1.5"/>` : ''}<circle r="17" fill="${c}" stroke="#fff" stroke-width="3"/><text y="5" text-anchor="middle" font-size="15" font-weight="800" fill="#fff">${E(x.n ?? '')}</text>${x.role ? `<text x="-20" y="-16" text-anchor="end" font-size="11" font-weight="800" fill="#bbf7d0" stroke="#14532d" stroke-width=".6">${E(ROLE(x.role))}</text>` : ''}${x.cap ? `<circle cx="15" cy="-15" r="7" fill="#facc15" stroke="#fff" stroke-width="1.5"/><text x="15" y="-11.5" text-anchor="middle" font-size="9" font-weight="900" fill="#713f12">C</text>` : ''}${x.name ? `<text y="33" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" stroke="#0b3d1d" stroke-width="3" paint-order="stroke">${E(x.name)}</text>` : ''}</g>`; }
+    if (x.t === 'ball') return `<g class="lb-it lb-ball" data-i="${i}" transform="translate(${x.x * W} ${x.y * H})">${ring(15)}<circle r="9" fill="#fff" stroke="#111" stroke-width="2"/><path d="M-4 -3l4-3 4 3-2 5h-4z" fill="#111"/></g>`;
+    if (x.t === 'cone') return `<g class="lb-it lb-eq" data-i="${i}" ${at}>${ring(16)}<path d="M0 -12 L9 8 L-9 8z" fill="${x.color || '#f97316'}" stroke="#fff" stroke-width="1.5"/><rect x="-11" y="7" width="22" height="3" rx="1.5" fill="${x.color || '#f97316'}"/></g>`;
+    if (x.t === 'goal') return `<g class="lb-it lb-eq" data-i="${i}" ${at}>${ring(30)}<rect x="-26" y="-11" width="52" height="22" fill="rgba(255,255,255,.18)" stroke="#fff" stroke-width="3"/>${[-13, 0, 13].map(v => `<line x1="${v}" y1="-11" x2="${v}" y2="11" stroke="#fff" stroke-width="1" opacity=".7"/>`).join('')}<line x1="-26" y1="0" x2="26" y2="0" stroke="#fff" stroke-width="1" opacity=".7"/></g>`;
+    if (x.t === 'ladder') return `<g class="lb-it lb-eq" data-i="${i}" ${at}>${ring(46)}<rect x="-44" y="-10" width="88" height="20" fill="none" stroke="${x.color || '#facc15'}" stroke-width="3"/>${[-30, -15, 0, 15, 30].map(v => `<line x1="${v}" y1="-10" x2="${v}" y2="10" stroke="${x.color || '#facc15'}" stroke-width="3"/>`).join('')}</g>`;
+    if (x.t === 'pole') return `<g class="lb-it lb-eq" data-i="${i}" ${at}>${ring(14)}<circle r="8" fill="none" stroke="${x.color || '#eab308'}" stroke-width="2"/><circle r="4" fill="${x.color || '#eab308'}"/></g>`;
+    if (x.t === 'text') return `<g class="lb-it lb-eq" data-i="${i}" ${at}>${sel ? `<rect x="-${(String(x.text || '').length * (x.size || 20) * .32) + 8}" y="-${(x.size || 20) * .9}" width="${String(x.text || '').length * (x.size || 20) * .64 + 16}" height="${(x.size || 20) * 1.35}" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="5 4"/>` : ''}<text text-anchor="middle" font-size="${x.size || 20}" font-weight="800" fill="${x.color || '#ffffff'}" stroke="#0b3d1d" stroke-width="3" paint-order="stroke">${E(x.text || 'نص')}</text></g>`;
+    const style = `stroke="${x.color}" stroke-width="${x.w || 4}" fill="none" stroke-linecap="round"`, mk = `marker-end="url(#ar${(x.color || '#111').slice(1)})"`, hl = sel ? ' class="lb-it lb-sel"' : ' class="lb-it"';
+    if (x.t === 'line') return `<line${hl} data-i="${i}" x1="${x.a[0] * W}" y1="${x.a[1] * H}" x2="${x.b[0] * W}" y2="${x.b[1] * H}" ${style} ${x.kind !== 'line' ? mk : ''} ${x.kind === 'run' ? 'stroke-dasharray="12 9"' : x.kind === 'pass' ? 'stroke-dasharray="2 9"' : ''}/>`;
+    if (x.t === 'free') return `<polyline${hl} data-i="${i}" points="${x.pts.map(P).join(' ')}" ${style}/>`;
+    if (x.t === 'circle') return `<ellipse${hl} data-i="${i}" cx="${(x.a[0] + x.b[0]) / 2 * W}" cy="${(x.a[1] + x.b[1]) / 2 * H}" rx="${Math.abs(x.b[0] - x.a[0]) / 2 * W}" ry="${Math.abs(x.b[1] - x.a[1]) / 2 * H}" ${style} fill-opacity=".15" fill="${x.color}"/>`;
+    if (x.t === 'rect') return `<rect${hl} data-i="${i}" x="${Math.min(x.a[0], x.b[0]) * W}" y="${Math.min(x.a[1], x.b[1]) * H}" width="${Math.abs(x.b[0] - x.a[0]) * W}" height="${Math.abs(x.b[1] - x.a[1]) * H}" ${style} fill-opacity=".15" fill="${x.color}"/>`;
     return '';
   };
-  /* Drawings first, players and the ball on top. */
-  const itemsHTML = b => { const [W, H] = SIZE[b.field] || SIZE.full; return b.items.map((x, i) => x.t === 'player' || x.t === 'ball' ? '' : drawItem(x, W, H, i)).join('') + b.items.map((x, i) => x.t === 'player' || x.t === 'ball' ? drawItem(x, W, H, i) : '').join(''); };
+  /* Drawings first, then equipment, players and the ball on top. */
+  const itemsHTML = b => { const [W, H] = SIZE[b.field] || SIZE.full, layer = f => b.items.map((x, i) => f(x) ? drawItem(x, W, H, i) : '').join(''); return layer(x => !POINT.has(x.t)) + layer(x => POINT.has(x.t) && x.t !== 'player' && x.t !== 'ball') + layer(x => x.t === 'player') + layer(x => x.t === 'ball'); };
   LB.svg = (b, cls = '') => { const [W, H] = SIZE[b.field] || SIZE.full; return `<svg class="lb-pitch ${cls}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${markers}${pitch(b.field, W, H)}<g class="lb-items">${itemsHTML(b)}</g></svg>`; };
 
   /* =========================================================== dashboard */
@@ -145,24 +155,54 @@
           <label>ملاحظات المدرب (خاصة)<textarea rows="5" placeholder="ملاحظات لا يراها اللاعبون…" oninput="FootballLabUI.board.notes=this.value">${E(b.notes)}</textarea></label>
           ${b.id ? `<button type="button" class="lb-delb" onclick="FootballLabUI.remove()">حذف اللوحة</button>` : ''}</aside>
         <section class="lb-main"><div class="lb-tools">
-          <div class="lb-row">${tool('move', '✥', 'تحريك')}${tool('pen', '✎', 'رسم حر')}${tool('line', '—', 'خط')}${tool('arrow', '➜', 'سهم')}${tool('run', '⇢', 'تحرك (متقطع)')}${tool('pass', '⋯➜', 'تمريرة')}${tool('circle', '◯', 'دائرة')}${tool('rect', '▢', 'مستطيل')}${tool('erase', '⌫', 'ممحاة')}${tool('ball', '⚽', 'مكان الكورة')}</div>
+          <div class="lb-row">${tool('move', '✥', 'تحريك')}${tool('pen', '✎', 'رسم حر')}${tool('line', '—', 'خط')}${tool('arrow', '➜', 'سهم')}${tool('run', '⇢', 'تحرك (متقطع)')}${tool('pass', '⋯➜', 'تمريرة')}${tool('circle', '◯', 'دائرة')}${tool('rect', '▢', 'مستطيل')}${tool('erase', '⌫', 'ممحاة')}${tool('ball', '⚽', 'مكان الكورة')}<span class="lb-sep"></span><button type="button" class="sb-btn quiet small" onclick="FootballLabUI.copySel()" ${LB.sel < 0 ? 'disabled' : ''}>⧉ نسخ</button><button type="button" class="sb-btn quiet small" onclick="FootballLabUI.delSel()" ${LB.sel < 0 ? 'disabled' : ''}>🗑 حذف</button></div>
+          <div class="lb-row"><span class="lb-lbl">أدوات التمرين:</span>${tool('cone', '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 3l7 15H5z" fill="#f97316"/><rect x="3" y="18" width="18" height="3" rx="1.5" fill="#f97316"/></svg>', 'قمع')}${tool('goal', '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="10"/><path d="M8 7v10M14 7v10M2 12h20" opacity=".6"/></svg>', 'مرمى صغير')}${tool('ladder', '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ca8a04" stroke-width="1.8"><rect x="1" y="8" width="22" height="8"/><path d="M6 8v8M11 8v8M16 8v8"/></svg>', 'سلم رشاقة')}${tool('pole', '<svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="7" fill="none" stroke="#eab308" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#eab308"/></svg>', 'عمود / حلقة')}${tool('text', '<b style="font-size:17px">T</b>', 'نص على الملعب')}</div>
           <div class="lb-row"><span class="lb-colorset">${['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7', '#111827', '#ffffff'].map(c => `<button type="button" class="${LB.color === c ? 'on' : ''}" style="background:${c}" onclick="FootballLabUI.color='${c}';render()" aria-label="لون"></button>`).join('')}</span><input type="range" min="2" max="10" value="${LB.width}" oninput="FootballLabUI.width=Number(this.value)" aria-label="سُمك الخط"><button type="button" class="sb-btn quiet small" onclick="FootballLabUI.undo()">↶</button><button type="button" class="sb-btn quiet small" onclick="FootballLabUI.redo()">↷</button><button type="button" class="sb-btn quiet small" onclick="FootballLabUI.clearDraw()">🗑 مسح الرسم</button></div>
           <div class="lb-row"><span class="lb-lbl">الفريق:</span>${['a', 'b'].map(t => `<button type="button" class="lb-team ${LB.team === t ? 'on' : ''}" style="background:${TEAM[t]}" onclick="FootballLabUI.team='${t}';render()"></button>`).join('')}${btn('+ لاعب', 'FootballLabUI.addPlayer()', 'quiet small')}${btn('حذف الفريق', 'FootballLabUI.dropTeam()', 'quiet small')}<span class="lb-lbl">تشكيلة:</span>${Object.keys(L.FORMATIONS).map(f => `<button type="button" class="lb-form" onclick="FootballLabUI.formation('${f}')">${f}</button>`).join('')}</div>
-          <div class="lb-row">${btn(LB.rec ? '⏹ إيقاف التسجيل' : '● تسجيل الحركة', 'FootballLabUI.record()', LB.rec ? 'primary small' : 'quiet small')}${btn('▶ تشغيل', 'FootballLabUI.play()', 'quiet small')}<select onchange="FootballLabUI.speed=Number(this.value)" aria-label="السرعة">${[0.5, 1, 2].map(s => `<option value="${s}" ${LB.speed === s ? 'selected' : ''}>${s}x</option>`).join('')}</select><small class="lb-lbl">${b.frames.length ? b.frames.length + ' حركة مسجلة' : 'حرّك اللاعيبة وانت بتسجّل'}</small>${b.frames.length ? btn('حذف التسجيل', 'FootballLabUI.board.frames=[];render()', 'quiet small') : ''}<span class="lb-exp">${btn('⤓ PNG', "FootballLabUI.export('png')", 'quiet small')}${btn('JPEG', "FootballLabUI.export('jpeg')", 'quiet small')}${btn('PDF', "FootballLabUI.export('pdf')", 'quiet small')}</span></div></div>
-          <div id="lb-stage" class="lb-stage">${LB.svg(b)}</div></section></div></div>`;
+          <div class="lb-row">${btn(LB.rec ? '⏹ إيقاف التسجيل' : '● تسجيل الحركة', 'FootballLabUI.record()', LB.rec ? 'primary small' : 'quiet small')}${btn('▶ تشغيل', 'FootballLabUI.play()', 'quiet small')}${btn('⏮ للبداية', 'FootballLabUI.rewind()', 'quiet small')}<select onchange="FootballLabUI.speed=Number(this.value)" aria-label="السرعة">${[0.5, 1, 2].map(s => `<option value="${s}" ${LB.speed === s ? 'selected' : ''}>${s}x</option>`).join('')}</select><small class="lb-lbl">${b.frames.length ? b.frames.length + ' حركة مسجلة' : 'حرّك اللاعيبة وانت بتسجّل'}</small>${b.frames.length ? btn('حذف التسجيل', 'FootballLabUI.board.frames=[];render()', 'quiet small') : ''}<span class="lb-exp">${btn('⤓ PNG', "FootballLabUI.export('png')", 'quiet small')}${btn('JPEG', "FootballLabUI.export('jpeg')", 'quiet small')}${btn('PDF', "FootballLabUI.export('pdf')", 'quiet small')}</span></div></div>
+          <div class="lb-stagewrap"><div id="lb-stage" class="lb-stage">${LB.svg(b)}</div><div id="lb-props" class="lb-props" hidden></div></div></section></div></div>`;
     };
-    PAGES.tactics_after = () => LB.bind();
-    LB.edit = (bid = '') => { const b = (db.state.fbBoards || []).find(x => x.id === bid); LB.board = b ? JSON.parse(JSON.stringify({ ...b, tags: b.tags.join('، ') })) : blank(); hist = []; fut = []; LB.rec = false; go('tactics'); render(); };
+    PAGES.tactics_after = () => { LB.bind(); LB.showProps(); };
+    LB.edit = (bid = '') => { const b = (db.state.fbBoards || []).find(x => x.id === bid); LB.board = b ? JSON.parse(JSON.stringify({ ...b, tags: b.tags.join('، ') })) : blank(); hist = []; fut = []; LB.rec = false; LB.sel = -1; go('tactics'); render(); };
     /* The pitch is redrawn when the field changes; drags and drawings only redraw the items. */
     LB.paint = () => { const g = document.querySelector('#lb-stage .lb-items'), svg = document.querySelector('#lb-stage svg'), [W, H] = SIZE[LB.board.field] || SIZE.full; if (g && svg && svg.getAttribute('viewBox') === `0 0 ${W} ${H}`) { g.innerHTML = itemsHTML(LB.board); return; } const st = document.getElementById('lb-stage'); if (st) { st.innerHTML = LB.svg(LB.board); LB.bind(); } };
     LB.setTool = k => { LB.tool = k; render(); };
     LB.undo = () => { if (!hist.length) return; fut.push(snap()); LB.board.items = JSON.parse(hist.pop()); LB.paint(); };
     LB.redo = () => { if (!fut.length) return; hist.push(snap()); LB.board.items = JSON.parse(fut.pop()); LB.paint(); };
-    LB.clearDraw = () => { push(); LB.board.items = LB.board.items.filter(x => x.t === 'player' || x.t === 'ball'); LB.paint(); };
+    LB.clearDraw = () => { push(); LB.sel = -1; LB.board.items = LB.board.items.filter(x => POINT.has(x.t)); LB.board.frames = []; LB.paint(); LB.showProps(); };
     LB.addPlayer = () => { push(); const n = LB.board.items.filter(x => x.t === 'player' && x.team === LB.team).length + 1; LB.board.items.push({ t: 'player', team: LB.team, n, x: LB.team === 'a' ? .3 : .7, y: .5 }); LB.paint(); };
     LB.dropTeam = () => { push(); LB.board.items = LB.board.items.filter(x => !(x.t === 'player' && x.team === LB.team)); LB.paint(); };
     LB.formation = f => { push(); LB.board.items = LB.board.items.filter(x => !(x.t === 'player' && x.team === LB.team)).concat(L.formation(f, LB.team)); LB.paint(); };
-    const positions = () => LB.board.items.map(x => x.t === 'player' || x.t === 'ball' ? [x.x, x.y] : null);
+    const positions = () => LB.board.items.map(x => POINT.has(x.t) ? [x.x, x.y] : null);
+    LB.rewind = () => { const f = LB.board.frames[0]; if (!f) return toast('مفيش تسجيل'); LB.board.items.forEach((x, i) => { if (f[i]) [x.x, x.y] = f[i]; }); LB.paint(); };
+    /* Structural changes shift the items, so a recording made before them no longer fits. */
+    const restructured = () => { if (LB.board.frames.length) { LB.board.frames = []; toast('اتمسح تسجيل الحركة لأن العناصر اتغيرت'); } };
+    const shift = (x, d) => { if (POINT.has(x.t)) { x.x = Math.min(1, x.x + d); x.y = Math.min(1, x.y + d); } else if (x.pts) x.pts = x.pts.map(p => [p[0] + d, p[1] + d]); else { x.a = [x.a[0] + d, x.a[1] + d]; x.b = [x.b[0] + d, x.b[1] + d]; } };
+    LB.copySel = () => { const x = LB.board.items[LB.sel]; if (!x) return; push(); const c = JSON.parse(JSON.stringify(x)); shift(c, .03); if (c.t === 'player') { c.n = Math.max(0, ...LB.board.items.filter(y => y.t === 'player' && y.team === c.team).map(y => Number(y.n) || 0)) + 1; c.cap = false; } LB.board.items.push(c); LB.sel = LB.board.items.length - 1; LB.paint(); LB.showProps(); };
+    LB.delSel = () => { if (LB.sel < 0) return; push(); LB.board.items.splice(LB.sel, 1); LB.sel = -1; restructured(); LB.paint(); LB.showProps(); render(); };
+    LB.prop = (k, v) => { const x = LB.board.items[LB.sel]; if (!x) return; if (['rot', 'size', 'w'].includes(k)) v = Number(v); if (k === 'cap' && v) LB.board.items.forEach(y => { if (y.t === 'player' && y.team === x.team) y.cap = false; }); if (v === '' && k !== 'name' && k !== 'n' && k !== 'text') delete x[k]; else x[k] = v; LB.paint(); if (k === 'team' || k === 'rot' && document.activeElement?.type !== 'range') LB.showProps(); };
+    /* The selected item's properties, floating over the pitch. */
+    LB.showProps = () => {
+      const box = document.getElementById('lb-props'); if (!box) return;
+      const x = LB.board?.items[LB.sel]; if (!x) { box.hidden = true; box.innerHTML = ''; return; }
+      const COLORS = ['', '#ef4444', '#3b82f6', '#16a34a', '#f59e0b', '#a855f7', '#0ea5e9', '#111827', '#ffffff'];
+      const colors = (cur, auto = true) => `<span class="lb-pcolors">${COLORS.filter(c => auto || c).map(c => `<button type="button" class="${(cur || '') === c ? 'on' : ''} ${c ? '' : 'auto'}" style="${c ? 'background:' + c : ''}" title="${c ? '' : 'لون الفريق'}" onclick="FootballLabUI.prop('color','${c}');FootballLabUI.showProps()"></button>`).join('')}<input type="color" value="${cur || '#ef4444'}" oninput="FootballLabUI.prop('color',this.value)" aria-label="لون مخصص"></span>`;
+      const rot = `<label class="lb-pf">التدوير <small>${x.rot || 0}°</small><span class="lb-rot"><button type="button" onclick="FootballLabUI.prop('rot',((FootballLabUI.board.items[FootballLabUI.sel].rot||0)+345)%360)">↺</button><input type="range" min="0" max="359" value="${x.rot || 0}" oninput="FootballLabUI.prop('rot',this.value);this.closest('label').querySelector('small').textContent=this.value+'°'"><button type="button" onclick="FootballLabUI.prop('rot',((FootballLabUI.board.items[FootballLabUI.sel].rot||0)+15)%360)">↻</button></span></label>`;
+      const title = { player: 'خصائص اللاعب', ball: 'الكورة', cone: 'قمع', goal: 'مرمى صغير', ladder: 'سلم رشاقة', pole: 'عمود / حلقة', text: 'نص', line: x.kind === 'pass' ? 'تمريرة' : x.kind === 'run' ? 'تحرك' : x.kind === 'arrow' ? 'سهم' : 'خط', free: 'رسم حر', circle: 'دائرة', rect: 'مستطيل' }[x.t] || 'عنصر';
+      let body = '';
+      if (x.t === 'player') body = `<div class="lb-pf2"><label class="lb-pf">رقم القميص<input type="number" min="0" max="99" value="${E(x.n ?? '')}" oninput="FootballLabUI.prop('n',this.value)"></label><label class="lb-pf">الفريق<select onchange="FootballLabUI.prop('team',this.value)"><option value="a" ${x.team === 'a' ? 'selected' : ''}>الرئيسي</option><option value="b" ${x.team === 'b' ? 'selected' : ''}>المنافس</option></select></label></div>
+        <label class="lb-pf">الاسم<input value="${E(x.name || '')}" placeholder="اختياري" oninput="FootballLabUI.prop('name',this.value)"></label>
+        <label class="lb-pf">الدور<select onchange="FootballLabUI.prop('role',this.value)"><option value="">—</option>${Object.entries(FC?.POSITIONS || {}).map(([k, p]) => `<option value="${k}" ${x.role === k ? 'selected' : ''}>${E(p.name)} (${k})</option>`).join('')}</select></label>
+        <label class="lb-check"><input type="checkbox" ${x.cap ? 'checked' : ''} onchange="FootballLabUI.prop('cap',this.checked)"> كابتن الفريق</label>
+        <div class="lb-pf">لون مخصص${colors(x.color)}</div>${rot.replace('التدوير', 'اتجاه اللاعب')}`;
+      else if (x.t === 'text') body = `<label class="lb-pf">النص<input value="${E(x.text || '')}" oninput="FootballLabUI.prop('text',this.value)"></label><label class="lb-pf">الحجم<input type="range" min="12" max="48" value="${x.size || 20}" oninput="FootballLabUI.prop('size',this.value)"></label><div class="lb-pf">اللون${colors(x.color, false)}</div>${rot}`;
+      else if (['cone', 'pole', 'ladder'].includes(x.t)) body = `<div class="lb-pf">اللون${colors(x.color, false)}</div>${x.t === 'ladder' ? rot : ''}`;
+      else if (x.t === 'goal') body = rot;
+      else if (x.t !== 'ball') body = `<div class="lb-pf">اللون${colors(x.color, false)}</div><label class="lb-pf">السُمك<input type="range" min="2" max="10" value="${x.w || 4}" oninput="FootballLabUI.prop('w',this.value)"></label>`;
+      box.hidden = false;
+      box.innerHTML = `<header><b>${title}</b><button type="button" aria-label="إغلاق" onclick="FootballLabUI.sel=-1;FootballLabUI.paint();FootballLabUI.showProps();render()">×</button></header>${body}<footer><button type="button" class="lb-pcopy" onclick="FootballLabUI.copySel()">⧉ نسخ</button><button type="button" class="lb-pdel" onclick="FootballLabUI.delSel()">🗑 حذف</button></footer>`;
+      box.onpointerdown = e => { if (e.target.matches('input,select,button')) push(); };
+    };
     LB.record = () => { LB.rec = !LB.rec; if (LB.rec) LB.board.frames = [positions()]; render(); toast(LB.rec ? 'التسجيل شغال: حرّك اللاعيبة' : `اتسجلت ${LB.board.frames.length} حركة`); };
     LB.play = () => {
       const fr = LB.board.frames; if (fr.length < 2) return toast('سجّل حركة الأول');
@@ -176,19 +216,36 @@
       const [W, H] = SIZE[LB.board.field] || SIZE.full;
       const at = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse()); return [Math.max(0, Math.min(1, q.x / W)), Math.max(0, Math.min(1, q.y / H))]; };
       let drag = null, draft = null;
+      const select = i => { const was = LB.sel; LB.sel = i; LB.paint(); LB.showProps(); if ((was < 0) !== (i < 0)) render(); };
       svg.onpointerdown = e => {
         const it = e.target.closest('.lb-it'), i = it ? Number(it.dataset.i) : -1, p = at(e);
-        if (LB.tool === 'erase') { if (i >= 0) { push(); LB.board.items.splice(i, 1); LB.paint(); } return; }
-        if (LB.tool === 'ball') { push(); LB.board.items = LB.board.items.filter(x => x.t !== 'ball'); LB.board.items.push({ t: 'ball', x: p[0], y: p[1] }); return LB.paint(); }
-        if (LB.tool === 'move') { if (i >= 0 && (LB.board.items[i].t === 'player' || LB.board.items[i].t === 'ball')) { push(); drag = i; svg.setPointerCapture(e.pointerId); } return; }
+        if (LB.tool === 'erase') { if (i >= 0) { push(); LB.board.items.splice(i, 1); LB.sel = -1; restructured(); LB.paint(); LB.showProps(); } return; }
+        if (LB.tool === 'ball') { push(); const old = LB.board.items.findIndex(x => x.t === 'ball'); if (old >= 0) { [LB.board.items[old].x, LB.board.items[old].y] = p; } else LB.board.items.push({ t: 'ball', x: p[0], y: p[1] }); return LB.paint(); }
+        if (['cone', 'goal', 'ladder', 'pole', 'text'].includes(LB.tool)) { push(); const item = { t: LB.tool, x: p[0], y: p[1], ...(LB.tool === 'text' ? { text: 'نص', size: 20, color: '#ffffff' } : {}) }; LB.board.items.push(item); return select(LB.board.items.length - 1); }
+        if (LB.tool === 'move') {
+          if (i < 0) return select(-1);
+          push(); drag = { i, from: p, orig: JSON.parse(JSON.stringify(LB.board.items[i])) }; svg.setPointerCapture(e.pointerId); select(i); return;
+        }
         push(); svg.setPointerCapture(e.pointerId);
         const base = { color: LB.color, w: LB.width };
         draft = LB.tool === 'pen' ? { t: 'free', pts: [p], ...base } : ['line', 'arrow', 'run', 'pass'].includes(LB.tool) ? { t: 'line', kind: LB.tool, a: p, b: p, ...base } : { t: LB.tool, a: p, b: p, ...base };
         LB.board.items.push(draft);
       };
-      svg.onpointermove = e => { const p = at(e); if (drag != null) { const x = LB.board.items[drag]; [x.x, x.y] = p; LB.paint(); return; } if (draft) { if (draft.t === 'free') draft.pts.push(p); else draft.b = p; LB.paint(); } };
-      svg.onpointerup = () => { if (drag != null && LB.rec) LB.board.frames.push(positions()); if (draft && draft.t !== 'free' && Math.hypot(draft.b[0] - draft.a[0], draft.b[1] - draft.a[1]) < .01) { LB.board.items.pop(); hist.pop(); } drag = null; draft = null; LB.paint(); };
+      svg.onpointermove = e => {
+        const p = at(e);
+        if (drag) { const x = LB.board.items[drag.i], o = drag.orig, dx = p[0] - drag.from[0], dy = p[1] - drag.from[1];
+          if (POINT.has(x.t)) { x.x = Math.max(0, Math.min(1, o.x + dx)); x.y = Math.max(0, Math.min(1, o.y + dy)); } else if (o.pts) x.pts = o.pts.map(q => [q[0] + dx, q[1] + dy]); else { x.a = [o.a[0] + dx, o.a[1] + dy]; x.b = [o.b[0] + dx, o.b[1] + dy]; }
+          LB.paint(); return; }
+        if (draft) { if (draft.t === 'free') draft.pts.push(p); else draft.b = p; LB.paint(); }
+      };
+      svg.onpointerup = () => {
+        if (drag) { const moved = JSON.stringify(LB.board.items[drag.i]) !== JSON.stringify(drag.orig); if (!moved) hist.pop(); else if (LB.rec) LB.board.frames.push(positions()); }
+        if (draft && draft.t !== 'free' && Math.hypot(draft.b[0] - draft.a[0], draft.b[1] - draft.a[1]) < .01) { LB.board.items.pop(); hist.pop(); }
+        drag = null; draft = null; LB.paint();
+      };
     };
+    /* Delete removes the selected item; Escape lets go of it. */
+    document.addEventListener('keydown', e => { if (!LB.board || !document.getElementById('lb-stage') || e.target.matches('input,textarea,select')) return; if ((e.key === 'Delete' || e.key === 'Backspace') && LB.sel >= 0) { e.preventDefault(); LB.delSel(); } if (e.key === 'Escape' && LB.sel >= 0) { LB.sel = -1; LB.paint(); LB.showProps(); render(); } });
     LB.save = () => V.run(() => { let row; db.update(st => { row = L.saveBoard(st, LB.board, { by: 'الإدارة الفنية' }); }); LB.board.id = row.id; toast('اتحفظت اللوحة'); render(); });
     LB.remove = () => { if (!confirm('حذف اللوحة؟')) return; V.run(() => db.update(st => { st.fbBoards = (st.fbBoards || []).filter(b => b.id !== LB.board.id); })); LB.board = null; render(); };
     LB.export = kind => {
