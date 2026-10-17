@@ -37,9 +37,31 @@
     const desk = window.Desk && window.DeskCore ? Desk.unreadFor('admin') + (db.state.tickets || []).filter(t => t.status === 'open').length : 0;
     return { tasks: a.pending.length + overdue, money: a.openInvoices.length, desk };
   };
+  /* Each section lists its pages under it in the sidebar. The current section stays open;
+     pressing its title folds or unfolds it, pressing another section's title opens its first page. */
+  const folded = new Set();
+  let peek = '';
+  const redraw = () => { document.getElementById('nav').innerHTML = navHTML(); };
+  window.WSNav = {
+    head(k, first) {
+      const cur = sectionOf(state.page), subs = (SECTIONS.find(s => s[0] === k) || [])[2]?.length > 1, open = (cur && cur[0] === k) || peek === k;
+      if (open && subs) { folded.has(k) ? folded.delete(k) : folded.add(k); return redraw(); }
+      folded.delete(k);
+      /* In the phone drawer, show the section's pages first instead of leaving straight away. */
+      if (subs && document.getElementById('side')?.classList.contains('show')) { peek = k; return redraw(); }
+      peek = ''; go(first);
+    },
+    to(r) { peek = ''; go(r); }
+  };
   navHTML = () => {
     const b = badges(), cur = sectionOf(state.page);
-    return SECTIONS.map(([k, label, pages]) => `<a href="#${pages[0][0]}" class="${cur && cur[0] === k ? 'on' : ''}" onclick="go('${pages[0][0]}');return false"><span class="ac-nav-icon">${icon(k)}</span>${E(label)}${b[k] ? `<em class="ws-badge">${b[k]}</em>` : ''}</a>`).join('');
+    return SECTIONS.map(([k, label, pages]) => {
+      const here = cur && cur[0] === k, subs = pages.length > 1, open = (here || peek === k) && subs && !folded.has(k);
+      const head = `<a href="#${pages[0][0]}" class="ws-head ${here ? 'on' : ''} ${subs ? 'has-sub' : ''}" ${subs ? `aria-expanded="${open}"` : ''} onclick="WSNav.head('${k}','${pages[0][0]}');return false"><span class="ac-nav-icon">${icon(k)}</span><span class="ws-head-label">${E(label)}</span>${b[k] ? `<em class="ws-badge">${b[k]}</em>` : ''}${subs ? '<i class="ws-chev" aria-hidden="true"></i>' : ''}</a>`;
+      if (!open) return head;
+      const page = EXTRA[state.page] ? '' : state.page;
+      return head + `<div class="ws-sub" role="group" aria-label="${E(label)}">${pages.map(([r, t]) => `<a href="#${r}" class="${page === r ? 'on' : ''}" ${page === r ? 'aria-current="page"' : ''} onclick="WSNav.to('${r}');return false">${E(t)}</a>`).join('')}</div>`;
+    }).join('');
   };
 
   /* One scope control in the header for every page. */
@@ -58,10 +80,6 @@
       let scope = document.getElementById('ws-scope');
       if (!scope) { scope = document.createElement('div'); scope.id = 'ws-scope'; scope.className = 'ws-scope'; const sel = document.getElementById('branchSel'); (sel?.parentElement || top).insertBefore(scope, sel || null); }
       scope.innerHTML = scopeHTML();
-    }
-    const sec = sectionOf(state.page), content = document.getElementById('content');
-    if (sec && sec[2].length > 1 && content && !content.querySelector('.ws-section-tabs')) {
-      content.insertAdjacentHTML('afterbegin', `<nav class="ws-section-tabs" aria-label="${E(sec[1])}">${sec[2].map(([r, t]) => `<button type="button" class="${state.page === r ? 'on' : ''}" aria-current="${state.page === r ? 'page' : 'false'}" onclick="go('${r}')">${E(t)}</button>`).join('')}</nav>`);
     }
     document.body.classList.add('ws-shell');
   };
