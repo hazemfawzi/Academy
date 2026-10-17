@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (!window.V || !window.SportEngine) return;
-  const db = V.db, VERSION = 10;
+  const db = V.db, VERSION = 11;
   if ((db.state.sportDemoVersion || 0) >= VERSION) return;
   const firstRun = (db.state.sportDemoVersion || 0) < 1;
 
@@ -367,6 +367,47 @@
         s.fbTests.push({ id: `fbt-${m.id}-${k}`, memberId: m.id, at: iso(at), by: s.groups.find(g => g.id === m.group)?.coach || '', height, weight: r1(bmi * (height / 100) ** 2), sitting: r1(height * (0.515 + (early ? 0.008 : 0))),
           values: { sprint10: r2(Math.max(1.6, 2.32 - x(1) * 0.065)), sprint30: r2(Math.max(4, 5.55 - x(2) * 0.19)), agility: r2(Math.max(4.3, 6.05 - x(3) * 0.16)), jump: Math.round(Math.min(70, 22 + x(4) * 3.1)), yoyo: Math.round(Math.max(120, 320 + x(5) * 130) / 40) * 40 } });
       });
+    });
+    s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 10);
+  }));
+
+  /* Version 11: official matches against other academies (six played, two coming) with
+     line-ups and minutes, five weeks of session effort, and a few injuries. */
+  if ((db.state.sportDemoVersion || 0) < 11 && window.FootballCore) V.run(() => db.update(s => {
+    const FC = window.FootballCore, H = t => hash('mt' + t);
+    if ((s.fbMatches || []).length) { s.sportDemoVersion = VERSION; return; }
+    const OPP = ['أكاديمية الشروق', 'نادي النصر الرياضي', 'أكاديمية النجوم', 'نادي الصفوة', 'أكاديمية المستقبل', 'نادي الرواد', 'أكاديمية الأبطال', 'نادي الجزيرة الرياضي'];
+    s.fbMatches = []; s.fbLoad = []; s.fbInjuries = [];
+    FC.squads(s).forEach((g, gi) => {
+      const players = s.members.filter(m => m.group === g.id), f = FC.matchFormat(FC.uOf(g.fb.birthYear, now));
+      const bench = new Set(players.filter((p, i) => H(p.id) % 6 === 0 && p.fb?.position !== 'GK').slice(0, 2).map(p => p.id));
+      for (let k = -6; k <= 1; k++) {
+        if (k === 0) continue;
+        const at = daysFrom(k * 7 - ((now.getDay() + 2) % 7) + 6); at.setHours(10 + (gi % 3), 0, 0, 0);
+        const h = H(g.id + k), x = { id: `fbm-${g.id}-${k}`, squadId: g.id, opponent: OPP[(gi * 3 + k + 8) % OPP.length], competition: k % 3 === 0 ? 'ودية' : 'دوري المنطقة', home: h % 2 === 0, venue: h % 2 === 0 ? g.resource : '', at: iso(at), format: f, status: 'scheduled', score: null, lineup: [] };
+        if (k < 0) {
+          const pool = players.slice().sort((a, b) => (bench.has(a.id) - bench.has(b.id)) || (H(a.id + k) % 13) - (H(b.id + k) % 13));
+          const gk = pool.find(p => p.fb?.position === 'GK'), starters = [gk, ...pool.filter(p => p !== gk)].filter(Boolean).slice(0, f.players), subs = pool.filter(p => !starters.includes(p) && !bench.has(p.id)).slice(0, 4);
+          const us = h % 4, them = (h >>> 3) % 3;
+          x.lineup = [...starters.map((p, i) => ({ memberId: p.id, start: true, position: p.fb?.position || '', minutes: i > f.players - 4 && subs.length ? f.minutes - 15 - (h % 10) : f.minutes, goals: 0, assists: 0, rating: 5 + (H(p.id + k) % 5) })),
+            ...subs.map(p => ({ memberId: p.id, start: false, position: p.fb?.position || '', minutes: 10 + (H(p.id + k) % 20), goals: 0, assists: 0, rating: 5 + (H(p.id + k) % 4) }))];
+          for (let gl = 0; gl < us; gl++) { const sc = x.lineup.filter(l => ['ST', 'W', 'AM', 'CM'].includes(l.position)); const who = sc[(h >>> gl) % (sc.length || 1)] || x.lineup[0]; who.goals++; const ast = x.lineup.filter(l => l !== who)[(h >>> (gl + 4)) % (x.lineup.length - 1)]; if (ast && gl % 2 === 0) ast.assists++; }
+          x.status = 'played'; x.score = { us, them };
+        }
+        s.fbMatches.push(x);
+      }
+      /* Session effort for five weeks on the squad's training days; a few players had a
+         sudden jump this week. */
+      players.forEach(p => {
+        const h = H(p.id), spike = h % 9 === 0;
+        for (let d = 35; d >= 1; d--) {
+          const day = daysFrom(-d); if (!g.days.includes(day.getDay())) continue;
+          const rpe = Math.max(2, Math.min(10, 5 + (H(p.id + d) % 4) - 1 + (spike && d <= 7 ? 3 : 0)));
+          s.fbLoad.push({ id: `fbl-${p.id}-${d}`, memberId: p.id, at: iso(day), rpe, minutes: spike && d <= 7 ? 110 : 90, kind: 'تمرين', load: rpe * (spike && d <= 7 ? 110 : 90) });
+        }
+      });
+      const hurt = players.filter(p => H(p.id) % 11 === 5).slice(0, 1);
+      hurt.forEach((p, i) => s.fbInjuries.push({ id: `fbi-${p.id}`, memberId: p.id, at: iso(daysFrom(-9 - gi)), part: ['الكاحل الشمال', 'العضلة الخلفية', 'الركبة اليمين'][gi % 3], kind: ['التواء درجة أولى', 'شد عضلي', 'التهاب أوتار (أوسجود)'][gi % 3], expected: iso(daysFrom(6 + gi)).slice(0, 10), status: gi % 2 ? 'rehab' : 'active', note: '' }));
     });
     s.sportDemoVersion = VERSION;
   }));
