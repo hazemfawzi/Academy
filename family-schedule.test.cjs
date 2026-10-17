@@ -296,3 +296,39 @@ test('football matches, minutes share, acute:chronic load and injuries', () => {
   FC.setInjury(st, inj.id, 'cleared');
   assert.equal(FC.injured(st, 'c'), null);
 });
+
+test('football scouting: candidates, trial scores, offers, school nominations and the funnel', () => {
+  const FC = require('./football-core.js');
+  const now = new Date('2026-10-17T12:00:00Z');
+  const st = { groups: [{ id: 'u12', sport: 'football', branch: 'زايد', fb: { tier: 'pathway', birthYear: 2015 } }, { id: 'sch', sport: 'football', branch: 'زايد', fb: { tier: 'school' } }],
+    members: [{ id: 'k', name: 'كريم عادل', dob: '2015-04-02', group: 'sch', phone: '', guardian: { name: 'عادل', phone: '01011112222' } }] };
+  assert.throws(() => FC.addCandidate(st, { name: 'علي', dob: '2015-01-01', position: 'ST', source: 'كشاف', phone: '01011112222' }, { now }), /ثنائي/);
+  assert.throws(() => FC.addCandidate(st, { name: 'علي حسن', dob: '2015-01-01', position: 'XX', source: 'كشاف', phone: '01011112222' }, { now }), /المركز/);
+  const c = FC.addCandidate(st, { name: 'علي حسن', dob: '2015-01-01', position: 'ST', source: 'كشاف', phone: '01011112222', branch: 'زايد' }, { now });
+  assert.equal(c.stage, 'spotted');
+  assert.throws(() => FC.move(st, c.id, 'offer'), /مينفعش/, 'stages cannot be skipped');
+  FC.move(st, c.id, 'invited', { at: '2026-10-20T16:00' });
+  assert.equal(c.squadId, 'u12', 'the trial squad comes from the birth year');
+  assert.throws(() => FC.move(st, c.id, 'trial', { scores: { technical: 4 } }), /من 1 لـ 5/);
+  FC.move(st, c.id, 'trial', { scores: { technical: 4, tactical: 3, physical: 5, psychosocial: 4 } });
+  assert.equal(c.trial.avg, 4);
+  assert.throws(() => FC.move(st, c.id, 'offer', { funding: 'x' }), /التمويل/);
+  FC.move(st, c.id, 'offer', { funding: 'منحة جزئية', pct: 40 });
+  assert.equal(c.offer.pct, 40);
+  const n = FC.nominate(st, 'k', { position: 'W', note: 'سريع ومهاري' }, { now });
+  assert.equal(n.source, 'ترشيح من مدرسة الكرة');
+  assert.throws(() => FC.nominate(st, 'k', { position: 'W' }, { now }), /مرشح بالفعل/);
+  assert.throws(() => FC.move(st, n.id, 'rejected'), /سبب/);
+  FC.move(st, n.id, 'invited', { at: '2026-10-21T16:00' });
+  FC.move(st, n.id, 'trial', { scores: { technical: 5, tactical: 4, physical: 4, psychosocial: 5 } });
+  FC.move(st, n.id, 'offer', { funding: 'اشتراك' });
+  FC.move(st, n.id, 'joined');
+  const m = st.members[0];
+  assert.equal(m.group, 'u12', 'a nominated school player moves to the squad');
+  assert.equal(m.fb.position, 'W');
+  assert.throws(() => FC.nominate(st, 'k', {}, { now }), /مدرسة الكرة بس/);
+  const f = FC.funnel(st);
+  assert.equal(f.total, 2);
+  assert.equal(f.stages.find(s => s.id === 'offer').reached, 2);
+  assert.equal(f.conversion, 50);
+});

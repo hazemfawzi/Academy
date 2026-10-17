@@ -50,7 +50,7 @@
     /* Sport settings open straight on this sport; other sports' pages leave the menu. */
     const settings = PAGES.sports;
     PAGES.sports = () => { setTimeout(() => window.SportBuilder?.open(ED.sport)); return settings ? settings() : ''; };
-    const others = { matches: 'none', pathway: 'football' };
+    const others = { matches: 'none', pathway: 'football', scouting: 'football' };
     const trim = (list, at) => list.forEach(sec => { const pages = sec[at]; for (let i = pages.length - 1; i >= 0; i--) { const r = pages[i][0]; if (others[r] && others[r] !== ED.sport) { pages.splice(i, 1); continue; } if (r === 'sports') pages[i][at === 2 ? 1 : 2] = 'إعدادات ' + ED.def.name; if (r === 'pathway') pages[i][at === 2 ? 1 : 2] = 'المراحل السنية'; if (r === 'groups' && ED.sport === 'football') pages[i][at === 2 ? 1 : 2] = 'الفرق والمجموعات'; } });
     if (window.WS_SECTIONS) trim(window.WS_SECTIONS, 2);
     trim(NAV, 1);

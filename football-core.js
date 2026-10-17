@@ -278,7 +278,72 @@
   function setInjury(state, id, status) { const r = (state.fbInjuries || []).find(x => x.id === id); if (!r) throw Error('الإصابة مش موجودة'); if (!INJURY[status]) throw Error('حالة غير صحيحة'); r.status = status; if (status === 'cleared') r.clearedAt = new Date().toISOString(); return r; }
   const injured = (state, mid) => (state.fbInjuries || []).find(r => r.memberId === mid && r.status !== 'cleared') || null;
 
-  const api = { DAY, REVIEW_DAYS, PHASES, POSITIONS, LINES, CORNERS, TRACKS, FUNDING, GOAL_STATUS, season, uOf, phaseOf, squadName, quarter, isSquad, squads, playersOf, isPathway, itemsOf, cornerScores, history, latest, due, idp, validateAssessment, addAssessment, saveGoal, review, rae, depth, squadSummary, TESTS, BODY, TIMING, tests, lastValue, prevValue, improved, recordTests, growth, squadRank, ageYears, COMPETITIONS, matchFormat, MINUTES_TARGET, matches, addMatch, recordResult, minutesTable, recordLoad, workload, INJURY, addInjury, setInjury, injured };
+  /* ---------- scouting, trials and nominations ---------- */
+  /* A candidate moves through the funnel: spotted → invited to a trial → on trial (scored
+     on the four corners, 1–5) → offered a place → joined, or not accepted at any step.
+     Football school players can be nominated by their coach; they enter the same funnel. */
+  const SCOUT_STAGES = { spotted: 'مرصود', invited: 'مدعو للاختبار', trial: 'في الاختبار', offer: 'عرض انضمام', joined: 'انضم للمسار', rejected: 'لم يُقبل' };
+  const SCOUT_SOURCES = ['كشاف', 'يوم اختبار مفتوح', 'ترشيح من مدرسة الكرة', 'تقديم ولي أمر', 'توصية مدرب'];
+  const NEXT = { spotted: ['invited', 'rejected'], invited: ['trial', 'rejected'], trial: ['offer', 'rejected'], offer: ['joined', 'rejected'], joined: [], rejected: [] };
+  const NEXT_OF = stage => NEXT[stage] || [];
+  const candidates = state => (state.fbScouting || []).slice().sort((a, b) => new Date(b.updated || b.created) - new Date(a.updated || a.created));
+  const candidate = (state, cid) => (state.fbScouting || []).find(c => c.id === cid) || null;
+  const squadFor = (state, birthYear, branch) => squads(state).filter(g => g.fb.birthYear === Number(birthYear)).sort((a, b) => (b.branch === branch) - (a.branch === branch))[0] || null;
+  function addCandidate(state, input, meta = {}) {
+    const name = String(input.name || '').trim(), dob = String(input.dob || '');
+    if (name.split(/\s+/).length < 2) throw Error('اكتب اسم اللاعب ثنائي على الأقل');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dob)) throw Error('اختار تاريخ الميلاد');
+    const u = uOf(Number(dob.slice(0, 4)), meta.now);
+    if (u < 7 || u > 21) throw Error('السن خارج المراحل السنية');
+    if (!POSITIONS[input.position]) throw Error('اختار المركز');
+    if (!SCOUT_SOURCES.includes(input.source)) throw Error('اختار مصدر الترشيح');
+    if (input.memberId && (state.fbScouting || []).some(c => c.memberId === input.memberId && !['joined', 'rejected'].includes(c.stage))) throw Error('اللاعب مرشح بالفعل');
+    const phone = String(input.phone || '').trim();
+    if (!input.memberId && !/^01[0125]\d{8}$/.test(phone)) throw Error('اكتب موبايل ولي الأمر صحيح');
+    const at = (meta.now || new Date()).toISOString();
+    const row = { id: meta.id || 'fbc-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name, dob, position: input.position, foot: input.foot || 'يمين', source: input.source, club: String(input.club || '').trim(), guardian: String(input.guardian || '').trim(), phone, memberId: input.memberId || '', branch: input.branch || '', note: String(input.note || '').trim(), by: meta.by || '', stage: 'spotted', created: at, updated: at, log: [{ at, stage: 'spotted', note: String(input.note || '').trim() }] };
+    state.fbScouting = state.fbScouting || [];
+    state.fbScouting.push(row);
+    return row;
+  }
+  /* Nominating a school player: name, birth date and branch come from the member. */
+  function nominate(state, mid, input = {}, meta = {}) {
+    const m = state.members.find(x => x.id === mid), g = m && state.groups.find(x => x.id === m.group);
+    if (!m) throw Error('اللاعب مش موجود');
+    if (!g || g.sport !== 'football' || isSquad(g)) throw Error('الترشيح للاعبين مدرسة الكرة بس');
+    if (!m.dob) throw Error('سجّل تاريخ ميلاد اللاعب الأول');
+    return addCandidate(state, { name: m.name, dob: m.dob, position: input.position || m.fb?.position, foot: input.foot || m.fb?.foot, source: 'ترشيح من مدرسة الكرة', memberId: m.id, branch: g.branch, guardian: m.guardian?.name || '', phone: m.guardian?.phone || m.phone || '', note: input.note }, meta);
+  }
+  function move(state, cid, stage, input = {}, meta = {}) {
+    const c = candidate(state, cid);
+    if (!c) throw Error('المرشح مش موجود');
+    if (!NEXT[c.stage].includes(stage)) throw Error(`مينفعش من «${SCOUT_STAGES[c.stage]}» لـ «${SCOUT_STAGES[stage] || stage}»`);
+    const note = String(input.note || '').trim();
+    if (stage === 'invited') { if (!input.at || isNaN(new Date(input.at))) throw Error('اختار ميعاد الاختبار'); c.trialAt = new Date(input.at).toISOString(); c.squadId = input.squadId || squadFor(state, c.dob.slice(0, 4), c.branch)?.id || ''; }
+    if (stage === 'trial') {
+      const scores = {};
+      Object.keys(CORNERS).forEach(k => { const v = Number(input.scores?.[k]); if (!Number.isInteger(v) || v < 1 || v > 5) throw Error(`قيّم ${CORNERS[k].name} من 1 لـ 5`); scores[k] = v; });
+      c.trial = { scores, avg: Math.round(Object.values(scores).reduce((a, b) => a + b, 0) / 4 * 10) / 10, sessions: Math.max(1, Number(input.sessions) || 1), by: meta.by || '', note };
+    }
+    if (stage === 'offer') { if (!FUNDING.includes(input.funding)) throw Error('اختار نوع التمويل'); c.offer = { funding: input.funding, pct: input.funding === 'منحة جزئية' ? Math.min(90, Math.max(10, Number(input.pct) || 50)) : null }; }
+    if (stage === 'rejected' && !note) throw Error('اكتب سبب القرار عشان يتبلغ لولي الأمر بوضوح');
+    if (stage === 'joined') {
+      const g = state.groups.find(x => x.id === (input.squadId || c.squadId)) || squadFor(state, c.dob.slice(0, 4), c.branch);
+      if (!g) throw Error('مفيش فريق مسار لمواليد ' + c.dob.slice(0, 4));
+      c.squadId = g.id;
+      if (c.memberId) { const m = state.members.find(x => x.id === c.memberId); if (m) { m.group = g.id; m.branch = g.branch; m.fb = { ...(m.fb || {}), track: 'pathway', position: c.position, foot: c.foot, funding: c.offer?.funding || 'اشتراك', ...(c.offer?.pct ? { pct: c.offer.pct } : {}) }; } }
+    }
+    const at = (meta.now || new Date()).toISOString();
+    c.stage = stage; c.updated = at; c.log.push({ at, stage, note, by: meta.by || '' });
+    return c;
+  }
+  function funnel(state, from = null) {
+    const rows = (state.fbScouting || []).filter(c => !from || new Date(c.created) >= new Date(from));
+    const reached = k => rows.filter(c => c.log.some(l => l.stage === k)).length;
+    return { total: rows.length, stages: Object.keys(SCOUT_STAGES).map(k => ({ id: k, name: SCOUT_STAGES[k], now: rows.filter(c => c.stage === k).length, reached: reached(k) })), sources: SCOUT_SOURCES.map(s => ({ source: s, n: rows.filter(c => c.source === s).length, joined: rows.filter(c => c.source === s && c.stage === 'joined').length })), conversion: rows.length ? Math.round(reached('joined') / rows.length * 100) : null };
+  }
+
+  const api = { DAY, REVIEW_DAYS, PHASES, POSITIONS, LINES, CORNERS, TRACKS, FUNDING, GOAL_STATUS, season, uOf, phaseOf, squadName, quarter, isSquad, squads, playersOf, isPathway, itemsOf, cornerScores, history, latest, due, idp, validateAssessment, addAssessment, saveGoal, review, rae, depth, squadSummary, TESTS, BODY, TIMING, tests, lastValue, prevValue, improved, recordTests, growth, squadRank, ageYears, COMPETITIONS, matchFormat, MINUTES_TARGET, matches, addMatch, recordResult, minutesTable, recordLoad, workload, INJURY, addInjury, setInjury, injured, SCOUT_STAGES, SCOUT_SOURCES, NEXT_OF, candidates, candidate, squadFor, addCandidate, nominate, move, funnel };
   root.FootballCore = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
