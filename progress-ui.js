@@ -11,7 +11,8 @@
   const empty = (t, d) => `<div class="ac-empty"><b>${E(t)}</b><p>${E(d)}</p></div>`;
   const group = id => db.state.groups.find(g => g.id === id);
 
-  const PG = window.ProgressUI = { sport: '', group: 'all', filter: 'all' };
+  /* include: which groups the levels page covers (football leaves its pathway squads to their own assessments). */
+  const PG = window.ProgressUI = { sport: '', group: 'all', filter: 'all', include: () => true };
   const sportsWithLevels = () => SE.list().filter(d => d.on !== false && (d.modules.includes('levels') || d.modules.includes('belts')));
   const currentSport = () => {
     const list = sportsWithLevels();
@@ -21,7 +22,7 @@
   };
   const rosterOf = d => {
     const branch = U?.branch && U.branch !== 'all' ? U.branch : null;
-    const groups = db.state.groups.filter(g => g.sport === d.id && (!branch || g.branch === branch) && (PG.group === 'all' || g.id === PG.group));
+    const groups = db.state.groups.filter(g => g.sport === d.id && PG.include(g) && (!branch || g.branch === branch) && (PG.group === 'all' || g.id === PG.group));
     const ids = new Set(groups.map(g => g.id));
     return { groups, members: db.state.members.filter(m => ids.has(m.group)) };
   };
@@ -46,7 +47,7 @@
       <div class="pg-two"><section class="sb-section"><header><h2>توزيع المستويات</h2></header><div class="pg-dist">${dist.map(x => `<div class="${x.l.active ? '' : 'inactive'}"><span>${E(x.l.name)}</span><i><em style="width:${x.n / max * 100}%"></em></i><b>${x.n}</b></div>`).join('')}</div></section>
       ${d.modules.includes('exams') ? examPanel(d, exam) : `<section class="sb-section"><header><h2>آخر النتائج</h2></header>${recentResults(d)}</section>`}</div>
       <section class="sb-section"><header class="pg-list-head"><h2>${E(d.terms.players)} والترقية</h2><div class="pg-filters">
-        <select aria-label="الجروب" onchange="ProgressUI.group=this.value;render()"><option value="all">كل الجروبات</option>${db.state.groups.filter(g => g.sport === d.id).map(g => `<option value="${g.id}" ${PG.group === g.id ? 'selected' : ''}>${E(g.name)}</option>`).join('')}</select>
+        <select aria-label="الجروب" onchange="ProgressUI.group=this.value;render()"><option value="all">كل الجروبات</option>${db.state.groups.filter(g => g.sport === d.id && PG.include(g)).map(g => `<option value="${g.id}" ${PG.group === g.id ? 'selected' : ''}>${E(g.name)}</option>`).join('')}</select>
         <select aria-label="الحالة" onchange="ProgressUI.filter=this.value;render()">${[['all', 'كل الحالات'], ['eligible', 'المؤهلون'], ['working', 'يستكملون المتطلبات'], ['unassigned', 'بدون مستوى'], ['top', 'آخر مستوى']].map(([v, l]) => `<option value="${v}" ${PG.filter === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div></header>
         <div class="pg-table" role="table"><div class="pg-row pg-th" role="row"><span>اللاعب</span><span>المستوى</span><span>المهارات</span><span>${E(main?.name || 'أفضل نتيجة')}</span><span>الحضور</span><span>الحالة</span><span></span></div>
         ${filtered.map(({ m, el, sk }) => { const st = statusOf(el), b = main ? P.best(m, main) : null; return `<div class="pg-row" role="row">

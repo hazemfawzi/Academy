@@ -173,6 +173,38 @@
       };
     }
 
+    /* Levels belong to the football school; pathway players are assessed on the four corners. */
+    if (window.ProgressUI) {
+      ProgressUI.include = g => g.sport !== 'football' || !FC.isSquad(g);
+      const baseProgress = PAGES.progress;
+      PAGES.progress = () => {
+        const html = baseProgress(); if (ProgressUI.sport !== 'football') return html;
+        const list = scoped().map(g => FC.squadSummary(db.state, g)), n = list.reduce((k, x) => k + x.players.length, 0), due = list.reduce((k, x) => k + x.due, 0);
+        return html.replace('<small>المستويات والتقييمات</small>', '<small>مدرسة الكرة · المستويات</small>')
+          .replace('<div class="pg-kpis">', `<div class="fb-tracks"><div><b>${TRACK_ICON.school} مدرسة الكرة: المستويات</b><small>الصفحة دي للاعبين بالاشتراك: مستوى ومهارات وترقية.</small></div><button type="button" class="fb-track-link" onclick="go('pathway')"><b>${TRACK_ICON.pathway} مسار الاحتراف: ${n} لاعب</b><small>بيتقيموا على الأركان الأربعة كل 8 أسابيع${due ? ` · ${due} تقييم مستحق` : ''} ← المراحل السنية</small></button></div><div class="pg-kpis">`);
+      };
+    }
+
+    /* Football reports: the pathway squads side by side, then the school. */
+    FU.reportsSection = () => {
+      const now = new Date(), list = scoped().map(g => FC.squadSummary(db.state, g, now)), all = list.flatMap(x => x.players);
+      const from = new Date(FC.season(now).start, 7, 1);
+      const rows = list.map(x => { const mins = FC.minutesTable(db.state, x.group.id, from), played = FC.matches(db.state, x.group.id).filter(m => m.status === 'played' && new Date(m.at) >= from), won = played.filter(m => m.score.us > m.score.them).length;
+        const high = x.players.filter(p => FC.workload(db.state, p.id, now).zone === 'high').length, hurt = x.players.filter(p => FC.injured(db.state, p.id)).length, tested = x.players.filter(p => { const t = FC.tests(db.state, p.id).slice(-1)[0]; return t && (now - new Date(t.at)) / FC.DAY <= 90; }).length;
+        return { x, played: played.length, won, under: mins.filter(r => r.under).length, high, hurt, tested }; });
+      const school = db.state.members.filter(m => { const g = group(m.group); return g?.sport === 'football' && !FC.isSquad(g); }), att = school.filter(m => m.attendance > 0);
+      const levels = (window.SportEngine?.get('football')?.levels || []).map(l => [l.name, school.filter(m => m.sportLevel === l.id).length]);
+      const cell = (v, warn) => `<td class="${warn ? 'fb-alert' : ''}">${v}</td>`;
+      return `<section class="fb-card fb-report"><h3>⚽ تقارير أكاديمية الكورة · موسم ${E(FC.season(now).name)}</h3>
+        <div class="pg-kpis"><div><small>لاعبين المسار</small><b>${all.length}</b></div><div><small>لاعبين المدرسة</small><b>${school.length}</b></div><div class="${list.some(x => x.due) ? 'warn' : 'ok'}"><small>تقييمات مستحقة</small><b>${list.reduce((n, x) => n + x.due, 0)}</b></div><div class="${rows.some(r => r.hurt) ? 'warn' : ''}"><small>مصابين</small><b>${rows.reduce((n, r) => n + r.hurt, 0)}</b></div></div>
+        <h4>🎯 فرق مسار الاحتراف</h4><div class="v-table"><table class="fb-report-table"><thead><tr><th>الفريق</th><th>لاعبين</th><th>متوسط التقييم</th><th>تقييم مستحق</th><th>أهداف تطوير</th><th>مباريات رسمية (فوز)</th><th>تحت حصة الدقايق</th><th>حمل عالي</th><th>مصابين</th><th>اختبار بدني آخر 90 يوم</th></tr></thead><tbody>
+        ${rows.map(r => `<tr><td><button type="button" class="pg-name" onclick="FootballUI.openSquad('${r.x.group.id}')">${E(r.x.name)}</button></td>${cell(r.x.players.length)}${cell(r.x.corners.overall ?? '—')}${cell(r.x.due, r.x.due)}${cell(r.x.goals)}${cell(`${r.played} · فاز ${r.won}`)}${cell(r.under, r.under)}${cell(r.high, r.high)}${cell(r.hurt, r.hurt)}${cell(`${r.tested}/${r.x.players.length}`, r.tested < r.x.players.length)}</tr>`).join('') || '<tr><td colspan="10">مفيش فرق مسار.</td></tr>'}</tbody></table></div>
+        <p class="py-help">التمويل: ${FC.FUNDING.map(f => `${f} ${all.filter(p => p.fb?.funding === f).length}`).join(' · ')}</p>
+        <h4>⚽ مدرسة الكرة</h4><div class="fb-tracks"><div><b>${db.state.groups.filter(g => g.sport === 'football' && !FC.isSquad(g)).length} مجموعات · ${school.length} لاعب</b><small>متوسط الحضور ${att.length ? Math.round(att.reduce((n, m) => n + m.attendance, 0) / att.length) + '%' : '—'}</small></div><div><b>المستويات</b><small>${levels.map(([l, n]) => `${E(l)} ${n}`).join(' · ') || '—'}</small></div></div></section>`;
+    };
+    const baseReports = PAGES.reports;
+    PAGES.reports = () => { const html = baseReports(); if (U().sport !== 'football') return html; const mark = html.indexOf('آخر إجراءات'), at = mark < 0 ? html.lastIndexOf('</div>') : html.lastIndexOf('<section', mark); return html.slice(0, at) + FU.reportsSection() + html.slice(at); };
+
     /* A pathway player's file is the development profile. */
     if (window.Refine?.profile) { const profile = Refine.profile; Refine.profile = id => { const m = db.member(id); if (m && FC.isPathway(db.state, m)) { V.close && V.close(); FU.openPlayer(id); } else profile(id); }; }
   }
