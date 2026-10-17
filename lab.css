@@ -92,3 +92,28 @@
 .lb-guide{background:#f6faf7;border:1px solid #d7ebe2;border-radius:14px;padding:10px 14px;margin:4px 0 14px}
 .lb-guide summary{cursor:pointer;font-weight:700;color:#1f4637}
 .lb-guide ol{margin:10px 0 2px;padding-inline-start:20px;display:grid;gap:6px;font-size:13.5px;line-height:1.8;color:#3b4b43}
+/* board: selection panel and equipment */
+.lb-stagewrap{position:relative}
+.lb-props{position:absolute;top:12px;left:12px;width:min(330px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;background:#fff;border-radius:18px;box-shadow:0 16px 40px rgba(10,30,20,.28);padding:14px;display:grid;gap:10px;z-index:5}
+.lb-props[hidden]{display:none}
+.lb-props header{display:flex;justify-content:space-between;align-items:center}.lb-props header b{font-size:16px}
+.lb-props header button{border:0;background:none;font-size:20px;cursor:pointer;color:#475569}
+.lb-pf{display:grid;gap:5px;font-size:12.5px;font-weight:700;color:#334155}
+.lb-pf small{font-weight:400;color:#64748b}
+.lb-pf input:not([type=range]):not([type=color]),.lb-pf select{font:inherit;font-weight:400;font-size:14px;padding:9px 12px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;width:100%;box-sizing:border-box}
+.lb-pf input[type=range]{width:100%;accent-color:#2563eb}
+.lb-pf2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lb-check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.lb-pcolors{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.lb-pcolors button{width:28px;height:28px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #cbd5e1;cursor:pointer}
+.lb-pcolors button.on{box-shadow:0 0 0 2px #0f172a}
+.lb-pcolors button.auto{background:repeating-conic-gradient(#e2e8f0 0 25%,#fff 0 50%) 50%/10px 10px}
+.lb-pcolors input[type=color]{width:42px;height:28px;border:1px solid #cbd5e1;border-radius:8px;padding:0;background:none}
+.lb-rot{display:flex;align-items:center;gap:8px}.lb-rot button{width:34px;height:34px;border-radius:50%;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:16px}
+.lb-props footer{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lb-pcopy,.lb-pdel{font:inherit;font-weight:700;border-radius:12px;padding:10px;cursor:pointer}
+.lb-pcopy{border:1px solid #e2e8f0;background:#fff}.lb-pdel{border:0;background:#ef4444;color:#fff}
+.lb-sep{width:1px;height:26px;background:#e3eae5;margin:0 4px}
+.lb-tool svg{vertical-align:middle}
+.lb-stage .lb-eq{cursor:grab}
+.lb-stage .lb-sel{filter:drop-shadow(0 0 3px #38bdf8)}
