@@ -262,7 +262,7 @@
 .fb-staff{padding:0;margin-top:16px;display:grid;gap:16px}
 @media(max-width:700px){.fb-rules-grid,.fb-branch dl{grid-template-columns:1fr}}
 /* home: quick actions and the work journey side by side */
-.fb-home-top{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;align-items:stretch}
+.fb-home-top{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:stretch}
 .fb-home-top>.ny-panel{margin:0}
 .fb-quick-panel .fb-quick{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .fb-quick-panel .fb-quick-btn{padding:12px 4px;gap:6px}
