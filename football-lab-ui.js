@@ -181,6 +181,44 @@
     LB.copySel = () => { const x = LB.board.items[LB.sel]; if (!x) return; push(); const c = JSON.parse(JSON.stringify(x)); shift(c, .03); if (c.t === 'player') { c.n = Math.max(0, ...LB.board.items.filter(y => y.t === 'player' && y.team === c.team).map(y => Number(y.n) || 0)) + 1; c.cap = false; } LB.board.items.push(c); LB.sel = LB.board.items.length - 1; LB.paint(); LB.showProps(); };
     LB.delSel = () => { if (LB.sel < 0) return; push(); LB.board.items.splice(LB.sel, 1); LB.sel = -1; restructured(); LB.paint(); LB.showProps(); document.querySelectorAll('.lb-selbtn').forEach(b => { b.disabled = true; }); };
     LB.prop = (k, v) => { const x = LB.board.items[LB.sel]; if (!x) return; if (['rot', 'size', 'w'].includes(k)) v = Number(v); if (k === 'cap' && v) LB.board.items.forEach(y => { if (y.t === 'player' && y.team === x.team) y.cap = false; }); if (v === '' && k !== 'name' && k !== 'n' && k !== 'text') delete x[k]; else x[k] = v; LB.paint(); if (k === 'team' || k === 'rot' && document.activeElement?.type !== 'range') LB.showProps(); };
+    /* Where the properties panel sits over the pitch: docked to a corner or dragged anywhere
+       by its header, optionally folded to its title bar. Remembered on this device. */
+    LB.panel = (() => { try { return JSON.parse(localStorage.getItem('kora.lbPanel')) || { dock: 'tl' }; } catch (e) { return { dock: 'tl' }; } })();
+    const savePanel = () => { try { localStorage.setItem('kora.lbPanel', JSON.stringify(LB.panel)); } catch (e) { /* per-device nicety only */ } };
+    const placePanel = box => {
+      const wrap = box.parentElement; if (!wrap) return;
+      const p = LB.panel, gap = 12;
+      box.style.left = box.style.top = box.style.right = box.style.bottom = '';
+      if (p.dock === 'free') {
+        const maxX = Math.max(gap, wrap.clientWidth - box.offsetWidth - gap), maxY = Math.max(gap, wrap.clientHeight - box.offsetHeight - gap);
+        box.style.left = Math.min(maxX, Math.max(gap, (p.x || 0) * wrap.clientWidth)) + 'px';
+        box.style.top = Math.min(maxY, Math.max(gap, (p.y || 0) * wrap.clientHeight)) + 'px';
+        return;
+      }
+      box.style[p.dock[0] === 'b' ? 'bottom' : 'top'] = gap + 'px';
+      box.style[p.dock[1] === 'r' ? 'right' : 'left'] = gap + 'px';
+    };
+    const dragPanel = box => {
+      const head = box.querySelector('.lb-phead'); if (!head) return;
+      head.onpointerdown = e => {
+        if (e.target.closest('button')) return;
+        e.preventDefault();
+        const wrap = box.parentElement, wr = wrap.getBoundingClientRect(), br = box.getBoundingClientRect();
+        const dx = e.clientX - br.left, dy = e.clientY - br.top;
+        head.setPointerCapture?.(e.pointerId); box.classList.add('lb-dragging');
+        head.onpointermove = ev => {
+          LB.panel = { ...LB.panel, dock: 'free', x: (ev.clientX - wr.left - dx) / wr.width, y: (ev.clientY - wr.top - dy) / wr.height };
+          placePanel(box);
+        };
+        head.onpointerup = head.onpointercancel = () => {
+          head.onpointermove = head.onpointerup = head.onpointercancel = null; box.classList.remove('lb-dragging');
+          if (LB.panel.dock === 'free') LB.panel = { ...LB.panel, x: box.offsetLeft / wrap.clientWidth, y: box.offsetTop / wrap.clientHeight };
+          savePanel();
+        };
+      };
+    };
+    LB.dockPanel = k => { LB.panel = { ...LB.panel, dock: k }; savePanel(); LB.showProps(); };
+    LB.minPanel = () => { LB.panel = { ...LB.panel, min: !LB.panel.min }; savePanel(); LB.showProps(); };
     /* The selected item's properties, floating over the pitch. */
     LB.showProps = () => {
       const box = document.getElementById('lb-props'); if (!box) return;
@@ -200,8 +238,12 @@
       else if (x.t === 'goal') body = rot;
       else if (x.t !== 'ball') body = `<div class="lb-pf">اللون${colors(x.color, false)}</div><label class="lb-pf">السُمك<input type="range" min="2" max="10" value="${x.w || 4}" oninput="FootballLabUI.prop('w',this.value)"></label>`;
       box.hidden = false;
-      box.innerHTML = `<header><b>${title}</b><button type="button" aria-label="إغلاق" onclick="FootballLabUI.sel=-1;FootballLabUI.paint();FootballLabUI.showProps();document.querySelectorAll('.lb-selbtn').forEach(b=>b.disabled=true)">×</button></header>${body}<footer><button type="button" class="lb-pcopy" onclick="FootballLabUI.copySel()">⧉ نسخ</button><button type="button" class="lb-pdel" onclick="FootballLabUI.delSel()">🗑 حذف</button></footer>`;
+      const dock = [['tr', '↗', 'أعلى اليمين'], ['tl', '↖', 'أعلى الشمال'], ['br', '↘', 'أسفل اليمين'], ['bl', '↙', 'أسفل الشمال']].map(([k, a, t]) => `<button type="button" class="${LB.panel.dock === k ? 'on' : ''}" title="انقل اللوحة ${t}" aria-label="انقل اللوحة ${t}" onclick="FootballLabUI.dockPanel('${k}')">${a}</button>`).join('');
+      box.innerHTML = `<header class="lb-phead" title="اسحب من هنا لتحريك اللوحة"><span class="lb-pgrip" aria-hidden="true">⠿</span><b>${title}</b><span class="lb-pdock">${dock}<button type="button" title="${LB.panel.min ? 'إظهار الخصائص' : 'تصغير'}" aria-label="تصغير" onclick="FootballLabUI.minPanel()">${LB.panel.min ? '▢' : '–'}</button><button type="button" aria-label="إغلاق" onclick="FootballLabUI.sel=-1;FootballLabUI.paint();FootballLabUI.showProps();document.querySelectorAll('.lb-selbtn').forEach(b=>b.disabled=true)">×</button></span></header>${body}<footer><button type="button" class="lb-pcopy" onclick="FootballLabUI.copySel()">⧉ نسخ</button><button type="button" class="lb-pdel" onclick="FootballLabUI.delSel()">🗑 حذف</button></footer>`;
       box.onpointerdown = e => { if (e.target.matches('input,select,button')) push(); };
+      box.classList.toggle('lb-min', !!LB.panel.min);
+      placePanel(box);
+      dragPanel(box);
     };
     LB.record = () => { LB.rec = !LB.rec; if (LB.rec) LB.board.frames = [positions()]; render(); toast(LB.rec ? 'التسجيل شغال: حرّك اللاعيبة' : `اتسجلت ${LB.board.frames.length} حركة`); };
     LB.play = () => {
