@@ -84,6 +84,70 @@
   };
   U.groupForm = () => PU.groupForm();
 
+  /* ---------- a group's own file: players, schedule and next sessions ---------- */
+  const isSquad = g => !!window.FootballCore?.isSquad(g);
+  const gName = g => g ? (isSquad(g) ? FootballCore.squadName(g.fb.birthYear) : g.name) : 'بدون مجموعة';
+  const av = name => window.KoraAvatars ? KoraAvatars.render(name, 'gd-av', 34) : '';
+  const fmt = (v, o) => new Intl.DateTimeFormat('ar-EG-u-nu-latn', o).format(new Date(v));
+  U.groupDetail = id => {
+    const g = db.state.groups.find(x => x.id === id); if (!g) return;
+    const members = db.state.members.filter(m => m.group === id), now = new Date();
+    const next = db.state.sessions.filter(x => x.group === id && x.status === 'scheduled' && new Date(x.start) >= now).sort((a, b) => new Date(a.start) - new Date(b.start)).slice(0, 4);
+    const pct = g.capacity ? Math.min(100, members.length / g.capacity * 100) : 0;
+    V.open(`<div class="ac-form gd"><header class="gd-head"><div><h2>${E(gName(g))}</h2><p>${E(g.branch)} · ${E(S.describe ? S.describe(g) : '')}</p><p>المدرب <b>${E(g.coach || 'لم يحدد')}</b> · ${E(g.resource || '')}${g.ageMin != null && !isSquad(g) ? ` · من ${g.ageMin} لـ ${g.ageMax} سنة` : ''}</p></div><div class="gd-cap"><b>${members.length}</b><small>من ${g.capacity}</small><i><em style="width:${pct}%"></em></i></div></header>
+      <div class="gd-actions">${btn('+ إضافة لاعبين', `ProgramsUI.addToGroup('${id}')`, 'primary')}${btn('تعديل المجموعة', `ProgramsUI.groupForm('${id}')`)}${window.Desk ? btn('شات المجموعة', `V.close();Desk.open('g:${id}','admin');go('chat')`) : ''}</div>
+      <h3>اللاعبين (${members.length})</h3>${members.map(m => `<div class="gd-row">${av(m.name)}<span class="gd-main"><b>${E(m.name)}</b><small>${E(statusName[window.AcademyModel?.status ? AcademyModel.status(m) : ''] || '')}${m.fb?.position && window.FootballCore ? ' · ' + E(FootballCore.POSITIONS[m.fb.position]?.name || '') : ''}</small></span><span class="gd-btns">${btn('الملف', `V.close();Refine.profile('${m.id}')`, 'quiet small')}${btn('نقل', `ProgramsUI.moveForm('${m.id}')`, 'quiet small')}${btn('إخراج', `ProgramsUI.removeForm('${m.id}')`, 'quiet small')}</span></div>`).join('') || empty('المجموعة لسه فاضية', 'ضيف لاعبين للمجموعة من الزرار اللي فوق.')}
+      <h3>الحصص الجاية</h3><p class="rg-note">الحصص بتتولد لوحدها من جدول المجموعة. ${E(S.describe ? S.describe(g) : '')}</p>${next.map(x => `<div class="gd-session"><b>${E(fmt(x.start, { weekday: 'long', day: 'numeric', month: 'short' }))}</b><span>${E(fmt(x.start, { hour: 'numeric', minute: '2-digit' }))} · ${x.duration} دقيقة · ${E(x.resource || g.resource || '')}</span>${btn('تفاصيل', `AcademyUI.sessionDetail('${x.id}')`, 'quiet small')}</div>`).join('') || '<p class="rg-note">مفيش حصص جاية.</p>'}
+      <button type="button" class="gd-extra" onclick="AcademyUI.sessionForm('${id}')">+ حصة إضافية خارج الجدول (تعويض أو ودية)</button></div>`);
+  };
+
+  /* Moving a player keeps their file, payments and history; only the group changes. */
+  PU.moveMember = (mid, gid) => V.run(() => {
+    db.update(st => {
+      const m = st.members.find(x => x.id === mid), g = st.groups.find(x => x.id === gid);
+      if (!m || !g) throw Error('اختار المجموعة');
+      if (m.group === gid) throw Error('اللاعب في المجموعة دي بالفعل');
+      if (st.members.filter(x => x.group === gid).length >= g.capacity) throw Error(`${gName(g)} مليانة (${g.capacity} لاعب)`);
+      const from = m.group, future = s => s.group === from && s.status === 'scheduled' && new Date(s.start) > new Date();
+      st.sessions.filter(future).forEach(s => { delete s.rsvp[mid]; });
+      Object.assign(m, { group: gid, branch: g.branch || m.branch, sport: g.sport || m.sport }); delete m.left;
+      if (g.sport === 'football') m.fb = { ...(m.fb || {}), track: isSquad(g) ? 'pathway' : 'school' };
+      st.audit.unshift({ id: db.id('audit'), at: new Date().toISOString(), action: from ? 'نقل لاعب' : 'إضافة لاعب لمجموعة', details: `${m.name} ← ${gName(g)}` });
+    });
+    V.close(); render(); toast('اتنقل اللاعب');
+  });
+  /* Taking a player out of a group: the file stays (payments, history); they just leave the
+     group's roster, sessions and chat. Not while they still owe money. */
+  PU.removeMember = (mid, reason) => V.run(() => {
+    let gid = '';
+    db.update(st => {
+      const m = st.members.find(x => x.id === mid); if (!m) throw Error('اللاعب مش موجود');
+      const owed = st.invoices.filter(i => i.memberId === mid && i.total > i.paid).reduce((n, i) => n + i.total - i.paid, 0);
+      if (owed) throw Error(`على اللاعب ${money(owed)}. حصّلها أو الغي الفاتورة الأول.`);
+      if (!String(reason || '').trim()) throw Error('اختار سبب الإخراج');
+      gid = m.group;
+      st.sessions.filter(s => s.group === gid && s.status === 'scheduled' && new Date(s.start) > new Date()).forEach(s => { delete s.rsvp[mid]; });
+      m.left = { at: new Date().toISOString(), from: gid, reason: String(reason).trim() }; m.group = '';
+      st.audit.unshift({ id: db.id('audit'), at: new Date().toISOString(), action: 'إخراج لاعب من مجموعة', details: `${m.name} · ${reason}` });
+    });
+    V.close(); render(); toast('اتشال اللاعب من المجموعة');
+    if (gid) U.groupDetail(gid);
+  });
+  const sameSport = m => { const g = db.state.groups.find(x => x.id === m.group) || db.state.groups.find(x => x.id === m.left?.from); return db.state.groups.filter(x => !g || x.sport === g.sport); };
+  PU.moveForm = mid => { const m = db.member(mid), list = sameSport(m).filter(g => g.id !== m.group), by = m.dob ? Number(m.dob.slice(0, 4)) : 0, fit = list.find(g => isSquad(g) && g.fb.birthYear === by);
+    V.open(`<div class="ma-form fb-form"><h3>نقل ${E(m.name)}</h3><p class="py-help">ملفه ومدفوعاته وتاريخه بيفضلوا زي ما هما؛ بيتغير فريقه وحصصه وشات المجموعة.</p><label>ينتقل لـ<select id="gd-to">${list.map(g => `<option value="${g.id}" ${fit && fit.id === g.id ? 'selected' : ''}>${E(gName(g))} · ${E(g.branch)} (${db.state.members.filter(x => x.group === g.id).length}/${g.capacity})</option>`).join('')}</select></label>${fit ? `<p class="py-help">مقترح: ${E(gName(fit))} لأنه مواليد ${by}.</p>` : ''}${btn('نقل', `ProgramsUI.moveMember('${mid}',document.getElementById('gd-to').value)`, 'primary ax-btn')}</div>`); };
+  PU.removeForm = mid => { const m = db.member(mid);
+    V.open(`<div class="ma-form fb-form"><h3>إخراج ${E(m.name)} من ${E(gName(db.state.groups.find(x => x.id === m.group)))}</h3><p class="py-help">اللاعب بيخرج من قايمة المجموعة وحصصها وشاتها. ملفه ومدفوعاته بيفضلوا، وتقدر ترجعه أو تنقله لمجموعة تانية بعدين من «إضافة لاعبين».</p>
+      <label>السبب<select id="gd-why">${['ترك الأكاديمية', 'وقف مؤقت', 'انتقل لنادي تاني', 'ظروف مادية', 'أسباب صحية', 'تانية'].map(r => `<option>${r}</option>`).join('')}</select></label>
+      <div class="rg-actions">${btn('رجوع', `AcademyUI.groupDetail('${m.group}')`)}${btn('إخراج من المجموعة', `ProgramsUI.removeMember('${mid}',document.getElementById('gd-why').value)`, 'primary')}</div></div>`); };
+  /* Adding players: new ones register straight into this group, or pick existing ones. */
+  PU.addToGroup = gid => { const g = db.state.groups.find(x => x.id === gid), out = db.state.members.filter(m => !m.group && (!m.sport || m.sport === g.sport)), others = db.state.members.filter(m => m.group && m.group !== gid && db.state.groups.find(x => x.id === m.group)?.sport === g.sport);
+    V.open(`<div class="ma-form fb-form"><h3>إضافة لاعبين لـ ${E(gName(g))}</h3>
+      <div class="rg-actions">${btn('+ لاعب جديد', `V.close();Registration.open();setTimeout(()=>Registration.preset&&Registration.preset('${gid}'),50)`, 'primary')}${btn('استيراد من Excel', 'Registration.importForm()')}</div>
+      <label>أو لاعب مسجل<select id="gd-pick">${out.length ? `<optgroup label="بدون مجموعة">${out.map(m => `<option value="${m.id}">${E(m.name)}${m.left ? ' · ' + E(m.left.reason) : ''}</option>`).join('')}</optgroup>` : ''}<optgroup label="في مجموعات تانية (نقل)">${others.map(m => `<option value="${m.id}">${E(m.name)} · ${E(gName(db.state.groups.find(x => x.id === m.group)))}</option>`).join('')}</optgroup></select></label>
+      ${btn('إضافة للمجموعة', `ProgramsUI.moveMember(document.getElementById('gd-pick').value,'${gid}')`, 'ax-btn')}</div>`); };
+
+
   PU.holidays = () => {
     const list = (db.state.holidays || []).slice().sort((a, b) => a.date.localeCompare(b.date));
     V.open(`<div class="ac-form"><h2>إجازات الأكاديمية</h2><p class="rg-note">في يوم الإجازة لا تتولد حصص، والحصص المجدولة فيه تتلغي بدون خصم من رصيد اللاعبين.</p>

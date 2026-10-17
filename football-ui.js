@@ -319,6 +319,80 @@
         <div><dt>مدرسة الكرة</dt><dd>${(d?.programs || []).map(p => `${E(p.name)} ${p.ageMin}–${p.ageMax}`).join(' · ')}</dd></div><div><dt>التمويل</dt><dd>${FC.FUNDING.join(' · ')}</dd></div></dl></section>` + usage;
     };
 
+    /* ---------- creating or editing a football group: four short steps ---------- */
+    if (window.ProgramsUI) {
+      const PU = window.ProgramsUI, oldForm = PU.groupForm, DAYN = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'], ORDER = [6, 0, 1, 2, 3, 4, 5];
+      const fbOn = id => { const g = id && group(id); return g ? g.sport === 'football' : U().sport === 'football'; };
+      const bands = () => (window.SportEngine?.get('football')?.programs || []).map(p => ({ name: p.name, min: p.ageMin, max: p.ageMax }));
+      const coachesOf = () => [...new Set(db.state.groups.filter(g => g.sport === 'football').map(g => g.coach).filter(Boolean))];
+      const pitchesOf = br => [...new Set(db.state.groups.filter(g => g.sport === 'football' && (!br || g.branch === br)).map(g => g.resource).concat(window.SportEngine?.get('football')?.resources?.map(r => r.name || r) || []).filter(x => x && x !== 'مساحة التدريب'))];
+      const branches = () => [...new Set(db.state.groups.map(g => g.branch).filter(Boolean))];
+      let W = null;
+      PU.groupForm = (id = '', kind = '') => {
+        if (!fbOn(id)) return oldForm(id, kind);
+        const g = id ? group(id) : null, squad = g ? FC.isSquad(g) : kind === 'pathway', U0 = U();
+        W = g ? { id, step: 1, kind: squad ? 'pathway' : 'school', by: g.fb?.birthYear || FC.season().end - 12, band: bands().find(b => b.min === g.ageMin)?.name || '', name: g.name, branch: g.branch, capacity: g.capacity, days: g.days.slice(), time: g.time, resource: g.resource, coach: g.coach, coachNew: '', pitchNew: '' }
+          : { id: '', step: kind ? 1 : 0, kind: kind || 'school', by: FC.season().end - 12, band: bands()[1]?.name || bands()[0]?.name || '', name: '', branch: U0.branch !== 'all' ? U0.branch : branches()[0] || '', capacity: kind === 'pathway' ? 22 : 18, days: [], time: '17:00', resource: '', coach: '', coachNew: '', pitchNew: '' };
+        FU.wiz();
+      };
+      const STEPS = ['النوع', 'البيانات', 'الجدول والمدرب', 'المراجعة'];
+      const field = (l, h, hint = '') => `<label class="fw-field"><span>${l}</span>${h}${hint ? `<small>${hint}</small>` : ''}</label>`;
+      const schoolName = () => `مدرسة الكرة · ${W.band || 'مجموعة'}${W.time ? ' · ' + (Number(W.time.slice(0, 2)) < 12 ? 'الصبح' : Number(W.time.slice(0, 2)) < 16 ? 'الضهر' : Number(W.time.slice(0, 2)) < 18 ? 'العصر' : Number(W.time.slice(0, 2)) < 20 ? 'المغرب' : 'الليل') : ''}`;
+      const coachOf = () => W.coach === '__new' ? W.coachNew.trim() : W.coach, pitchOf = () => W.resource === '__new' ? W.pitchNew.trim() : W.resource;
+      FU.wset = (k, v) => { W[k] = v; };
+      FU.wday = d => { W.days = W.days.includes(d) ? W.days.filter(x => x !== d) : [...W.days, d]; FU.wiz(); };
+      FU.wiz = (err = '') => {
+        const sq = W.kind === 'pathway', u = FC.uOf(Number(W.by)), b = bands().find(x => x.name === W.band);
+        const body = W.step === 0 ? `<div class="fw-kinds">${[['pathway', '🎯', 'فريق مسار الاحتراف', 'بالاختيار · فريق لكل سنة ميلاد زي قيد الاتحاد · تقييم وخطة تطوير وماتشات رسمية'], ['school', '⚽', 'مجموعة مدرسة الكرة', 'بالاشتراك · بالسن (براعم، أشبال، ناشئين) والميعاد · مستويات وترقية']].map(([k, i, t, d]) => `<button type="button" class="fw-kind ${W.kind === k ? 'on' : ''}" onclick="FootballUI.wset('kind','${k}');FootballUI.wset('capacity',${k === 'pathway' ? 22 : 18});FootballUI.wnext()"><span>${i}</span><b>${t}</b><small>${d}</small></button>`).join('')}</div>`
+          : W.step === 1 ? (sq ? `${field('سنة الميلاد', `<input type="number" value="${W.by}" min="${FC.season().end - 21}" max="${FC.season().end - 6}" ${W.id ? 'disabled' : ''} oninput="FootballUI.wset('by',this.value);document.getElementById('fw-sq').textContent=FootballCore.squadName(Number(this.value))+' · مرحلة '+FootballCore.phaseOf(FootballCore.uOf(Number(this.value))).name">`, `<b id="fw-sq">${E(FC.squadName(Number(W.by)))} · مرحلة ${E(FC.phaseOf(u).name)}</b>`)}`
+              : `${field('الفئة العمرية', `<div class="fw-chips">${bands().map(x => `<button type="button" class="${W.band === x.name ? 'on' : ''}" onclick="FootballUI.wset('band','${E(x.name)}');FootballUI.wiz()">${E(x.name)} <small>${x.min}–${x.max}</small></button>`).join('')}</div>`)}${field('اسم المجموعة', `<input value="${E(W.name || schoolName())}" oninput="FootballUI.wset('name',this.value)">`, 'اقتراح من الفئة والميعاد، وتقدر تغيّره')}`)
+              + `<div class="fw-row">${field('الفرع', `<select onchange="FootballUI.wset('branch',this.value);FootballUI.wset('resource','')">${branches().map(x => `<option ${W.branch === x ? 'selected' : ''}>${E(x)}</option>`).join('')}</select>`)}${field('السعة', `<input type="number" min="4" max="40" value="${W.capacity}" oninput="FootballUI.wset('capacity',this.value)">`, 'أقصى عدد لاعبين')}</div>`
+          : W.step === 2 ? `${field('أيام التدريب', `<div class="fw-chips">${ORDER.map(d => `<button type="button" class="${W.days.includes(d) ? 'on' : ''}" onclick="FootballUI.wday(${d})">${DAYN[d]}</button>`).join('')}</div>`)}
+              <div class="fw-row">${field('الميعاد', `<input type="time" value="${E(W.time)}" oninput="FootballUI.wset('time',this.value)">`)}${field('الملعب', `<select onchange="FootballUI.wset('resource',this.value);document.getElementById('fw-pitch-new').hidden=this.value!=='__new'"><option value="">اختار الملعب</option>${pitchesOf(W.branch).map(x => `<option ${W.resource === x ? 'selected' : ''}>${E(x)}</option>`).join('')}<option value="__new" ${W.resource === '__new' ? 'selected' : ''}>+ ملعب تاني…</option></select><input id="fw-pitch-new" ${W.resource === '__new' ? '' : 'hidden'} placeholder="اسم الملعب" value="${E(W.pitchNew)}" oninput="FootballUI.wset('pitchNew',this.value)">`)}</div>
+              ${field('المدرب المسؤول', `<select onchange="FootballUI.wset('coach',this.value);document.getElementById('fw-coach-new').hidden=this.value!=='__new'"><option value="">اختار المدرب</option>${coachesOf().map(x => `<option ${W.coach === x ? 'selected' : ''}>${E(x)}</option>`).join('')}<option value="__new" ${W.coach === '__new' ? 'selected' : ''}>+ مدرب جديد…</option></select><input id="fw-coach-new" ${W.coach === '__new' ? '' : 'hidden'} placeholder="اسم المدرب" value="${E(W.coachNew)}" oninput="FootballUI.wset('coachNew',this.value)">`, 'كل مجموعة لازم يكون ليها مدرب مسؤول')}`
+          : `<dl class="fw-review">${[['النوع', sq ? 'فريق مسار الاحتراف' : 'مجموعة مدرسة الكرة'], ['الاسم', sq ? FC.squadName(Number(W.by)) : (W.name || schoolName())], [sq ? 'المرحلة' : 'الفئة', sq ? FC.phaseOf(u).name : `${W.band} (${b?.min}–${b?.max} سنة)`], ['الفرع', W.branch], ['السعة', W.capacity + ' لاعب'], ['الجدول', `${ORDER.filter(d => W.days.includes(d)).map(d => DAYN[d]).join('، ')} · ${W.time}`], ['الملعب', pitchOf()], ['المدرب', coachOf()]].map(([k, v]) => `<div><dt>${k}</dt><dd>${E(v)}</dd></div>`).join('')}</dl><p class="py-help">${W.id ? 'الحصص الجاية اللي محدش أكدها هتتعاد بالجدول الجديد.' : 'بعد الإنشاء الحصص بتتولد لوحدها لأسبوعين قدام، وبعدها تضيف اللاعبين.'}</p>`;
+        V.open(`<div class="fw" data-no-fit><header class="fw-head"><h3>${W.id ? 'تعديل ' + E(sq ? FC.squadName(Number(W.by)) : W.name) : sq ? 'فريق مسار جديد' : 'مجموعة مدرسة جديدة'}</h3><small>خطوة ${W.step + 1} من 4 · ${STEPS[W.step]}</small></header>
+          <ol class="fw-steps">${STEPS.map((x, i) => `<li class="${i === W.step ? 'on' : i < W.step ? 'done' : ''}">${x}</li>`).join('')}</ol>
+          <div class="fw-body">${body}</div>${err ? `<p class="rg-error">${E(err)}</p>` : ''}
+          <footer class="fw-foot">${W.step > (W.id ? 1 : 0) ? `<button type="button" class="rg-btn" onclick="FootballUI.wback()">→ السابق</button>` : '<span></span>'}${W.step === 0 ? '' : W.step < 3 ? `<button type="button" class="rg-btn primary" onclick="FootballUI.wnext()">التالي ←</button>` : `<button type="button" class="rg-btn primary" onclick="FootballUI.wsave()">${W.id ? 'حفظ التعديلات' : sq ? 'إنشاء الفريق' : 'إنشاء المجموعة'} ✓</button>`}</footer></div>`);
+      };
+      FU.wback = () => { W.step--; FU.wiz(); };
+      FU.wnext = () => {
+        try {
+          if (W.step === 1) {
+            const cap = Number(W.capacity); if (!Number.isInteger(cap) || cap < 4 || cap > 40) throw Error('السعة من 4 لـ 40');
+            if (!W.branch) throw Error('اختار الفرع');
+            if (W.kind === 'pathway' && !W.id && FC.squads(db.state).some(g => g.fb.birthYear === Number(W.by) && g.branch === W.branch)) throw Error(`فيه فريق لمواليد ${W.by} في ${W.branch} بالفعل`);
+            if (W.kind === 'school') { if (!W.band) throw Error('اختار الفئة العمرية'); if (!W.name) W.name = schoolName(); }
+          }
+          if (W.step === 2) { if (!W.days.length) throw Error('اختار يوم تدريب واحد على الأقل'); if (!/^\d{2}:\d{2}$/.test(W.time)) throw Error('اختار الميعاد'); if (!pitchOf()) throw Error('اختار الملعب'); if (!coachOf()) throw Error('اختار المدرب المسؤول'); }
+          W.step++; FU.wiz();
+        } catch (e) { FU.wiz(e.message); }
+      };
+      FU.wsave = () => {
+        try {
+          const sq = W.kind === 'pathway', u = FC.uOf(Number(W.by)), b = bands().find(x => x.name === W.band), name = sq ? FC.squadName(Number(W.by)) : (W.name || schoolName()).trim();
+          const fields = { name, branch: W.branch, capacity: Number(W.capacity), days: [...new Set(W.days)], time: W.time, coach: coachOf(), resource: pitchOf(), ageMin: sq ? u - 1 : b.min, ageMax: sq ? u : b.max, fb: sq ? { tier: 'pathway', birthYear: Number(W.by) } : { tier: 'school' } };
+          let gid = W.id;
+          db.update(st => {
+            if (W.id) {
+              const g = st.groups.find(x => x.id === W.id), n = st.members.filter(m => m.group === W.id).length;
+              if (fields.capacity < n) throw Error(`في المجموعة ${n} لاعب؛ السعة متقلش عن كده`);
+              Object.assign(g, fields);
+              st.sessions = st.sessions.filter(x => !(x.auto && x.group === W.id && x.status === 'scheduled' && new Date(x.start) > new Date() && !Object.keys(x.present || {}).length && !Object.keys(x.rsvp || {}).length));
+            } else {
+              if (!sq && st.groups.some(g => g.name === name && g.branch === W.branch)) throw Error('فيه مجموعة بنفس الاسم في الفرع ده');
+              gid = db.id('group'); st.groups.push({ id: gid, sport: 'football', ...fields });
+            }
+            st.audit.unshift({ id: db.id('audit'), at: new Date().toISOString(), action: W.id ? 'تعديل مجموعة' : 'إنشاء مجموعة', details: name });
+          });
+          const added = window.Schedule?.topUp ? Schedule.topUp() : 0, editing = !!W.id;
+          V.close(); render(); toast(`${editing ? 'اتحفظت التعديلات' : 'اتعملت ' + name}${added ? ' · ' + added + ' حصة في الجدول' : ''}`);
+          if (!editing) setTimeout(() => window.AcademyUI.groupDetail(gid), 60);
+        } catch (e) { FU.wiz(e.message); }
+      };
+    }
+
     /* A pathway player's file is the development profile. */
     if (window.Refine?.profile) { const profile = Refine.profile; Refine.profile = id => { const m = db.member(id); if (m && FC.isPathway(db.state, m)) { V.close && V.close(); FU.openPlayer(id); } else profile(id); }; }
   }

@@ -69,3 +69,4 @@
 .dk-top-btn{position:relative}.dk-top-btn em{position:absolute;top:-4px;left:-4px}
 
 @media(max-width:900px){.dk-chat{grid-template-columns:1fr}.dk-list{position:static;max-height:280px}}
+.dk-face{overflow:hidden;padding:0}.dk-face svg,.dk-face img{width:100%;height:100%;display:block;object-fit:cover}

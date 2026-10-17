@@ -27,7 +27,7 @@
   };
   DK.role = who => who === 'admin' ? 'الإدارة' : who.startsWith('coach:') ? 'مدرب' : (db.state.members.find(x => 'member:' + x.id === who)?.guardian ? 'لاعب · ولي الأمر' : 'لاعب');
   const initial = who => E(DK.name(who).replace(/^(كابتن|أ\.|د\.)\s*/, '').trim()[0] || '؟');
-  const av = (who, n = 36) => `<span class="dk-av ${who === 'admin' ? 'office' : who.startsWith('coach:') ? 'coach' : ''}" style="width:${n}px;height:${n}px">${initial(who)}</span>`;
+  const av = (who, n = 36) => who !== 'admin' && window.KoraAvatars ? `<span class="dk-av dk-face" style="width:${n}px;height:${n}px">${KoraAvatars.portrait(DK.name(who))}</span>` : `<span class="dk-av ${who === 'admin' ? 'office' : who.startsWith('coach:') ? 'coach' : ''}" style="width:${n}px;height:${n}px">${initial(who)}</span>`;
   DK.title = t => t.kind === 'group' ? groupName(group(t.groupId)) : null;
   const titleFor = (t, me) => t.kind === 'group' ? groupName(group(t.groupId)) : DK.name(t.members.find(x => x !== me) || me);
   const subFor = (t, me) => t.kind === 'group' ? `${DC.participants(db.state, t).length} عضو · ${E(group(t.groupId)?.coach || '')}` : DK.role(t.members.find(x => x !== me) || me);
