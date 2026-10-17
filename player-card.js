@@ -84,11 +84,18 @@
     const d = defOf(m), att = window.Progress ? Progress.attendance(db.state, m) : { rate: m.attendance || 0, held: 0 };
     return { attendance: att.held >= 4 ? att.rate : (m.attendance || att.rate), levelIndex: d ? d.levels.findIndex(l => l.id === m.sportLevel) : 0 };
   };
-  const cardOf = m => card(db.state, defOf(m), m, extraOf(m));
+  /* Pathway footballers: the card shows the four development corners from the latest assessment. */
+  const pathwayCard = m => {
+    const FC = window.FootballCore; if (!FC || !FC.isPathway(db.state, m)) return null;
+    const h = FC.history(db.state, m.id); if (!h.length) return null;
+    const now = FC.cornerScores(h[h.length - 1]), prev = h.length > 1 ? FC.cornerScores(h[h.length - 2]) : null, overall = now.overall;
+    return { empty: false, attrs: Object.keys(FC.CORNERS).map(k => ({ name: FC.CORNERS[k].name, value: now[k] })), overall, tier: overall >= 80 ? 'gold' : overall >= 65 ? 'silver' : 'bronze', trend: prev ? overall - prev.overall : 0, count: h.length, last: null, pathway: true };
+  };
+  const cardOf = m => pathwayCard(m) || card(db.state, defOf(m), m, extraOf(m));
 
   /* The card as a standalone SVG (also used for the PNG export). */
   function svg(m, opts = {}) {
-    const d = defOf(m), c = cardOf(m), t = TIERS[c.tier || 'bronze'], lvl = window.Progress?.level(m);
+    const d = defOf(m), c = cardOf(m), t = TIERS[c.tier || 'bronze'], lvl = c.pathway ? { name: window.FootballCore.POSITIONS[m.fb?.position]?.name || 'مسار الاحتراف' } : window.Progress?.level(m);
     const portrait = window.KoraAvatars ? KoraAvatars.portrait(m.name).replace('<svg ', '<svg x="88" y="78" width="124" height="124" style="width:124px;height:124px;max-width:none" ') : '';
     const attrs = c.attrs.map((a, i) => { const col = i % 2, row = Math.floor(i / 2), x = col ? 136 : 262, y = 310 + row * 28;
       return `<text x="${x}" y="${y}" text-anchor="end" font-size="20" font-weight="700" fill="${t[2]}">${a.value ?? '—'}</text><text x="${x - 34}" y="${y}" text-anchor="end" font-size="14" fill="${t[2]}" opacity=".85">${E(SHORT[a.name] || a.name)}</text>`; }).join('');

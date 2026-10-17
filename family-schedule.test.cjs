@@ -207,3 +207,36 @@ test('weekly plans come from the right template, fill the session time and aim a
   assert.ok(TC.tips('timed', 'kids').length >= 5);
   for (const [type, T] of Object.entries(TC.TEMPLATES)) for (const k of ['beginner', 'intermediate', 'advanced']) assert.ok(T.main[k].length >= 2, type + ' ' + k);
 });
+
+test('football pathway: age groups by birth year, four-corner scores, due reviews, plan goals and birth-quarter skew', () => {
+  const FC = require('./football-core.js');
+  const oct = new Date('2026-10-17T12:00:00'), may = new Date('2027-05-01T12:00:00');
+  assert.equal(FC.season(oct).name, '2026/27');
+  assert.equal(FC.season(may).start, 2026, 'the season runs August to July');
+  assert.equal(FC.uOf(2013, oct), 14);
+  assert.equal(FC.phaseOf(10).id, 'foundation');
+  assert.equal(FC.phaseOf(14).id, 'development');
+  assert.equal(FC.phaseOf(19).id, 'professional');
+  assert.equal(FC.quarter('2013-03-31'), 1);
+  assert.equal(FC.quarter('2013-04-01'), 2);
+  assert.equal(FC.quarter('2013-12-31'), 4);
+  const st = { groups: [{ id: 'u14', sport: 'football', fb: { tier: 'pathway', birthYear: 2013 } }, { id: 'school', sport: 'football', fb: { tier: 'school' } }], members: [{ id: 'p', group: 'u14', fb: { position: 'GK' } }, { id: 'q', group: 'u14', fb: { position: 'ST' } }] };
+  assert.equal(FC.squads(st).length, 1, 'school groups are not pathway squads');
+  const gkScores = { technical: [5, 5, 5, 5, 5], tactical: [3, 3, 3, 3], physical: [1, 1, 1, 1], psychosocial: [4, 4, 4, 4] };
+  FC.addAssessment(st, 'p', { scores: gkScores }, { at: '2026-08-01T00:00:00Z' });
+  const s = FC.cornerScores(FC.latest(st, 'p'));
+  assert.deepEqual([s.technical, s.tactical, s.physical, s.psychosocial, s.overall], [100, 60, 20, 80, 65]);
+  assert.equal(FC.due(st, 'p', oct), true, 'eight weeks after the last assessment the next is due');
+  assert.equal(FC.due(st, 'p', new Date('2026-08-20')), false);
+  assert.throws(() => FC.addAssessment(st, 'q', { scores: { ...gkScores, physical: [1, 1, 6, 1] } }), /بدني/);
+  assert.throws(() => FC.addAssessment(st, 'q', { scores: { ...gkScores, tactical: [3, 3] } }), /تكتيكي/);
+  for (let i = 0; i < 4; i++) FC.saveGoal(st, 'q', { corner: 'technical', text: 'هدف رقم ' + i });
+  assert.throws(() => FC.saveGoal(st, 'q', { corner: 'technical', text: 'هدف خامس' }), /4 أهداف/);
+  const g = FC.idp(st, 'q').goals[0];
+  FC.saveGoal(st, 'q', { ...g, status: 'achieved' });
+  assert.equal(FC.idp(st, 'q').goals[0].progress, 100);
+  FC.saveGoal(st, 'q', { corner: 'tactical', text: 'هدف جديد بعد ما واحد اتحقق' });
+  const early = Array.from({ length: 10 }, (_, i) => ({ dob: i < 6 ? '2013-02-01' : i < 9 ? '2013-05-01' : '2013-08-01' }));
+  assert.equal(FC.rae(early).skewed, true);
+  assert.equal(FC.rae(early.map((p, i) => ({ dob: `2013-${String(1 + i % 12).padStart(2, '0')}-10` }))).skewed, false);
+});

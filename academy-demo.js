@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (!window.V || !window.SportEngine) return;
-  const db = V.db, VERSION = 7;
+  const db = V.db, VERSION = 8;
   if ((db.state.sportDemoVersion || 0) >= VERSION) return;
   const firstRun = (db.state.sportDemoVersion || 0) < 1;
 
@@ -270,6 +270,76 @@
       s.levelHistory = s.levelHistory || [];
       s.levelHistory.push({ id: 'demo-fl-' + m.id, memberId: m.id, sport: 'football', levelId: levels[i].id, levelName: levels[i].name, reason: 'تحديد المستوى في البداية', at: iso(daysFrom(-60)) });
     });
+    s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 7);
+  }));
+
+  /* Version 8: the football pathway — five age-group squads by birth year with players,
+     positions, assessments every eight weeks and individual development plans. The
+     existing football groups become the football school. */
+  if ((db.state.sportDemoVersion || 0) < 8 && window.FootballCore) V.run(() => db.update(s => {
+    const FC = window.FootballCore, H = t => hash('fb' + t);
+    s.groups.filter(g => g.sport === 'football' && !g.fb).forEach(g => { g.fb = { tier: 'school' }; });
+    const SQUADS = [
+      { id: 'fb-u10', by: 2017, coach: 'كابتن هاني', branch: 'الشيخ زايد', resource: 'ملعب 7 ضد 7', days: [0, 2, 4], time: '16:00', n: 10 },
+      { id: 'fb-u12', by: 2015, coach: 'كابتن طارق', branch: 'الشيخ زايد', resource: 'ملعب 7 ضد 7', days: [6, 1, 3], time: '16:30', n: 12 },
+      { id: 'fb-u14', by: 2013, coach: 'كابتن عمرو', branch: 'أكتوبر', resource: 'الملعب القانوني', days: [0, 2, 4], time: '17:30', n: 13 },
+      { id: 'fb-u16', by: 2011, coach: 'كابتن شريف', branch: 'الشيخ زايد', resource: 'الملعب القانوني', days: [6, 1, 3], time: '18:30', n: 13 },
+      { id: 'fb-u18', by: 2009, coach: 'كابتن نادر', branch: 'أكتوبر', resource: 'الملعب القانوني', days: [6, 1, 3, 4], time: '19:30', n: 12 }
+    ];
+    const FIRST = ['يوسف', 'عمر', 'آدم', 'مالك', 'زياد', 'سيف', 'حمزة', 'علي', 'مروان', 'كريم', 'ياسين', 'أنس', 'بلال', 'تميم', 'عبدالله', 'مازن', 'هشام', 'فارس', 'نور', 'إياد', 'جاسر', 'رامي', 'مهند', 'سليم', 'معاذ', 'أدهم', 'قاسم', 'شهاب', 'حازم', 'وليد'];
+    const FATHER = ['محمد', 'أحمد', 'محمود', 'خالد', 'طارق', 'حسن', 'إبراهيم', 'مصطفى', 'عادل', 'سامح', 'وائل', 'عماد', 'هاني', 'شريف', 'ياسر', 'أشرف', 'جمال', 'رضا', 'ماجد', 'نبيل'];
+    const SHAPE = ['GK', 'CB', 'FB', 'FB', 'DM', 'CM', 'AM', 'W', 'W', 'ST', 'CB', 'GK', 'CM'];
+    const NUM = { GK: [1, 23], CB: [4, 5], FB: [2, 3], DM: [6], CM: [8, 16], AM: [10], W: [7, 11], ST: [9, 19] };
+    const GOALS = {
+      technical: [['الاستلام بالقدم البعيدة والالتفاف للأمام', '8 من 10 في تمرين الاستلام تحت الضغط'], ['التمرير بالقدم الضعيفة', '20 تمريرة صحيحة متتالية من 10 متر'], ['التسديد في الزوايا', '6 من 10 أهداف في تمرين الإنهاء']],
+      tactical: [['التمركز وقت فقدان الكورة', 'المدرب يقيّمها 4 من 5 في الماتشات'], ['التحرك لاستلام الكورة بين الخطوط', 'مرتين في كل شوط على الأقل'], ['الضغط المنظم مع الزملاء', 'استخلاص الكورة خلال 6 ثواني']],
+      physical: [['تحسين زمن 30 متر', 'أقل من 4.9 ثانية'], ['الرشاقة وتغيير الاتجاه', 'تحسن 0.3 ثانية في اختبار T'], ['التحمل', 'مستوى 15 في اختبار Yo-Yo']],
+      psychosocial: [['التواصل مع الزملاء في الملعب', 'المدرب يقيّمها 4 من 5'], ['الثقة بعد الغلط', 'يكمل الماتش بنفس التركيز بعد أي غلطة'], ['الالتزام بالمواعيد', 'حضور 95% بدون تأخير']]
+    };
+    const GK_GOALS = [['الخروج للكرات العرضية', '7 من 10 كرات عرضية في التمرين'], ['التوزيع السريع بالإيد', 'بدء الهجمة خلال 4 ثواني']];
+    const iso2 = d => new Date(d).toISOString().slice(0, 10);
+    let k = 0;
+    SQUADS.forEach((q, si) => {
+      if (s.groups.some(g => g.id === q.id)) return;
+      const u = FC.uOf(q.by, now);
+      s.groups.push({ id: q.id, name: FC.squadName(q.by, now), sport: 'football', branch: q.branch, coach: q.coach, resource: q.resource, capacity: 22, days: q.days, time: q.time, ageMin: u - 1, ageMax: u, fb: { tier: 'pathway', birthYear: q.by } });
+      for (let i = 0; i < q.n; i++, k++) {
+        const h = H(q.id + i), pos = SHAPE[i % SHAPE.length], r = h % 100;
+        const skew = q.id === 'fb-u14' ? [50, 78, 93] : [33, 60, 84];
+        const month = (r < skew[0] ? 1 : r < skew[1] ? 4 : r < skew[2] ? 7 : 10) + (h >>> 7) % 3;
+        const first = FIRST[(k * 7 + si) % FIRST.length], father = FATHER[(k * 3 + i) % FATHER.length];
+        const id = `fb-p-${q.id}-${i}`;
+        s.members.push({ id, name: `${first} ${father}`, phone: '', group: q.id, plan: 'monthly', end: iso(daysFrom(18 + h % 20)), remaining: 6 + h % 6, freezeBalance: 10, freezes: [], makeupCredits: 0, makeupExpiry: iso(daysFrom(30)), attendance: 84 + h % 15, created: iso(daysFrom(-200 - h % 300)), dob: `${q.by}-${String(month).padStart(2, '0')}-${String(1 + (h >>> 3) % 28).padStart(2, '0')}`, gender: 'm', medical: h % 17 === 0 ? 'ربو خفيف — البخاخ مع المدرب' : '', guardian: { name: `${father} ${FATHER[(h >>> 5) % FATHER.length]}`, phone: '010' + String(10000000 + h % 89999999).padStart(8, '0'), relation: 'والد' }, demo: true,
+          fb: { track: 'pathway', position: pos, foot: h % 5 === 0 ? 'شمال' : h % 11 === 0 ? 'الاتنين' : 'يمين', number: (NUM[pos][i % NUM[pos].length]) + (i >= SHAPE.length ? 10 : 0), funding: FC.FUNDING[h % 10 < 3 ? 0 : h % 10 < 6 ? 1 : 2], registration: 'EFA-' + (q.by % 100) + String(1000 + h % 9000), joined: iso2(daysFrom(-200 - h % 600)) } });
+        /* Three assessments eight weeks apart; one in five players is due for the next. */
+        const base = 2.1 + (u - 10) * 0.12 + (h % 7) / 10, rounds = h % 5 === 0 ? 2 : 3;
+        s.fbAssessments = s.fbAssessments || [];
+        for (let rd = 0; rd < rounds; rd++) {
+          const at = daysFrom(-(rounds === 2 ? 64 : 8) - (rounds - 1 - rd) * 56 - h % 5);
+          const scores = Object.fromEntries(Object.keys(FC.CORNERS).map((c, ci) => [c, FC.itemsOf(c, pos).map((_, ii) => Math.max(1, Math.min(5, Math.round(base + rd * 0.35 + (((h >>> (ci * 3 + ii)) % 5) - 2) * 0.35 + (c === 'physical' && pos === 'W' ? 0.5 : 0)))))]));
+          s.fbAssessments.push({ id: `fba-${id}-${rd}`, memberId: id, at: iso(at), by: q.coach, scores, note: rd === rounds - 1 ? ['تطور واضح في قراءة اللعب', 'محتاج يشتغل على القدم الضعيفة', 'قائد في الملعب ومحبوب من زمايله', 'أداء ثابت، يحتاج ثقة أكتر في المواجهات'][h % 4] : '', strengths: '', focus: '' });
+        }
+        /* Development plan: goals in the two weakest corners. */
+        const last = FC.cornerScores(s.fbAssessments.filter(a => a.memberId === id).slice(-1)[0]);
+        const weak = Object.keys(FC.CORNERS).sort((a, b) => last[a] - last[b]).slice(0, 2);
+        s.fbIdp = s.fbIdp || {};
+        const goals = weak.map((c, gi) => { const pool = pos === 'GK' && c === 'technical' ? GK_GOALS : GOALS[c], g = pool[(h >>> gi) % pool.length]; return { id: `goal-${id}-${gi}`, corner: c, text: g[0], measure: g[1], due: iso2(daysFrom(30 + gi * 20)), status: 'active', progress: 20 + (h >>> (gi + 2)) % 60, createdAt: iso(daysFrom(-56)) }; });
+        const done = GOALS[Object.keys(GOALS).find(c => !weak.includes(c))][h % 3];
+        goals.push({ id: `goal-${id}-done`, corner: Object.keys(GOALS).find(c => !weak.includes(c)), text: done[0], measure: done[1], due: iso2(daysFrom(-20)), status: 'achieved', progress: 100, createdAt: iso(daysFrom(-112)) });
+        s.fbIdp[id] = { goals, reviews: [{ at: iso(daysFrom(-50 - h % 6)), withParent: h % 3 !== 0, note: 'اتفقنا على أهداف الفترة دي مع ولي الأمر', by: q.coach }] };
+      }
+    });
+    /* One pathway player in the demo parent's family, so the parent app shows the plan. */
+    if (!s.members.some(m => m.id === 'fb-p-youssef')) {
+      const pos = 'AM', id = 'fb-p-youssef';
+      s.members.push({ id, name: 'يوسف أحمد سامي', phone: '', group: 'fb-u14', plan: 'monthly', end: iso(daysFrom(26)), remaining: 9, freezeBalance: 10, freezes: [], makeupCredits: 0, makeupExpiry: iso(daysFrom(30)), attendance: 96, created: iso(daysFrom(-400)), dob: '2013-11-04', gender: 'm', medical: '', guardian: { name: 'أحمد سامي', phone: '01011112233', relation: 'والد' }, emergency: { name: 'أحمد سامي', phone: '01011112233' }, demo: true, fb: { track: 'pathway', position: pos, foot: 'شمال', number: 10, funding: 'منحة جزئية', registration: 'EFA-131874', joined: '2025-08-20' } });
+      [[3, 3, 2, 3, 2], [3, 4, 3, 4, 3]].forEach((t, rd) => s.fbAssessments.push({ id: `fba-${id}-${rd}`, memberId: id, at: iso(daysFrom(-62 + rd * 56)), by: 'كابتن عمرو', scores: { technical: t, tactical: [3, 3 + rd, 3, 3], physical: [2, 3, 2 + rd, 3], psychosocial: [4, 3 + rd, 4, 4] }, note: rd ? 'رؤية ممتازة للملعب؛ محتاج قوة بدنية أكتر في الالتحامات' : '', strengths: rd ? 'الرؤية والتمريرة الأخيرة' : '', focus: rd ? 'القوة البدنية والقدم اليمين' : '' }));
+      s.fbIdp[id] = { goals: [
+        { id: 'goal-y-1', corner: 'physical', text: 'القوة في الالتحامات', measure: 'يكسب 50% من الالتحامات في الماتشات', due: iso2(daysFrom(40)), status: 'active', progress: 35, createdAt: iso(daysFrom(-6)) },
+        { id: 'goal-y-2', corner: 'technical', text: 'التمرير بالقدم اليمين', measure: '20 تمريرة صحيحة متتالية من 10 متر', due: iso2(daysFrom(55)), status: 'active', progress: 50, createdAt: iso(daysFrom(-6)) },
+        { id: 'goal-y-3', corner: 'tactical', text: 'التحرك لاستلام الكورة بين الخطوط', measure: 'مرتين في كل شوط', due: iso2(daysFrom(-10)), status: 'achieved', progress: 100, createdAt: iso(daysFrom(-62)) }
+      ], reviews: [{ at: iso(daysFrom(-6)), withParent: true, note: 'مراجعة الخطة مع الوالد بعد تقييم أكتوبر', by: 'كابتن عمرو' }] };
+    }
     s.sportDemoVersion = VERSION;
   }));
 })();

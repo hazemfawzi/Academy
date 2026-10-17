@@ -17,3 +17,6 @@
 .fn-table tbody tr:nth-child(even){background:#f3f6f4!important}
 .fn-cash-equation>div{border-color:#e3eae5!important}
 .ws-month-labels span{color:#4f6b3a!important;font-weight:700}
+/* single-sport editions */
+.edition-single #ws-scope label:nth-of-type(2){display:none}
+.edition-single .ax-sports{display:none}
