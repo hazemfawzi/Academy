@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (!window.V || !window.SportEngine) return;
-  const db = V.db, VERSION = 8;
+  const db = V.db, VERSION = 9;
   if ((db.state.sportDemoVersion || 0) >= VERSION) return;
   const firstRun = (db.state.sportDemoVersion || 0) < 1;
 
@@ -340,6 +340,12 @@
         { id: 'goal-y-3', corner: 'tactical', text: 'التحرك لاستلام الكورة بين الخطوط', measure: 'مرتين في كل شوط', due: iso2(daysFrom(-10)), status: 'achieved', progress: 100, createdAt: iso(daysFrom(-62)) }
       ], reviews: [{ at: iso(daysFrom(-6)), withParent: true, note: 'مراجعة الخطة مع الوالد بعد تقييم أكتوبر', by: 'كابتن عمرو' }] };
     }
+    s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 8);
+  }));
+
+  /* Version 9: football school groups are named as school groups, never as "جروب". */
+  if ((db.state.sportDemoVersion || 0) < 9) V.run(() => db.update(s => {
+    s.groups.filter(g => g.sport === 'football' && g.fb?.tier === 'school').forEach(g => { g.name = g.name.replace(/^جروب\s+/, 'مدرسة الكرة · '); });
     s.sportDemoVersion = VERSION;
   }));
 })();

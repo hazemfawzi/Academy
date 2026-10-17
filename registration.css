@@ -57,3 +57,17 @@
 .rg-done h3{margin:0;font-size:20px}
 .rg-done p{margin:0;color:var(--t-muted)}
 @media (max-width:560px){.rg-actions .rg-btn{flex:1}.rg-review div{grid-template-columns:1fr;gap:2px}}
+
+.rg-row-top{align-items:start}
+.rg-row-top .rg-field small{min-height:1.4em}
+.rg-seg{display:flex;gap:6px;flex-wrap:wrap}
+.rg-seg label,.rg-positions label{cursor:pointer}
+.rg-seg input,.rg-positions input{position:absolute;opacity:0}
+.rg-seg span,.rg-positions span{display:grid;place-items:center;min-height:40px;padding:0 14px;border:1px solid var(--t-line,#dbe4de);border-radius:10px;background:#fff;font-size:14px;font-weight:700;color:var(--t-ink-2,#334a3e)}
+.rg-seg input:checked+span,.rg-positions input:checked+span{background:var(--t-brand,#2d604c);border-color:var(--t-brand,#2d604c);color:#fff}
+.rg-seg input:focus-visible+span,.rg-positions input:focus-visible+span{box-shadow:0 0 0 3px rgba(45,96,76,.3)}
+.rg-positions{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px}
+.rg-positions span{padding:0 6px;font-size:13px}
+.rg-inline-num{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:13px}
+.rg-inline-num input{width:70px;text-align:center}
+.rg-row-top .rg-seg span{min-height:46px}
