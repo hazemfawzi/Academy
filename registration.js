@@ -194,6 +194,8 @@
     markup(leadId = '') { fresh(leadId); return `<div id="rg-root" class="rg">${view()}</div>`; },
     inline() { if (!R || R.done === 'closed') fresh(); return `<div id="rg-root" class="rg rg-inline">${view()}</div>`; },
     open(leadId = '') { V.open(G.markup(leadId)); },
+    /* Opened from a group's file: the group is already known. */
+    preset(gid) { const g = db.state.groups.find(x => x.id === gid); if (!g || !R) return; Object.assign(R, { sport: g.sport, branch: g.branch, group: gid }); if (window.FootballCore && g.sport === 'football') R.fb.track = FootballCore.isSquad(g) ? 'pathway' : 'school'; paint(); },
     /* The player's photo, shrunk to a small square so it fits the saved record. */
     photo(inp) { const f = inp.files && inp.files[0]; if (!f) return; if (!/^image\//.test(f.type)) { R.error = 'اختار صورة'; return paint(); } const r = new FileReader(); r.onload = () => { const img = new Image(); img.onload = () => { const c = document.createElement('canvas'), n = 240, k = Math.min(img.width, img.height); c.width = c.height = n; c.getContext('2d').drawImage(img, (img.width - k) / 2, (img.height - k) / 2, k, k, 0, 0, n, n); R.player.photo = c.toDataURL('image/jpeg', 0.82); paint(); }; img.src = r.result; }; r.readAsDataURL(f); },
     /* A trial candidate who accepted the offer: registration opens filled from the trial. */
@@ -290,5 +292,6 @@
   if (typeof APPS !== 'undefined' && new URLSearchParams(location.search).get('apply') === '1') setTimeout(() => V.open(G.markup()), 400);
 
   /* A player's photo replaces the drawn portrait wherever the name is shown. */
+  if (window.KoraAvatars?.render) { const render = KoraAvatars.render; KoraAvatars.render = function (name, cls = '', size) { const m = db.state.members.find(x => x.name === name && x.photo), n = Number(size); return m ? `<span class="kg-avatar ${E(cls)}" role="img" aria-label="${E(name)}" ${n > 0 ? `style="width:${n}px;height:${n}px"` : ''}><img class="rg-portrait" src="${m.photo}" alt=""></span>` : render.apply(this, arguments); }; }
   if (window.KoraAvatars?.portrait) { const portrait = KoraAvatars.portrait; KoraAvatars.portrait = function (name) { const m = db.state.members.find(x => x.name === name && x.photo); return m ? `<img class="rg-portrait" src="${m.photo}" alt="${E(name)}">` : portrait.apply(this, arguments); }; }
 })();
