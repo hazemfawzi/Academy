@@ -64,6 +64,7 @@
     window.render = function () {
       base();
       ED.terms(document.getElementById('content'));
+      if (typeof state !== 'undefined' && state.page === 'dash') { const t = document.getElementById('title'); if (t) t.textContent = ED.title; }
       const logo = document.querySelector('.side .logo small'); if (logo) logo.textContent = `${ED.def.ico} ${ED.title}`;
       document.querySelectorAll('#content .ws-home-sports').forEach(el => el.remove());
       document.querySelectorAll('#content button[onclick]').forEach(b => { const on = b.getAttribute('onclick'); if (/leaveSport|sport\s*=\s*'all'|go\('sports'\)/.test(on) && !b.closest('.sb-page')) b.remove(); });

@@ -86,7 +86,7 @@
   const PRESETS = {
     football: { type: 'team', color: '#4c8c6e', modules: ['teams', 'matches', 'league', 'ratings', 'levels', 'parents'], levels: [['مبتدئ'], ['متوسط'], ['متقدم']],
       metrics: [['التحكم', 'rating'], ['التمرير', 'rating'], ['التسديد', 'rating'], ['الدفاع والتمركز', 'rating'], ['اللياقة', 'rating']],
-      programs: [['براعم', 5, 8, 900], ['ناشئين', 9, 14, 1000], ['كبار', 15, 60, 900]] },
+      programs: [['براعم', 5, 8, 900], ['أشبال', 9, 12, 1000], ['ناشئين', 13, 17, 1100]] },
     swimming: { type: 'timed', color: '#3f84a8', modules: ['levels', 'skills', 'times', 'lanes', 'parents'],
       levels: [
         ['مستوى 1 · الأمان', ['دخول الماء بأمان', 'الطفو على البطن بمساعدة', 'نفخ الفقاعات']],
