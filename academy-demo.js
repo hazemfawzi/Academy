@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (!window.V || !window.SportEngine) return;
-  const db = V.db, VERSION = 12;
+  const db = V.db, VERSION = 13;
   if ((db.state.sportDemoVersion || 0) >= VERSION) return;
   const firstRun = (db.state.sportDemoVersion || 0) < 1;
 
@@ -416,7 +416,7 @@
      two football school players nominated by their coaches. */
   if ((db.state.sportDemoVersion || 0) < 12 && window.FootballCore) V.run(() => db.update(s => {
     const FC = window.FootballCore;
-    if ((s.fbScouting || []).length) { s.sportDemoVersion = VERSION; return; }
+    if ((s.fbScouting || []).length) { s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 12); return; }
     s.fbScouting = [];
     const y = FC.season(now).end, at = d => ({ now: daysFrom(d) }), branch = FC.squads(s)[0]?.branch || '';
     const add = (d, input, steps) => { const c = FC.addCandidate(s, { branch, phone: '010' + String(10000000 + hash(input.name) % 89999999).padStart(8, '0'), ...input }, { ...at(d), id: 'fbc-' + hash(input.name).toString(36), by: 'الكشاف' }); steps.forEach(([k, v, dd]) => FC.move(s, c.id, k, v, { ...at(dd), by: 'الإدارة الفنية' })); return c; };
@@ -435,6 +435,30 @@
       if (!young(m)) m.dob = `${y - 11 - i}-0${3 + i}-12`;
       const c = FC.nominate(s, m.id, { position: i ? 'DM' : 'W', note: i ? 'أهدى لاعب في المجموعة وبيقرأ اللعب' : 'أسرع لاعب في مجموعته ومهاري' }, { now: daysFrom(-9 + i * 4), id: 'fbc-nom-' + i, by: s.groups.find(x => x.id === m.group)?.coach || 'المدرب' });
       if (!i) FC.move(s, c.id, 'invited', { at: trialAt(2) }, { now: daysFrom(-7), by: 'الإدارة الفنية' });
+    });
+    s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 12);
+  }));
+
+  /* Version 13: a youth academy's football school is for children — age bands instead of
+     the adult casual groups, birth dates that fit the band, and room for everyone. */
+  if ((db.state.sportDemoVersion || 0) < 13 && window.FootballCore) V.run(() => db.update(s => {
+    const FC = window.FootballCore, BANDS = [{ name: 'براعم', min: 5, max: 8 }, { name: 'أشبال', min: 9, max: 12 }, { name: 'ناشئين', min: 13, max: 17 }];
+    const ageOf = dob => Math.floor((now - new Date(dob)) / (365.25 * dayMs));
+    const def = s.sportDefs?.football;
+    if (def?.programs?.length) def.programs = BANDS.map((b, i) => ({ ...(def.programs[i] || def.programs[0]), id: def.programs[i]?.id || `football-program-${i}`, name: b.name, ageMin: b.min, ageMax: b.max }));
+    s.groups.filter(g => g.sport === 'football' && !FC.isSquad(g)).forEach((g, i) => {
+      const players = s.members.filter(m => m.group === g.id), ages = players.filter(m => m.dob).map(m => ageOf(m.dob)).sort((a, b) => a - b);
+      const band = ages.length ? BANDS.find(b => ages[Math.floor(ages.length / 2)] >= b.min && ages[Math.floor(ages.length / 2)] <= b.max) || BANDS[1] : /الليل/.test(g.name) ? BANDS[2] : BANDS[[1, 0][i % 2]];
+      g.ageMin = band.min; g.ageMax = band.max;
+      g.name = 'مدرسة الكرة · ' + band.name + ' · ' + g.name.replace(/^مدرسة الكرة · /, '').replace(/^(براعم|أشبال|ناشئين) · /, '');
+      g.fb = { ...(g.fb || {}), tier: 'school' };
+      g.capacity = Math.max(g.capacity || 0, players.length + 2);
+      players.forEach(m => {
+        if (m.dob && ageOf(m.dob) >= band.min && ageOf(m.dob) <= band.max) return;
+        const h = hash(m.id), age = band.min + h % (band.max - band.min + 1);
+        m.dob = new Date(now.getTime() - (age + 0.1 + (h % 80) / 100) * 365.25 * dayMs).toISOString().slice(0, 10);
+        if (!m.guardian && m.phone) m.guardian = { name: 'ولي أمر ' + m.name.split(' ').slice(-1)[0], phone: m.phone, relation: 'ولي الأمر' };
+      });
     });
     s.sportDemoVersion = VERSION;
   }));
