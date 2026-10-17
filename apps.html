@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
+<!-- The page is built by several layers; keep it hidden until the last one has drawn, so a
+     refresh never flashes the earlier designs. fit-popups.js (loaded last) reveals it. -->
+<style id="boot-style">html.booting body{visibility:hidden}html.booting{background:#f4f6f8}html.booting::after{content:'';position:fixed;top:50%;left:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border:3px solid #d7e0db;border-top-color:#2d604c;border-radius:50%;animation:boot-spin .8s linear infinite}@keyframes boot-spin{to{transform:rotate(360deg)}}body{transition:opacity .18s}</style>
+<script>(function(){var h=document.documentElement;if(!h||!h.classList)return;h.classList.add('booting');setTimeout(function(){h.classList.remove('booting')},5000);})();(function(){try{var e=new URLSearchParams(location.search).get('edition')||sessionStorage.getItem('academy-edition');if(e==='football')document.title='أكاديمية كورة';}catch(x){}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>أكاديمية النخبة — تطبيقات الموبايل</title>

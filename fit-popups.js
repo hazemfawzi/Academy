@@ -78,5 +78,8 @@
   };
   if (typeof window.modal === 'function') { const m = window.modal; window.modal = function () { const r = m.apply(this, arguments); later('modal'); return r; }; }
   if (typeof window.sheet === 'function') { const s = window.sheet; window.sheet = function () { const r = s.apply(this, arguments); later('sheet'); return r; }; }
+  /* Last script on the page: the final screen is drawn, show it. */
+  const reveal = () => document.documentElement?.classList?.remove('booting');
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(reveal); else reveal();
   if (typeof V !== 'undefined' && V.open) { const o = V.open; V.open = function () { const r = o.apply(this, arguments); later('modal'); later('sheet'); return r; }; }
 })();
