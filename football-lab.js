@@ -145,29 +145,34 @@
   delete FORMATIONS['4-2-3-1 '];
   /* Board positions with the short codes shown on each player (left/right as the team attacks). */
   const ROLES = {
-    GK: 'حارس مرمى', RB: 'ظهير أيمن', CB: 'قلب دفاع', LB: 'ظهير أيسر', RWB: 'ظهير جناح أيمن', LWB: 'ظهير جناح أيسر',
-    DM: 'وسط مدافع (ارتكاز)', CM: 'وسط', RM: 'وسط أيمن', LM: 'وسط أيسر', AM: 'صانع ألعاب', RW: 'جناح أيمن', LW: 'جناح أيسر', CF: 'مهاجم ثاني', ST: 'رأس حربة'
+    GK: 'حارس مرمى',
+    RB: 'ظهير أيمن', RCB: 'قلب دفاع أيمن', CB: 'قلب دفاع (الأوسط)', LCB: 'قلب دفاع أيسر', LB: 'ظهير أيسر', RWB: 'ظهير جناح أيمن', LWB: 'ظهير جناح أيسر',
+    RDM: 'ارتكاز أيمن', DM: 'ارتكاز', LDM: 'ارتكاز أيسر', RCM: 'وسط أيمن (داخلي)', CM: 'وسط', LCM: 'وسط أيسر (داخلي)', RM: 'وسط أيمن (طرف)', LM: 'وسط أيسر (طرف)', AM: 'صانع ألعاب',
+    RW: 'جناح أيمن', LW: 'جناح أيسر', RS: 'مهاجم أيمن', ST: 'رأس حربة', LS: 'مهاجم أيسر', CF: 'مهاجم ثاني'
   };
+  /* The picker groups positions by line. */
+  const ROLE_LINES = { 'حراسة': ['GK'], 'دفاع': ['RB', 'RCB', 'CB', 'LCB', 'LB', 'RWB', 'LWB'], 'وسط': ['RDM', 'DM', 'LDM', 'RCM', 'CM', 'LCM', 'RM', 'LM', 'AM'], 'هجوم': ['RW', 'LW', 'RS', 'ST', 'LS', 'CF'] };
   /* Older boards stored the academy's broader positions; show them with the nearest code. */
   const LEGACY = { FB: 'RB', W: 'RW' };
   const roleCode = k => ROLES[k] ? k : LEGACY[k] || '';
-  /* Each formation's roles in the same order as its spots (spots with a small y are on the left). */
+  /* Each formation gives its 11 players 11 different positions, in the same order as its spots
+     (spots with a small y are on the team's left as it attacks). */
   const FORMATION_ROLES = {
-    '4-3-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'DM', 'CM', 'LW', 'ST', 'RW'],
-    '4-4-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST'],
-    '3-5-2': ['GK', 'CB', 'CB', 'CB', 'LWB', 'CM', 'DM', 'CM', 'RWB', 'ST', 'ST'],
-    '4-2-3-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'DM', 'LW', 'AM', 'RW', 'ST'],
-    '5-3-2': ['GK', 'LWB', 'CB', 'CB', 'CB', 'RWB', 'CM', 'DM', 'CM', 'ST', 'ST'],
-    '3-4-3': ['GK', 'CB', 'CB', 'CB', 'LM', 'CM', 'CM', 'RM', 'LW', 'ST', 'RW']
+    '4-3-3': ['GK', 'LB', 'LCB', 'RCB', 'RB', 'LCM', 'DM', 'RCM', 'LW', 'ST', 'RW'],
+    '4-4-2': ['GK', 'LB', 'LCB', 'RCB', 'RB', 'LM', 'LCM', 'RCM', 'RM', 'LS', 'RS'],
+    '3-5-2': ['GK', 'LCB', 'CB', 'RCB', 'LWB', 'LCM', 'DM', 'RCM', 'RWB', 'LS', 'RS'],
+    '4-2-3-1': ['GK', 'LB', 'LCB', 'RCB', 'RB', 'LDM', 'RDM', 'LW', 'AM', 'RW', 'ST'],
+    '5-3-2': ['GK', 'LWB', 'LCB', 'CB', 'RCB', 'RWB', 'LCM', 'DM', 'RCM', 'LS', 'RS'],
+    '3-4-3': ['GK', 'LCB', 'CB', 'RCB', 'LM', 'LCM', 'RCM', 'RM', 'LW', 'ST', 'RW']
   };
   /* A player with no chosen role gets one from where they stand: depth from their own goal, side as they attack. */
   const guessRole = p => {
     const depth = p.team === 'b' ? 1 - p.x : p.x, side = p.team === 'b' ? 1 - p.y : p.y;
-    const flank = side < .3 ? 'L' : side > .7 ? 'R' : '';
+    const flank = side < .3 ? 'L' : side > .7 ? 'R' : '', inner = side < .44 ? 'L' : side > .56 ? 'R' : '';
     if (depth < .12) return 'GK';
-    if (depth < .3) return flank ? flank + 'B' : 'CB';
-    if (depth < .56) return flank ? flank + 'M' : depth < .37 ? 'DM' : depth > .47 ? 'AM' : 'CM';
-    return flank ? flank + 'W' : 'ST';
+    if (depth < .3) return flank ? flank + 'B' : inner + 'CB';
+    if (depth < .56) return flank ? flank + 'M' : depth < .37 ? inner + 'DM' : depth > .47 ? 'AM' : inner + 'CM';
+    return flank ? flank + 'W' : inner ? inner + 'S' : 'ST';
   };
   const roleOf = p => roleCode(p.role) || guessRole(p);
   /* Team A attacks to the right; team B is the mirror image. */
@@ -185,7 +190,7 @@
     return row;
   }
 
-  const api = { DAY, LIBRARY, library, DEFAULT_CATEGORIES, COLORS, setup, saveCategory, removeCategory, addSkill, removeSkill, rate, card, TEMPLATES, blocks, fromSkill, nextDate, toSession, minutes, FORMATIONS, FORMATION_ROLES, ROLES, roleCode, guessRole, roleOf, formation, FIELDS, saveBoard };
+  const api = { DAY, LIBRARY, library, DEFAULT_CATEGORIES, COLORS, setup, saveCategory, removeCategory, addSkill, removeSkill, rate, card, TEMPLATES, blocks, fromSkill, nextDate, toSession, minutes, FORMATIONS, FORMATION_ROLES, ROLES, ROLE_LINES, roleCode, guessRole, roleOf, formation, FIELDS, saveBoard };
   root.FootballLab = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
