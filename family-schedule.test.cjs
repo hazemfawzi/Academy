@@ -240,3 +240,28 @@ test('football pathway: age groups by birth year, four-corner scores, due review
   assert.equal(FC.rae(early).skewed, true);
   assert.equal(FC.rae(early.map((p, i) => ({ dob: `2013-${String(1 + i % 12).padStart(2, '0')}-10` }))).skewed, false);
 });
+
+test('football physical tests: valid ranges, growth velocity, maturity offset, adult height and squad rank', () => {
+  const FC = require('./football-core.js');
+  const st = { members: [
+    { id: 'a', dob: '2013-01-01', gender: 'm', fb: { parents: { father: 180, mother: 164 } } },
+    { id: 'b', dob: '2013-06-01', gender: 'm' }, { id: 'c', dob: '2013-09-01', gender: 'm' }
+  ] };
+  assert.throws(() => FC.recordTests(st, [{ memberId: 'a', values: { sprint10: 9 } }]), /سرعة 10 متر/);
+  assert.throws(() => FC.recordTests(st, [{ memberId: 'a', height: 150, sitting: 120 }]), /طول الجلوس|قيمة غير منطقية/);
+  assert.throws(() => FC.recordTests(st, [{ memberId: 'a', values: {} }]), /قياس واحد/);
+  FC.recordTests(st, [{ memberId: 'a', values: { sprint10: '2.10' }, height: 150, weight: 40, sitting: 78 }, { memberId: 'b', values: { sprint10: 1.95 } }, { memberId: 'c', values: { sprint10: 2.2, jump: '' } }], { at: '2026-04-01T10:00:00Z' });
+  FC.recordTests(st, [{ memberId: 'a', values: { sprint10: 2.0 }, height: 154.5, weight: 43, sitting: 80.5 }], { at: '2026-10-01T10:00:00Z' });
+  const rows = FC.tests(st, 'a');
+  assert.equal(FC.lastValue(rows, 'sprint10').value, 2);
+  assert.ok(FC.improved('sprint10', 2.0, 2.1) > 0, 'a lower time is an improvement');
+  assert.ok(FC.improved('jump', 30, 35) < 0, 'a lower jump is a decline');
+  const g = FC.growth(st, st.members[0]);
+  assert.ok(g.velocity > 8.5 && g.velocity < 9.5, 'about 4.5 cm in half a year');
+  assert.equal(g.spurt, true);
+  assert.equal(g.adult, Math.round((180 + 164 + 13) / 2));
+  assert.ok(g.offset > -3 && g.offset < 1, 'a 13-year-old boy is near his growth spurt');
+  assert.equal(FC.squadRank(st, st.members, 'b', 'sprint10').rank, 1);
+  assert.equal(FC.squadRank(st, st.members, 'c', 'sprint10').third, 'low');
+  assert.equal(FC.squadRank(st, st.members, 'c', 'jump'), null, 'empty cells are not recorded');
+});

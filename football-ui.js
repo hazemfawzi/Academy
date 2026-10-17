@@ -99,6 +99,11 @@
         <section class="fb-card"><h3>سجل التقييمات</h3><div class="fb-timeline">${h.slice().reverse().map(a => { const s = FC.cornerScores(a); return `<div><b>${E(fmt(a.at, { day: 'numeric', month: 'long', year: 'numeric' }))}</b><span>${E(a.by)}</span>${bars(s)}<strong>${s.overall}</strong></div>`; }).join('') || '<p class="fb-empty">—</p>'}</div></section></div>`;
     };
     ['pathway', 'squad', 'fbplayer'].forEach(k => { PAGES[k + '_after'] = () => {}; });
+    { const baseSquad = PAGES.squad, basePlayer = PAGES.fbplayer, basePath = PAGES.pathway;
+      PAGES.squad = () => { const html = baseSquad(), g = group(FU.squadId) || FC.squads(db.state)[0]; if (!g || !FC.isSquad(g)) return html; const i = html.lastIndexOf('</div>'); return html.slice(0, i) + FU.physicalSection(g.id) + html.slice(i); };
+      PAGES.fbplayer = () => { const html = basePlayer(), p = db.member(FU.playerId); if (!p) return html; const at = html.indexOf('<section class="fb-card"><h3>خطة التطوير الفردية'); return at < 0 ? html : html.slice(0, at) + FU.growthCard(p, FC.playersOf(db.state, p.group)) + html.slice(at); };
+      PAGES.pathway = () => { const html = basePath(), all = FC.squads(db.state).flatMap(g => FC.playersOf(db.state, g.id)), spurt = all.filter(p => FC.growth(db.state, p)?.spurt).length; return html.replace('<div><small>أهداف تطوير جارية</small>', `<div class="${spurt ? 'warn' : ''}"><small>في طفرة نمو</small><b>${spurt}</b></div><div><small>أهداف تطوير جارية</small>`); };
+    }
 
     /* ---------- football groups: pathway squads and football school groups, never mixed ---------- */
     const U = () => window.AcademyUI || { sport: 'all', branch: 'all' };
@@ -162,6 +167,44 @@
     if (window.Refine?.profile) { const profile = Refine.profile; Refine.profile = id => { const m = db.member(id); if (m && FC.isPathway(db.state, m)) { V.close && V.close(); FU.openPlayer(id); } else profile(id); }; }
   }
 
+  /* =========================================================== physical tests and growth */
+  const TK = Object.keys(FC.TESTS);
+  const fmtV = (k, v) => v == null ? '—' : (FC.TESTS[k]?.unit === 'ث' ? Number(v).toFixed(2) : Math.round(v)) + ' ' + (FC.TESTS[k]?.unit || '');
+  const delta = (k, now, before) => { const d = FC.improved(k, now, before); if (!d) return ''; const txt = FC.TESTS[k].unit === 'ث' ? Math.abs(d).toFixed(2) : Math.round(Math.abs(d)); return d > 0 ? `<em class="fb-up">▲ ${txt}</em>` : `<em class="fb-down">▼ ${txt}</em>`; };
+  const heightLine = series => { if (series.length < 2) return ''; const w = 220, h = 60, lo = Math.min(...series.map(p => p.height)) - 1, hi = Math.max(...series.map(p => p.height)) + 1, t0 = new Date(series[0].at), t1 = new Date(series.at(-1).at); const pt = p => [(new Date(p.at) - t0) / ((t1 - t0) || 1) * (w - 16) + 8, h - 8 - (p.height - lo) / (hi - lo) * (h - 16)];
+    return `<svg class="fb-hline" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" direction="ltr" style="direction:ltr" aria-hidden="true"><polyline points="${series.map(p => pt(p).map(n => n.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="#2f6f8f" stroke-width="2.4"/>${series.map(p => { const [x, y] = pt(p); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.2" fill="#2f6f8f"/>`; }).join('')}</svg>`; };
+  FU.growthCard = (m, players) => {
+    const rows = FC.tests(db.state, m.id), g = FC.growth(db.state, m);
+    if (!rows.length) return `<section class="fb-card"><h3>البدني والنمو</h3><p class="fb-empty">مفيش قياسات لسه. سجّلها من «جلسة قياس» في صفحة الفريق.</p></section>`;
+    return `<section class="fb-card fb-physical"><h3>البدني والنمو <small>آخر قياس ${E(short(rows.at(-1).at))}</small></h3>
+      <div class="fb-tests">${TK.map(k => { const l = FC.lastValue(rows, k), b = FC.prevValue(rows, k), r = players ? FC.squadRank(db.state, players, m.id, k) : null; return `<div class="fb-test ${r?.third ? 'fb-' + r.third : ''}"><small>${E(FC.TESTS[k].name)}</small><b>${fmtV(k, l?.value)}</b><span>${delta(k, l?.value, b?.value)}${r ? `<i>الـ${r.rank} من ${r.of}</i>` : ''}</span></div>`; }).join('')}</div>
+      ${g ? `<div class="fb-growth"><div><small>الطول</small><b>${g.height} سم</b><span>${g.velocity != null ? `${g.velocity} سم/سنة` : ''}</span></div><div><small>الوزن</small><b>${g.weight ?? '—'} كجم</b></div>${g.adult ? `<div><small>الطول المتوقع للبلوغ</small><b>${g.adult} سم</b><span>وصل ${g.pctAdult}%</span></div>` : ''}${g.timing ? `<div><small>طفرة النمو</small><b>${E(FC.TIMING[g.timing])}</b><span>${g.offset > 0 ? `عدّاها من ${g.offset} سنة` : g.offset < 0 ? `فاضل ~${Math.abs(g.offset)} سنة` : 'دلوقتي'} · عند ${g.phvAge} سنة</span></div>` : ''}${heightLine(g.series)}</div>
+        ${g.spurt ? '<p class="fb-warn">⚠ في طفرة نمو دلوقتي: قلّل القفز والتسديد المتكرر والجري على الأسفلت، وراقب ألم الركبة والكعب. السرعة والتوافق ممكن يقلّوا مؤقتًا، ده طبيعي.</p>' : ''}
+        ${g.timing === 'late' ? '<p class="py-help">نضجه متأخر عن سنه: متحكمش عليه بالقوة والسرعة دلوقتي، قارنه بنفسه.</p>' : g.timing === 'early' ? '<p class="py-help">نضجه مبكر: تفوقه البدني ممكن يكون مؤقت، ركّز معاه على المهارة والقرار.</p>' : ''}` : ''}</section>`;
+  };
+
+  FU.testForm = gid => {
+    const g = group(gid), players = FC.playersOf(db.state, gid);
+    V.open(`<div class="ma-form fb-form fb-test-form"><h3>جلسة قياس · ${E(FC.squadName(g.fb.birthYear))}</h3><p class="py-help">اكتب اللي اتقاس بس؛ الخانة الفاضية بتتساب. الأزمنة بالثانية (مثلًا 1.95)، الوثب بالسنتي، والـ Yo-Yo بالمتر.</p>
+      <div class="fb-test-table"><table><thead><tr><th>اللاعب</th>${TK.map(k => `<th>${E(FC.TESTS[k].name)}</th>`).join('')}<th>الطول</th><th>الوزن</th><th>طول الجلوس</th></tr></thead><tbody>${players.map(p => `<tr data-mid="${p.id}"><td>${E(p.name)}</td>${TK.map(k => `<td><input data-k="${k}" type="number" step="0.01" inputmode="decimal" aria-label="${E(FC.TESTS[k].name)} ${E(p.name)}"></td>`).join('')}${['height', 'weight', 'sitting'].map(k => `<td><input data-b="${k}" type="number" step="0.1" inputmode="decimal" aria-label="${E(FC.BODY[k].name)} ${E(p.name)}"></td>`).join('')}</tr>`).join('')}</tbody></table></div>
+      <button type="button" class="sb-btn primary ax-btn" onclick="FootballUI.saveTests('${gid}')">حفظ الجلسة</button></div>`);
+    document.getElementById('modal')?.classList.add('fn-wide');
+  };
+  FU.saveTests = gid => V.run(() => {
+    const entries = [...document.querySelectorAll('.fb-test-table tr[data-mid]')].map(tr => ({ memberId: tr.dataset.mid, values: Object.fromEntries([...tr.querySelectorAll('[data-k]')].map(i => [i.dataset.k, i.value])), ...Object.fromEntries([...tr.querySelectorAll('[data-b]')].map(i => [i.dataset.b, i.value])) }));
+    let n = 0; db.update(st => { n = FC.recordTests(st, entries, { by: group(gid).coach }).length; });
+    V.close(); render(); toast(`اتسجلت قياسات ${n} لاعب`);
+  });
+
+  FU.physicalSection = gid => {
+    const players = FC.playersOf(db.state, gid), last = players.flatMap(p => FC.tests(db.state, p.id)).sort((a, b) => new Date(b.at) - new Date(a.at))[0];
+    const rows = players.map(p => ({ p, g: FC.growth(db.state, p) }));
+    const cell = (p, k) => { const v = FC.lastValue(FC.tests(db.state, p.id), k)?.value, r = FC.squadRank(db.state, players, p.id, k); return `<td class="${r?.third ? 'fb-' + r.third : ''}">${v == null ? '—' : FC.TESTS[k].unit === 'ث' ? Number(v).toFixed(2) : Math.round(v)}</td>`; };
+    return `<section class="fb-card fb-phys-squad"><header class="fb-card-head"><h3>البدني والنمو ${last ? `<small>آخر جلسة ${E(short(last.at))}</small>` : ''}</h3><button type="button" class="sb-btn primary" onclick="FootballUI.testForm('${gid}')">جلسة قياس جديدة</button></header>
+      <div class="fb-test-table"><table><thead><tr><th>اللاعب</th>${TK.map(k => `<th>${E(FC.TESTS[k].name)}<small>${E(FC.TESTS[k].unit)}</small></th>`).join('')}<th>الطول</th><th>النمو</th><th>النضج</th></tr></thead><tbody>${rows.map(({ p, g }) => `<tr><td><button type="button" class="fb-link" onclick="FootballUI.openPlayer('${p.id}')">${E(p.name)}</button></td>${TK.map(k => cell(p, k)).join('')}<td>${g?.height ?? '—'}</td><td>${g?.velocity != null ? g.velocity + ' سم/سنة' : '—'}${g?.spurt ? ' <span class="fb-badge warn">طفرة</span>' : ''}</td><td>${g?.timing ? `<span class="fb-badge ${g.timing}">${E(FC.TIMING[g.timing])}</span>` : '—'}</td></tr>`).join('')}</tbody></table></div>
+      <p class="py-help">الأخضر = أحسن تلت في الفريق، والبرتقالي = أقل تلت. قارن اللاعب بنفسه قبل ما تقارنه بزمايله، خصوصًا وقت طفرة النمو.</p></section>`;
+  };
+
   /* =========================================================== forms (both pages) */
   const after = () => { V.close(); if (typeof render === 'function' && typeof PAGES !== 'undefined') render(); if (typeof draw === 'function' && typeof APPS !== 'undefined') draw(); };
   FU.assess = id => {
@@ -223,6 +266,7 @@
       <div class="ax-body"><section class="ax-card fb-app-radar">${FU.radar(now, prev, 250)}<div><b>${now?.overall ?? '—'}</b><small>الإجمالي ${trend(now?.overall, prev?.overall)}</small><small>${E(pos(m)?.name || '')} · #${E(m.fb?.number ?? '')}</small>${next ? `<small>التقييم الجاي ${E(short(next))}</small>` : ''}</div></section>
         ${h.at(-1)?.note || h.at(-1)?.strengths ? `<div class="ax-card ax-note"><div><small>${E(h.at(-1).by)} · ${E(short(h.at(-1).at))}</small>${h.at(-1).strengths ? `<p>💪 ${E(h.at(-1).strengths)}</p>` : ''}${h.at(-1).focus ? `<p>🎯 ${E(h.at(-1).focus)}</p>` : ''}${h.at(-1).note ? `<p>${E(h.at(-1).note)}</p>` : ''}</div></div>` : ''}
         <div class="ax-section"><h3>أهدافي</h3></div>${plan.goals.filter(x => x.status === 'active').map(x => `<div class="ax-card fb-mini-goal"><span class="fb-tag" style="--c:${FC.CORNERS[x.corner].color}">${E(FC.CORNERS[x.corner].name)}</span><b>${E(x.text)}</b><small>${E(x.measure)}${x.due ? ' · قبل ' + E(short(x.due)) : ''}</small><div class="fb-progress"><i style="width:${x.progress}%"></i></div></div>`).join('') || '<p class="ck-hint">المدرب هيحدد الأهداف بعد التقييم.</p>'}
+        <div class="ax-section"><h3>البدني والنمو</h3></div>${FU.growthCard(m, FC.playersOf(db.state, m.group)).replace('<section class="fb-card', '<section class="ax-card fb-card')}
         ${plan.goals.some(x => x.status === 'achieved') ? `<div class="ax-section"><h3>اتحقق 🏅</h3></div>${plan.goals.filter(x => x.status === 'achieved').map(x => `<div class="ax-card fb-done">✓ ${E(x.text)}</div>`).join('')}` : ''}</div></div>`;
   };
   APPS.member.sub.fbidp = 'home'; APPS.coach.sub.fbdev = 'home';
