@@ -123,3 +123,7 @@
 .lb-tool svg{vertical-align:middle}
 .lb-stage .lb-eq{cursor:grab}
 .lb-stage .lb-sel{filter:drop-shadow(0 0 3px #38bdf8)}
+.lb-captain{display:flex;align-items:center;gap:8px;font:inherit;font-size:13px;font-weight:700;border:1px dashed #cbd5e1;background:#fff;border-radius:10px;padding:6px 10px;cursor:pointer;color:#334155;text-align:start}
+.lb-captain span,.lb-cbadge{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#e2e8f0;color:#64748b;font-weight:900;font-size:11px;flex:none}
+.lb-captain.on{border:1px solid #facc15;background:#fefce8;color:#713f12}.lb-captain.on span,.lb-cbadge{background:#facc15;color:#713f12}
+.lb-capbtn:disabled .lb-cbadge{background:#e2e8f0;color:#94a3b8}

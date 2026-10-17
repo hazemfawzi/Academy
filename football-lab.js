@@ -143,8 +143,35 @@
     '4-2-3-1 ': null
   };
   delete FORMATIONS['4-2-3-1 '];
+  /* Board positions with the short codes shown on each player (left/right as the team attacks). */
+  const ROLES = {
+    GK: 'حارس مرمى', RB: 'ظهير أيمن', CB: 'قلب دفاع', LB: 'ظهير أيسر', RWB: 'ظهير جناح أيمن', LWB: 'ظهير جناح أيسر',
+    DM: 'وسط مدافع (ارتكاز)', CM: 'وسط', RM: 'وسط أيمن', LM: 'وسط أيسر', AM: 'صانع ألعاب', RW: 'جناح أيمن', LW: 'جناح أيسر', CF: 'مهاجم ثاني', ST: 'رأس حربة'
+  };
+  /* Older boards stored the academy's broader positions; show them with the nearest code. */
+  const LEGACY = { FB: 'RB', W: 'RW' };
+  const roleCode = k => ROLES[k] ? k : LEGACY[k] || '';
+  /* Each formation's roles in the same order as its spots (spots with a small y are on the left). */
+  const FORMATION_ROLES = {
+    '4-3-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'CM', 'DM', 'CM', 'LW', 'ST', 'RW'],
+    '4-4-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST'],
+    '3-5-2': ['GK', 'CB', 'CB', 'CB', 'LWB', 'CM', 'DM', 'CM', 'RWB', 'ST', 'ST'],
+    '4-2-3-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'DM', 'DM', 'LW', 'AM', 'RW', 'ST'],
+    '5-3-2': ['GK', 'LWB', 'CB', 'CB', 'CB', 'RWB', 'CM', 'DM', 'CM', 'ST', 'ST'],
+    '3-4-3': ['GK', 'CB', 'CB', 'CB', 'LM', 'CM', 'CM', 'RM', 'LW', 'ST', 'RW']
+  };
+  /* A player with no chosen role gets one from where they stand: depth from their own goal, side as they attack. */
+  const guessRole = p => {
+    const depth = p.team === 'b' ? 1 - p.x : p.x, side = p.team === 'b' ? 1 - p.y : p.y;
+    const flank = side < .3 ? 'L' : side > .7 ? 'R' : '';
+    if (depth < .12) return 'GK';
+    if (depth < .3) return flank ? flank + 'B' : 'CB';
+    if (depth < .56) return flank ? flank + 'M' : depth < .37 ? 'DM' : depth > .47 ? 'AM' : 'CM';
+    return flank ? flank + 'W' : 'ST';
+  };
+  const roleOf = p => roleCode(p.role) || guessRole(p);
   /* Team A attacks to the right; team B is the mirror image. */
-  const formation = (name, team = 'a') => { const f = FORMATIONS[name]; if (!f) throw Error('تشكيلة غير معروفة'); return f.map(([x, y], i) => ({ t: 'player', team, n: i + 1, x: team === 'a' ? x : 1 - x, y: team === 'a' ? y : 1 - y })); };
+  const formation = (name, team = 'a') => { const f = FORMATIONS[name]; if (!f) throw Error('تشكيلة غير معروفة'); return f.map(([x, y], i) => ({ t: 'player', team, n: i + 1, role: FORMATION_ROLES[name][i], x: team === 'a' ? x : 1 - x, y: team === 'a' ? y : 1 - y })); };
   const FIELDS = { full: 'ملعب كامل', half: 'نص ملعب', small: 'ملعب خماسي' };
   function saveBoard(state, input, meta = {}) {
     const title = String(input.title || '').trim();
@@ -158,7 +185,7 @@
     return row;
   }
 
-  const api = { DAY, LIBRARY, library, DEFAULT_CATEGORIES, COLORS, setup, saveCategory, removeCategory, addSkill, removeSkill, rate, card, TEMPLATES, blocks, fromSkill, nextDate, toSession, minutes, FORMATIONS, formation, FIELDS, saveBoard };
+  const api = { DAY, LIBRARY, library, DEFAULT_CATEGORIES, COLORS, setup, saveCategory, removeCategory, addSkill, removeSkill, rate, card, TEMPLATES, blocks, fromSkill, nextDate, toSession, minutes, FORMATIONS, FORMATION_ROLES, ROLES, roleCode, guessRole, roleOf, formation, FIELDS, saveBoard };
   root.FootballLab = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
