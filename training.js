@@ -148,13 +148,20 @@
     return { theme: pick(T.themes, w), stage: prof.stage, band: prof.band, blocks, generated: true };
   }
 
+  /* A session added from a lab template keeps that template's plan. */
+  const T_PARTS = ['warmup', 'main', 'main', 'game', 'cooldown'];
+  function fromTemplate(session, prof) {
+    const t = session.template; if (!t || !t.blocks) return null;
+    return { theme: t.name, stage: prof.stage, band: prof.band, generated: true, fromTemplate: t.name, blocks: t.blocks.map((b, i) => ({ part: T_PARTS[i] || 'main', title: b.name, desc: b.text, min: b.min })) };
+  }
+
   /* Plans for the group's sessions in the week of `day`; saved plans win over templates. */
   function week(state, def, group, day = new Date()) {
     const from = weekStart(day), to = new Date(from); to.setDate(to.getDate() + 7);
     const prof = profile(state, def, group), skills = focusSkills(state, prof);
     const sessions = state.sessions.filter(s => s.group === group.id && s.status !== 'cancelled' && new Date(s.start) >= from && new Date(s.start) < to).sort((a, b) => new Date(a.start) - new Date(b.start));
     return { from, to, profile: prof, skills, theme: pick((TEMPLATES[def?.type] || TEMPLATES.classes).themes, weekNo(from)),
-      sessions: sessions.map((s, i) => ({ session: s, plan: state.trainingPlans?.[s.id] || generate(state, def, group, s, { index: i, profile: prof, skills }) })) };
+      sessions: sessions.map((s, i) => ({ session: s, plan: state.trainingPlans?.[s.id] || fromTemplate(s, prof) || generate(state, def, group, s, { index: i, profile: prof, skills }) })) };
   }
 
   function homework(def, prof, day = new Date()) { const T = TEMPLATES[def?.type] || TEMPLATES.classes, w = weekNo(day); return [pick(T.home, w), pick(T.home, w + 1)]; }
@@ -209,7 +216,7 @@
           <div class="py-month"><button type="button" class="sb-btn" aria-label="الأسبوع اللي فات" onclick="Training.day=new Date(Training.day.getTime()-7*864e5);render()">→</button><b>${E(fmt(w.from, { day: 'numeric', month: 'short' }))} – ${E(fmt(new Date(w.to.getTime() - 864e5), { day: 'numeric', month: 'short' }))}</b><button type="button" class="sb-btn" aria-label="الأسبوع الجاي" onclick="Training.day=new Date(Training.day.getTime()+7*864e5);render()">←</button></div>
           ${w.sessions.length && approved < w.sessions.length ? btn('اعتماد خطة الأسبوع', `Training.approve('${g.id}')`, 'primary') : ''}</div>
         <div class="tp-profile"><span><small>هدف الأسبوع</small><b>${E(w.theme)}</b></span><span><small>الفئة</small><b>${E(AGES[w.profile.band].name)} · ${E(AGES[w.profile.band].range)}</b></span><span><small>المرحلة</small><b>${E(STAGES[w.profile.stage])}${w.profile.level ? ' · ' + E(w.profile.level.name) : ''}</b></span><span><small>تركيز المهارات</small><b>${w.skills.map(s => E(s.name)).join('، ') || 'حسب القالب'}</b></span><span><small>اتعتمد</small><b>${approved} من ${w.sessions.length}</b></span></div>
-        <div class="tp-week">${w.sessions.map(({ session: s, plan }) => `<article class="tp-session ${plan.generated ? '' : 'saved'}"><header><div><b>${E(fmt(s.start, { weekday: 'long', day: 'numeric', month: 'short' }))}</b><small>${E(fmt(s.start, { hour: 'numeric', minute: '2-digit' }))} · ${s.duration} دقيقة · ${E(s.coach || g.coach || '')}</small></div><span class="sa-chip ${plan.generated ? '' : 'ok'}">${plan.generated ? 'من القالب' : 'معتمدة'}</span></header>${blocksHTML(plan)}${plan.note ? `<p class="tp-note">${E(plan.note)}</p>` : ''}<footer>${btn('تعديل', `Training.edit('${s.id}')`)}${plan.generated ? '' : btn('رجوع للقالب', `Training.resetPlan('${s.id}')`)}</footer></article>`).join('') || '<div class="ac-empty"><b>مفيش حصص في الأسبوع ده</b><p>غيّر الأسبوع أو الجروب.</p></div>'}</div></div>`;
+        <div class="tp-week">${w.sessions.map(({ session: s, plan }) => `<article class="tp-session ${plan.generated ? '' : 'saved'}"><header><div><b>${E(fmt(s.start, { weekday: 'long', day: 'numeric', month: 'short' }))}</b><small>${E(fmt(s.start, { hour: 'numeric', minute: '2-digit' }))} · ${s.duration} دقيقة · ${E(s.coach || g.coach || '')}</small></div><span class="sa-chip ${plan.generated ? '' : 'ok'}">${plan.fromTemplate ? 'قالب: ' + E(plan.fromTemplate) : plan.generated ? 'مقترحة تلقائيًا' : 'معتمدة من المدرب'}</span></header>${blocksHTML(plan)}${plan.note ? `<p class="tp-note">${E(plan.note)}</p>` : ''}<footer>${btn('تعديل', `Training.edit('${s.id}')`)}${plan.generated ? '' : btn('رجوع للقالب', `Training.resetPlan('${s.id}')`)}</footer></article>`).join('') || '<div class="ac-empty"><b>مفيش حصص في الأسبوع ده</b><p>غيّر الأسبوع أو الجروب.</p></div>'}</div></div>`;
     };
     PAGES.plans_after = () => {};
     const library = () => `<div class="tp-lib">${Object.entries(TEMPLATES).filter(([type]) => !window.Edition?.single || window.Edition.def?.type === type).map(([type, T]) => { const sports = (SE()?.list() || []).filter(d => d.type === type).map(d => d.ico + ' ' + d.name).join('، ');

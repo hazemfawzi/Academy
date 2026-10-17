@@ -210,11 +210,42 @@
     const baseReports = PAGES.reports;
     PAGES.reports = () => { const html = baseReports(); if (U().sport !== 'football') return html; const mark = html.indexOf('آخر إجراءات'), at = mark < 0 ? html.lastIndexOf('</div>') : html.lastIndexOf('<section', mark); return html.slice(0, at) + FU.reportsSection() + html.slice(at); };
 
+    /* ---------- the day at a glance and the platform plan, at the top of every home ---------- */
+    const PLANS = [['مجانية', 0, 30, 1], ['أساسية', 499, 100, 1], ['نمو', 999, 300, 3], ['احترافية', 1999, Infinity, Infinity]];
+    const plan = () => { const p = db.state.platformPlan || { name: 'نمو' }; const row = PLANS.find(x => x[0] === p.name) || PLANS[2]; return { name: row[0], price: row[1], players: row[2], branches: row[3] }; };
+    FU.planBanner = () => {
+      try { if (sessionStorage.getItem('plan-banner-hidden') === '1') return ''; } catch (e) { /* storage off */ }
+      const p = plan(), players = db.state.members.filter(m => m.group).length, branches = new Set(db.state.groups.map(g => g.branch).filter(Boolean)).size;
+      const rows = [['الفروع', branches, p.branches], ['اللاعبين', players, p.players]].filter(([, n, max]) => isFinite(max) && n >= max * 0.9);
+      if (!rows.length) return '';
+      const full = rows.some(([, n, max]) => n >= max);
+      return `<div class="fb-plan-banner ${full ? 'full' : ''}"><span class="fb-plan-ico">⚠</span><div><b>${full ? 'وصلت إلى الحد الأقصى في باقتك' : 'قربت من الحد الأقصى في باقتك'}</b><small>${rows.map(([l, n, max]) => `${n >= max ? 'وصلت' : 'قربت'}: ${l} (${n}/${max})`).join(' · ')}. قم بالترقية لإضافة المزيد.</small></div><button type="button" class="fb-plan-btn" onclick="FootballUI.plans()">عرض الباقات</button><button type="button" class="fb-plan-x" aria-label="إخفاء" onclick="try{sessionStorage.setItem('plan-banner-hidden','1')}catch(e){};this.parentElement.remove()">×</button></div>`;
+    };
+    FU.plans = () => { const p = plan(), players = db.state.members.filter(m => m.group).length, branches = new Set(db.state.groups.map(g => g.branch).filter(Boolean)).size;
+      V.open(`<div class="ma-form fb-form"><h3>باقات المنصة</h3><p class="py-help">باقتك الحالية «${E(p.name)}» · الاستخدام: ${players} لاعب و${branches} فروع.</p><div class="fb-plans">${PLANS.map(([n, price, pl, br]) => `<div class="fb-plan ${n === p.name ? 'on' : ''}"><b>${E(n)}</b><strong>${price ? price.toLocaleString('en') + ' ج' : 'مجانًا'}<small>/شهريًا</small></strong><small>${isFinite(pl) ? 'حتى ' + pl + ' لاعب' : 'لاعبين بلا حد'} · ${isFinite(br) ? br + (br > 1 ? ' فروع' : ' فرع') : 'فروع بلا حد'}</small>${n === p.name ? '<em>باقتك الحالية</em>' : `<button type="button" class="sb-btn ${PLANS.findIndex(x => x[0] === n) > PLANS.findIndex(x => x[0] === p.name) ? 'primary' : ''} small" onclick="FootballUI.choosePlan('${n}')">${PLANS.findIndex(x => x[0] === n) > PLANS.findIndex(x => x[0] === p.name) ? 'ترقية' : 'تغيير'}</button>`}</div>`).join('')}</div></div>`); };
+    FU.choosePlan = n => V.run(() => { db.update(st => { st.platformPlan = { name: n, at: new Date().toISOString() }; }); try { sessionStorage.removeItem('plan-banner-hidden'); } catch (e) { /* storage off */ } V.close(); render(); toast('اتغيرت الباقة لـ ' + n); });
+    const ringSvg = (pct, color) => { const r = 34, c = 2 * Math.PI * r, v = Math.max(0, Math.min(100, Math.round(pct || 0))); return `<svg viewBox="0 0 84 84" width="84" height="84"><circle cx="42" cy="42" r="${r}" fill="none" stroke="#e8eeea" stroke-width="9"/><circle cx="42" cy="42" r="${r}" fill="none" stroke="${color}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${c * v / 100} ${c}" transform="rotate(-90 42 42)"/><text x="42" y="48" text-anchor="middle" font-size="18" font-weight="800" fill="#13261d">${v}%</text></svg>`; };
+    FU.dayHero = (a, label) => {
+      const now = new Date(), today = now.toDateString(), month = new Date(now.getFullYear(), now.getMonth(), 1);
+      const ids = new Set(a.members.map(m => m.id)), gids = new Set(a.groups.map(g => g.id));
+      const sessionsToday = (a.todaySessions || []).filter(x => x.status !== 'cancelled');
+      const paidToday = db.state.transactions.filter(t => ids.has(t.memberId) && t.kind === 'payment' && new Date(t.at).toDateString() === today);
+      const waiting = (a.pending || []).filter(r => r.type === 'payment').length;
+      const active = a.members.length ? (a.active || 0) / a.members.length * 100 : 0;
+      const inv = db.state.invoices.filter(i => ids.has(i.memberId) && new Date(i.created || i.at || i.date || now) >= month), billed = inv.reduce((n, i) => n + i.total, 0), got = inv.reduce((n, i) => n + i.paid, 0);
+      const left = db.state.members.filter(m => m.left && gids.has(m.left.from) && (now - new Date(m.left.at)) / 864e5 <= 90).length, stay = a.members.length + left ? a.members.length / (a.members.length + left) * 100 : 100;
+      const next = sessionsToday.find(x => x.status !== 'ended' && new Date(x.start).getTime() + (x.duration || 60) * 6e4 >= now.getTime()) || sessionsToday[0];
+      const money = v => new Intl.NumberFormat('en-US').format(Math.round(v)) + ' ج';
+      return `${FU.planBanner()}<section class="fb-day"><div class="fb-day-main"><span class="fb-day-eyebrow">✦ لوحة التحكم · ${E(label)}</span><h1>نظرة سريعة على يومك 🚀</h1><p>${sessionsToday.length} حصص اليوم، ${paidToday.length} دفعة محصّلة بقيمة ${money(paidToday.reduce((n, t) => n + t.amount, 0))}، و${waiting} دفعات بانتظار التحقق.</p>
+        <div class="fb-day-actions"><button type="button" class="fb-day-btn dark" onclick="Registration.addPlayers()">＋ تسجيل لاعب جديد</button><button type="button" class="fb-day-btn" onclick="${next ? `AcademyUI.sessionDetail('${next.id}')` : "toast('مفيش حصص النهارده')"}">📅 ${next && new Date(next.start) <= now ? 'الحصة الجارية' : 'بدء حصة اليوم'}</button><button type="button" class="fb-day-link" onclick="go('reports')">عرض التقارير ‹</button></div></div>
+        <div class="fb-day-rings">${[['النشطون', active, '#2d604c', 'اشتراك ساري من كل اللاعبين'], ['التحصيل', billed ? got / billed * 100 : 0, '#2f6f8f', 'المدفوع من فواتير الشهر'], ['البقاء', stay, '#b8954f', 'اللاعبين اللي كمّلوا آخر 90 يوم']].map(([l, v, c, t]) => `<div class="fb-ring" title="${t}">${ringSvg(v, c)}<small>${l}</small></div>`).join('')}</div></section>`;
+    };
+
     /* The football home: pathway and school side by side, never one mixed list of groups. */
     if (window.AcademyUI?.sportDashboard) {
       const AU = window.AcademyUI, baseHome = AU.sportDashboard;
       AU.sportDashboard = () => {
-        const html = baseHome(); if (AU.sport !== 'football') return html;
+        const html = baseHome(); if (AU.sport !== 'football') return html.replace(/<header class="sport-workspace-heading">[\s\S]*?<\/header>/, FU.dayHero(AU.scope(), window.SportEngine?.get(AU.sport)?.name || ''));
         const k = html.indexOf('<div class="ny-kpis">'), t = html.indexOf('<section class="ny-panel">', k), bg = html.indexOf('<div class="sport-bottom-grid">');
         if (k < 0 || t < 0 || bg < 0) return html;
         const money = v => new Intl.NumberFormat('en-US').format(v) + ' ج', a = AU.scope(), now = new Date(), inScope = new Set(a.groups.map(g => g.id));
@@ -233,7 +264,7 @@
         const panel = (title, sub, more, body) => `<section class="ny-panel"><header><div><h2>${title}</h2><p>${sub}</p></div>${more}</header><div class="fb-home-list">${body}</div></section>`;
         const btnQ = (l, js) => `<button type="button" class="btn quiet" onclick="${E(js)}">${l}</button>`;
         const bottom = `<div class="sport-bottom-grid"><div class="fb-home-col">${panel('🎯 فرق مسار الاحتراف', 'فرق بسنة الميلاد · بالاختيار', btnQ('المراحل السنية', "go('pathway')"), squadRows || '<p class="fb-empty">مفيش فرق مسار.</p>')}${panel('⚽ مجموعات مدرسة الكرة', 'بالاشتراك · بالسن والميعاد', btnQ('الفرق والمجموعات', "go('groups')"), schoolRows || '<p class="fb-empty">مفيش مجموعات.</p>')}</div>${panel('الجاي', 'تمارين المسار والمدرسة والماتشات الرسمية', btnQ('الجدول كامل', "go('attendance')"), agenda || '<p class="fb-empty">مفيش حاجة جاية.</p>')}</div>`;
-        const head = html.slice(0, k).replace(/داشبورد كورة|داشبورد كرة القدم/, window.Edition?.single ? Edition.title : 'أكاديمية الكورة').replace('<div class="sport-quick-actions">', `<div class="sport-quick-actions"><button type="button" class="btn quiet" onclick="FootballUI.scoutForm()">+ مرشح للاختبار</button>`);
+        const head = html.slice(0, k).replace(/<header class="sport-workspace-heading">[\s\S]*?<\/header>/, FU.dayHero(a, window.Edition?.single ? Edition.title : 'أكاديمية الكورة')).replace(/داشبورد كورة|داشبورد كرة القدم/, window.Edition?.single ? Edition.title : 'أكاديمية الكورة').replace('<div class="sport-quick-actions">', `<div class="sport-quick-actions"><button type="button" class="btn quiet" onclick="FootballUI.scoutForm()">+ مرشح للاختبار</button>`);
         const tools = html.slice(t, bg).replace('<h3>المستويات والتقييمات</h3>', '<h3>مستويات مدرسة الكرة</h3>').replace(/<h2>أدوات [^<]*<\/h2>/, '<h2>أدوات الأكاديمية</h2>');
         const Q = [['userPlus', 'تسجيل لاعب', 'V.open(V.newMemberForm())', 'mint'], ['search', 'مرشح للاختبار', 'FootballUI.scoutForm()', 'purple'], ['plan', `تقييم مستحق${due ? ' (' + due + ')' : ''}`, "FootballUI.quick('assess')", 'amber'], ['trophy', 'ماتش رسمي', "FootballUI.quick('match')", 'blue'], ['activity', 'مجهود الحصة', "FootballUI.quick('load')", 'cyan'], ['bandage', 'تسجيل إصابة', "FootballUI.quick('injury')", 'pink'], ['ruler', 'قياسات بدنية', "FootballUI.quick('tests')", 'mint'], ['card', 'تحصيل اشتراك', 'AcademyUI.chooseMember()', 'blue']];
         const quick = `<section class="ny-panel fb-quick-panel"><header><div><h2>إجراءات سريعة</h2><p>شغل اليوم في ضغطة</p></div></header><div class="fb-quick">${Q.map(([i, l, js, c]) => `<button type="button" class="fb-quick-btn ${c}" onclick="${E(js)}"><span>${svg(i, 20)}</span><b>${l}</b></button>`).join('')}</div></section>`;
@@ -392,6 +423,9 @@
         } catch (e) { FU.wiz(e.message); }
       };
     }
+
+    /* The all-sports home opens with the same day at a glance. */
+    if (window.AcademyUI?.home) { const AU = window.AcademyUI, baseAll = AU.home; AU.home = function () { const html = baseAll.apply(this, arguments); return AU.sport === 'all' ? `<div class="fb-day-wrap">${FU.dayHero(AU.scope(), AU.branch === 'all' ? 'كل الفروع' : AU.branch)}</div>` + html : html; }; if (PAGES.dash === baseAll) PAGES.dash = AU.home; }
 
     /* A pathway player's file is the development profile. */
     if (window.Refine?.profile) { const profile = Refine.profile; Refine.profile = id => { const m = db.member(id); if (m && FC.isPathway(db.state, m)) { V.close && V.close(); FU.openPlayer(id); } else profile(id); }; }
