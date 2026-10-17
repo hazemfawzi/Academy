@@ -13,6 +13,14 @@
   const avatar = (name, size = 40) => window.KoraAvatars ? `<span class="fb-av" style="width:${size}px;height:${size}px">${KoraAvatars.portrait(name)}</span>` : `<span class="fb-av fb-ini" style="width:${size}px;height:${size}px">${E(String(name)[0])}</span>`;
   const group = id => db.state.groups.find(g => g.id === id);
   const FU = window.FootballUI = { squadId: '', playerId: '', filter: 'all' };
+  /* Football here is an academy, not casual team games: no league or matches between
+     training groups and no player-of-the-match votes; the team split stays as a training tool. */
+  if (window.SportEngine) {
+    const SE = window.SportEngine, tools = SE.tools, admin = SE.adminTools;
+    const clean = (id, list) => SE.get(id)?.id === 'football' || id === 'football' ? list.filter(t => !['matches', 'league'].includes(t.key)).map(t => t.key === 'teams' ? { ...t, title: 'تقسيمة التمرين' } : t) : list;
+    SE.tools = id => clean(id, tools(id));
+    if (admin) SE.adminTools = id => clean(id, admin(id));
+  }
   window.SportDescriptions = Object.assign(window.SportDescriptions || {}, { football: 'مدرسة الكرة بالاشتراك ومسار الاحتراف: فرق بسنة الميلاد، تقييم كل 8 أسابيع على 4 محاور، وخطة تطوير لكل لاعب.' });
   window.SportExtraTools = Object.assign(window.SportExtraTools || {}, { football: [['المراحل السنية', 'فرق المسار والتقييمات المستحقة وخطط التطوير', "go('pathway')", true]] });
 
@@ -91,6 +99,67 @@
         <section class="fb-card"><h3>سجل التقييمات</h3><div class="fb-timeline">${h.slice().reverse().map(a => { const s = FC.cornerScores(a); return `<div><b>${E(fmt(a.at, { day: 'numeric', month: 'long', year: 'numeric' }))}</b><span>${E(a.by)}</span>${bars(s)}<strong>${s.overall}</strong></div>`; }).join('') || '<p class="fb-empty">—</p>'}</div></section></div>`;
     };
     ['pathway', 'squad', 'fbplayer'].forEach(k => { PAGES[k + '_after'] = () => {}; });
+
+    /* ---------- football groups: pathway squads and football school groups, never mixed ---------- */
+    const U = () => window.AcademyUI || { sport: 'all', branch: 'all' };
+    const baseGroups = PAGES.groups;
+    PAGES.groups = () => {
+      if (U().sport !== 'football') return baseGroups();
+      const inBranch = g => U().branch === 'all' || g.branch === U().branch;
+      const all = db.state.groups.filter(g => g.sport === 'football' && inBranch(g)), squads = all.filter(FC.isSquad).sort((a, b) => b.fb.birthYear - a.fb.birthYear), school = all.filter(g => !FC.isSquad(g));
+      const card = (g, squad) => { const n = db.state.members.filter(m => m.group === g.id).length, pct = g.capacity ? Math.min(100, n / g.capacity * 100) : 0, u = squad ? FC.uOf(g.fb.birthYear) : null;
+        return `<article class="pr-group fb-group ${squad ? 'squad' : 'school'}" style="--sport:${squad ? FC.phaseOf(u).color : '#8a9a91'}"><header><span>${squad ? 'مرحلة ' + E(FC.phaseOf(u).name) : 'مدرسة الكرة'}</span><small>${E(g.branch)}</small></header>
+          <h3>${E(squad ? FC.squadName(g.fb.birthYear) : g.name)}</h3><p class="pr-when">${E(window.ScheduleCore ? ScheduleCore.describe(g) : '')}</p>
+          <dl><div><dt>المدرب</dt><dd>${E(g.coach || 'لم يحدد')}</dd></div><div><dt>المكان</dt><dd>${E(g.resource || 'لم يحدد')}</dd></div><div><dt>${squad ? 'القيد' : 'السن'}</dt><dd>${squad ? 'مواليد ' + g.fb.birthYear : g.ageMin != null ? `من ${g.ageMin} إلى ${g.ageMax}` : '—'}</dd></div></dl>
+          <div class="pr-cap"><i><em style="width:${pct}%"></em></i><small>${n} من ${g.capacity} لاعب</small></div>
+          <footer>${squad ? btn('الفريق والتطوير', `FootballUI.openSquad('${g.id}')`) : btn('ملف المجموعة', `AcademyUI.groupDetail('${g.id}')`)}${btn('تعديل الجدول', `ProgramsUI.groupForm('${g.id}')`)}</footer></article>`; };
+      return `<div class="sb-page"><header class="sb-head"><div><small>كرة القدم</small><h1>الفرق والمجموعات</h1><p>نوعين مختلفين ومنفصلين: <b>فرق المسار</b> بالاختيار، والفريق بيتحدد بسنة الميلاد زي قيد الاتحاد. و<b>مجموعات مدرسة الكرة</b> بالاشتراك، والمجموعة بتتحدد بالسن والميعاد. الحصص بتتولد تلقائيًا لأسبوعين قدام.</p></div><div class="pr-head-actions">${btn('الإجازات', 'ProgramsUI.holidays()')}${btn('+ فريق مسار', "ProgramsUI.groupForm('', 'pathway')")}${btn('+ مجموعة مدرسة', "ProgramsUI.groupForm('', 'school')", 'primary')}</div></header>
+        <h2 class="fb-sec">🎯 فرق المراحل السنية · مسار الاحتراف <small>${squads.length} فرق</small></h2><div class="pr-grid">${squads.map(g => card(g, true)).join('') || '<p class="fb-empty">مفيش فرق مسار. أضف أول فريق بسنة الميلاد.</p>'}</div>
+        <h2 class="fb-sec">⚽ مجموعات مدرسة الكرة · بالاشتراك <small>${school.length} مجموعات</small></h2><div class="pr-grid">${school.map(g => card(g, false)).join('') || '<p class="fb-empty">مفيش مجموعات مدرسة.</p>'}</div></div>`;
+    };
+
+    const PU = window.ProgramsUI;
+    if (PU) {
+      const baseForm = PU.groupForm, baseSave = PU.saveGroup;
+      /* Football groups ask for their kind first; a pathway squad is named and aged by its birth year. */
+      PU.groupForm = (id = '', kind = '') => {
+        baseForm(id);
+        const g = id ? group(id) : null, sport = document.getElementById('pr-sport');
+        if (!sport) return;
+        const isSquad = g ? FC.isSquad(g) : kind === 'pathway';
+        const y = g?.fb?.birthYear || FC.season().end - 12;
+        sport.closest('.rg-row').insertAdjacentHTML('afterend', `<div id="fb-kind" class="fb-kind" ${sport.value === 'football' ? '' : 'hidden'}><span class="sb-label">نوع المجموعة</span><div class="rg-seg"><label><input type="radio" name="fb-kind" value="pathway" ${isSquad ? 'checked' : ''} ${g ? 'disabled' : ''} onchange="FootballUI.kindChanged()"><span>فريق مسار الاحتراف</span></label><label><input type="radio" name="fb-kind" value="school" ${isSquad ? '' : 'checked'} ${g ? 'disabled' : ''} onchange="FootballUI.kindChanged()"><span>مجموعة مدرسة الكرة</span></label></div>
+          <label class="rg-field" id="fb-year-field"><span>سنة الميلاد</span><input id="fb-year" type="number" min="${FC.season().end - 21}" max="${FC.season().end - 6}" value="${y}" ${g ? 'disabled' : ''} oninput="FootballUI.kindChanged()"><small id="fb-year-hint"></small></label></div>`);
+        sport.addEventListener('change', () => { document.getElementById('fb-kind').hidden = sport.value !== 'football'; FU.kindChanged(); });
+        /* Inside the football academy the form speaks football: no sport choice, team or group wording. */
+        const form = sport.closest('.pr-form');
+        form.querySelector('.rg-field span').textContent = 'الاسم';
+        if (window.Edition?.single) sport.closest('.rg-field').style.display = 'none';
+        const nameInput = document.getElementById('pr-name'); if (nameInput) nameInput.placeholder = 'مثال: مدرسة الكرة · الصبح';
+        form.querySelectorAll('.sb-btn.primary').forEach(b => { if (/الجروب/.test(b.textContent)) b.textContent = 'حفظ'; });
+        FU.formTitle = g ? 'تعديل جدول ' + (FC.isSquad(g) ? FC.squadName(g.fb.birthYear) : g.name) : '';
+        FU.kindChanged();
+      };
+      FU.kindChanged = () => {
+        const box = document.getElementById('fb-kind'); if (!box) return;
+        const squad = !box.hidden && document.querySelector('[name=fb-kind]:checked')?.value === 'pathway', y = Number(document.getElementById('fb-year').value);
+        document.getElementById('fb-year-field').hidden = !squad;
+        const h = box.closest('.pr-form')?.querySelector('h2'); if (h && !box.hidden) h.textContent = FU.formTitle || (squad ? 'فريق مسار جديد' : 'مجموعة مدرسة كرة جديدة');
+        ['pr-name', 'pr-age-min', 'pr-age-max'].forEach(k => { const el = document.getElementById(k); if (el) el.readOnly = squad; });
+        if (squad && y > 1990) { const u = FC.uOf(y); document.getElementById('pr-name').value = FC.squadName(y); document.getElementById('pr-age-min').value = u - 1; document.getElementById('pr-age-max').value = u; document.getElementById('fb-year-hint').textContent = `مرحلة ${FC.phaseOf(u).name} · الاسم والسن بيتحددوا من سنة الميلاد`; }
+      };
+      PU.saveGroup = id => {
+        const box = document.getElementById('fb-kind'), squad = box && !box.hidden && document.querySelector('[name=fb-kind]:checked')?.value === 'pathway', y = Number(document.getElementById('fb-year')?.value), branch = document.getElementById('pr-branch')?.value;
+        if (!id && squad && FC.squads(db.state).some(g => g.fb.birthYear === y && g.branch === branch)) { const e = document.getElementById('pr-error'); e.textContent = `فيه فريق لمواليد ${y} في الفرع ده بالفعل`; e.hidden = false; return; }
+        const before = new Set(db.state.groups.map(g => g.id));
+        baseSave(id);
+        const added = db.state.groups.find(g => !before.has(g.id));
+        if (added && added.sport === 'football') V.run(() => { db.update(st => { const g = st.groups.find(x => x.id === added.id); g.fb = squad ? { tier: 'pathway', birthYear: y } : { tier: 'school' }; }); render(); });
+      };
+    }
+
+    /* A pathway player's file is the development profile. */
+    if (window.Refine?.profile) { const profile = Refine.profile; Refine.profile = id => { const m = db.member(id); if (m && FC.isPathway(db.state, m)) { V.close && V.close(); FU.openPlayer(id); } else profile(id); }; }
   }
 
   /* =========================================================== forms (both pages) */
@@ -157,4 +226,6 @@
         ${plan.goals.some(x => x.status === 'achieved') ? `<div class="ax-section"><h3>اتحقق 🏅</h3></div>${plan.goals.filter(x => x.status === 'achieved').map(x => `<div class="ax-card fb-done">✓ ${E(x.text)}</div>`).join('')}` : ''}</div></div>`;
   };
   APPS.member.sub.fbidp = 'home'; APPS.coach.sub.fbdev = 'home';
+  const baseProgress = APPS.member.F.progress;
+  APPS.member.F.progress = () => { const AA = window.AcademyApps, m = AA?.viewer ? AA.viewer() : db.member('m0'); return FC.isPathway(db.state, m) ? APPS.member.F.fbidp() : baseProgress(); };
 })();

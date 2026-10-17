@@ -113,3 +113,10 @@
 .fb-app-radar small{font-size:12px;color:#5f7368}
 .fb-done{font-size:14px;color:#24774a}
 .fb-home-card .tp-card-icon{background:#f3ead4;color:#8a6a1f}
+
+.fb-sec{font-size:17px;margin:18px 0 10px;display:flex;align-items:baseline;gap:10px}
+.fb-sec small{font-size:12px;color:var(--t-muted);font-weight:400}
+.fb-group header span{font-weight:700}
+.fb-group.school{border-top-style:dashed}
+.fb-kind{display:grid;gap:8px;margin:4px 0 12px}
+.fb-kind[hidden],#fb-year-field[hidden]{display:none}
