@@ -25,7 +25,8 @@
   AA.switcher = () => {
     const list = people();
     if (list.length < 2) return '';
-    return `<div class="pa-switch" role="tablist" aria-label="اختيار اللاعب">${list.map(m => { const d = SE.get(sportOf(m)); return `<button type="button" role="tab" aria-selected="${AA.viewer().id === m.id}" class="${AA.viewer().id === m.id ? 'on' : ''}" onclick="AcademyApps.view('${m.id}')"><span>${E(d?.ico || '')}</span>${E(m.id === 'm0' ? 'أنا' : m.name.split(' ')[0])}</button>`; }).join('')}</div>`;
+    const selected = AA.viewer(), g = group(selected.group), d = SE.get(sportOf(selected));
+    return `<section class="pa-family" aria-label="ملفات الأسرة"><p class="pa-family-label">ملف مين تحب تتابع؟</p><div class="pa-switch" role="group" aria-label="اختيار اللاعب">${list.map(m => `<button type="button" aria-pressed="${selected.id === m.id}" aria-label="متابعة ${E(m.name)}" title="${E(m.name)}" class="${selected.id === m.id ? 'on' : ''}" onclick="AcademyApps.view('${m.id}')">${KoraAvatars.render(m.name, 'pa-family-avatar', 32)}<span>${E(m.name.split(' ')[0])}</span></button>`).join('')}</div><p class="pa-family-context" aria-label="اشتراك اللاعب المختار"><span>${E(g?.branch || 'الفرع غير محدد')}</span><i aria-hidden="true">‹</i><span>${E(d?.name || 'الرياضة غير محددة')}</span><i aria-hidden="true">‹</i><span>${E(g?.name || 'المجموعة غير محددة')}</span></p></section>`;
   };
   AA.view = id => {
     AA.viewerId = id === 'm0' ? '' : id;
