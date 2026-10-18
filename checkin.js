@@ -140,6 +140,7 @@
     const p = parse(text, db.state.members);
     if (p.error) return say(false, 'كود غير صالح', p.error);
     const m = p.member, g = groupOf(m), o = openSession(db.state, m);
+    if(S.app==='coach'&&window.AcademyApps&&!AcademyApps.scope().members.some(x=>x.id===m.id))return say(false,'خارج نطاقك','اللاعب غير مسند إلى مجموعاتك الحالية');
     if (o.error) return say(false, m.name, o.next ? `${o.error}. حصة ${g?.name || ''} الجاية ${fmt(o.next.start, { weekday: 'long', hour: 'numeric', minute: '2-digit' })}` : o.error);
     if (o.session.present?.[m.id]) return say(true, m.name, 'متسجل حاضر بالفعل');
     const late = Date.now() > new Date(o.session.start).getTime() + 10 * 60000;
