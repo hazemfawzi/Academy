@@ -83,11 +83,16 @@
   };
 
   /* ---------- home summary ---------- */
+  /* One category at a time: tabs for the categories and a podium of its best three. */
   RK.home = () => {
     const cats = R.leaders(scoped(), 3); if (!cats.length) return '';
-    return `<section class="rk-home"><header><div><h2>الأفضل في كل فئة</h2><p>أعلى 3 في كل فئة عمرية حسب الأداء والحضور.</p></div><button type="button" class="sb-btn quiet small" onclick="go('rankings')">الترتيب الكامل</button></header>
-      <div class="rk-home-grid">${cats.slice(0, 8).map(c => `<article><h3>${catLabel(c)}</h3>${c.top.map(r => `<button type="button" class="rk-line" onclick="Refine.profile('${r.id}')">${medal(r.catRank)}${av(r.name, 30)}<span class="rk-who"><b>${E(r.name)}</b><small>${E(r.groupName)}</small></span><span class="rk-score">${r.score}</span></button>`).join('')}</article>`).join('')}</div></section>`;
+    const c = cats.find(x => x.key === RK.homeCat) || cats[0];
+    const card = r => `<button type="button" class="rk-hp rk-p${r.catRank}" onclick="Refine.profile('${r.id}')">${medal(r.catRank)}${av(r.name, r.catRank === 1 ? 64 : 52)}<b>${E(r.name)}</b><small>${E(r.groupName)}</small><span class="rk-hp-score">${r.score}<i>من 100</i></span></button>`;
+    return `<section class="rk-home"><header><div><h2>الأفضل في كل فئة</h2><p>أعلى 3 في الفئة حسب الأداء والحضور.</p></div><button type="button" class="sb-btn quiet small" onclick="RankingsUI.cat='${E(c.key)}';RankingsUI.group='all';go('rankings')">ترتيب ${E(c.name)} كامل</button></header>
+      <nav class="rk-tabs" aria-label="الفئات">${cats.map(x => `<button type="button" class="${x.key === c.key ? 'on' : ''}" aria-pressed="${x.key === c.key}" onclick="RankingsUI.homeTab('${E(x.key)}')">${E(x.name)}${x.track ? `<small>${x.track === 'pathway' ? 'مسار' : 'مدرسة'}</small>` : ''}</button>`).join('')}</nav>
+      <div class="rk-hpodium">${c.top.map(card).join('')}</div><p class="rk-hfoot">${c.size} لاعب متقيّم في ${E(c.name)} · ${c.groups} ${c.groups === 1 ? 'مجموعة' : 'مجموعات'}</p></section>`;
   };
+  RK.homeTab = key => { RK.homeCat = key; const el = document.querySelector('.rk-home'); if (el) el.outerHTML = RK.home(); };
   const home = PAGES.dash;
   PAGES.dash = function () { const html = home.apply(this, arguments), card = RK.home(); if (!card) return html; const at = html.lastIndexOf('</div>'); return at < 0 ? html + card : html.slice(0, at) + card + html.slice(at); };
 
