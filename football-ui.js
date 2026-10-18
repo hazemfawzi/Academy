@@ -213,13 +213,24 @@
     /* ---------- the day at a glance and the platform plan, at the top of every home ---------- */
     const PLANS = [['مجانية', 0, 30, 1], ['أساسية', 499, 100, 1], ['نمو', 999, 300, 3], ['احترافية', 1999, Infinity, Infinity]];
     const plan = () => { const p = db.state.platformPlan || { name: 'نمو' }; const row = PLANS.find(x => x[0] === p.name) || PLANS[2]; return { name: row[0], price: row[1], players: row[2], branches: row[3] }; };
-    FU.planBanner = () => {
-      try { if (sessionStorage.getItem('plan-banner-hidden') === '1') return ''; } catch (e) { /* storage off */ }
-      const p = plan(), players = db.state.members.filter(m => m.group).length, branches = new Set(db.state.groups.map(g => g.branch).filter(Boolean)).size;
-      const rows = [['الفروع', branches, p.branches], ['اللاعبين', players, p.players]].filter(([, n, max]) => isFinite(max) && n >= max * 0.9);
-      if (!rows.length) return '';
-      const full = rows.some(([, n, max]) => n >= max);
-      return `<div class="fb-plan-banner ${full ? 'full' : ''}"><span class="fb-plan-ico">⚠</span><div><b>${full ? 'وصلت إلى الحد الأقصى في باقتك' : 'قربت من الحد الأقصى في باقتك'}</b><small>${rows.map(([l, n, max]) => `${n >= max ? 'وصلت' : 'قربت'}: ${l} (${n}/${max})`).join(' · ')}. قم بالترقية لإضافة المزيد.</small></div><button type="button" class="fb-plan-btn" onclick="FootballUI.plans()">عرض الباقات</button><button type="button" class="fb-plan-x" aria-label="إخفاء" onclick="try{sessionStorage.setItem('plan-banner-hidden','1')}catch(e){};this.parentElement.remove()">×</button></div>`;
+    FU.planBanner = () => '';
+    FU.operatingAlerts = a => {
+      const now = new Date(), today = now.toDateString(), money = v => new Intl.NumberFormat('en-US').format(Math.round(v)) + ' ج';
+      const ids = new Set(a.members.map(m => m.id)), gids = new Set(a.groups.map(g => g.id));
+      const requests = (a.pending || []).length, invoices = (a.openInvoices || []).length;
+      const sessions = (a.sessions || db.state.sessions.filter(s => gids.has(s.group))).filter(s => s.status === 'scheduled' && new Date(s.start) <= now && new Date(s.start).getTime() + (s.duration || 60) * 60000 < now.getTime());
+      const noCoach = a.groups.filter(g => !g.coach).length;
+      const overdue = (a.overdue || []).length;
+      const paid = db.state.transactions.filter(t => ids.has(t.memberId) && t.kind === 'payment' && new Date(t.at).toDateString() === today);
+      const rows = [
+        [requests, 'طلبات تحتاج قرارًا', 'دفع أو تجميد أو تعويض', "go('vrequests')", 'amber', 'مراجعة'],
+        [sessions.length, 'حصص تحتاج إغلاق الحضور', 'موعدها انتهى وما زالت مجدولة', "go('attendance')", 'rose', 'فتح الجدول'],
+        [noCoach, 'مجموعات بدون مدرب', 'حدّد المسؤول عن التدريب', "go('groups')", 'blue', 'عرض المجموعات'],
+        [overdue, 'مهام متابعة متأخرة', 'راجع المسؤول والموعد القادم', "go('vfollowups')", 'amber', 'المتابعة'],
+        [invoices, 'فواتير غير مكتملة', 'المتبقي '+money(a.outstanding || 0), "go('billing')", 'rose', 'التحصيل']
+      ].filter(r => r[0] > 0).slice(0, 4);
+      if (rows.length < 4) rows.push([paid.length, 'دفعات محصّلة اليوم', 'بقيمة '+money(paid.reduce((n,t)=>n+t.amount,0)), "go('billing')", 'mint', 'التفاصيل']);
+      return `<section class="cb-alerts" aria-label="تنبيهات تحتاج انتباهك"><header><h2>${svg('activity',18)} تنبيهات ومتابعة اليوم</h2><small>حسب الفرع والرياضة المختارين</small></header><div>${rows.map(([n,title,detail,action,color,label])=>`<button class="cb-alert ${color}" onclick="${E(action)}"><span><b>${n} ${E(title)}</b><small>${E(detail)}</small></span><strong>${E(label)} ‹</strong></button>`).join('')}</div></section>`;
     };
     FU.plans = () => { const p = plan(), players = db.state.members.filter(m => m.group).length, branches = new Set(db.state.groups.map(g => g.branch).filter(Boolean)).size;
       V.open(`<div class="ma-form fb-form"><h3>باقات المنصة</h3><p class="py-help">باقتك الحالية «${E(p.name)}» · الاستخدام: ${players} لاعب و${branches} فروع.</p><div class="fb-plans">${PLANS.map(([n, price, pl, br]) => `<div class="fb-plan ${n === p.name ? 'on' : ''}"><b>${E(n)}</b><strong>${price ? price.toLocaleString('en') + ' ج' : 'مجانًا'}<small>/شهريًا</small></strong><small>${isFinite(pl) ? 'حتى ' + pl + ' لاعب' : 'لاعبين بلا حد'} · ${isFinite(br) ? br + (br > 1 ? ' فروع' : ' فرع') : 'فروع بلا حد'}</small>${n === p.name ? '<em>باقتك الحالية</em>' : `<button type="button" class="sb-btn ${PLANS.findIndex(x => x[0] === n) > PLANS.findIndex(x => x[0] === p.name) ? 'primary' : ''} small" onclick="FootballUI.choosePlan('${n}')">${PLANS.findIndex(x => x[0] === n) > PLANS.findIndex(x => x[0] === p.name) ? 'ترقية' : 'تغيير'}</button>`}</div>`).join('')}</div></div>`); };
@@ -236,7 +247,7 @@
       const left = db.state.members.filter(m => m.left && gids.has(m.left.from) && (now - new Date(m.left.at)) / 864e5 <= 90).length, stay = a.members.length + left ? a.members.length / (a.members.length + left) * 100 : 100;
       const next = sessionsToday.find(x => x.status !== 'ended' && new Date(x.start).getTime() + (x.duration || 60) * 6e4 >= now.getTime()) || sessionsToday[0];
       const money = v => new Intl.NumberFormat('en-US').format(Math.round(v)) + ' ج';
-      return `${FU.planBanner()}<section class="fb-day"><div class="fb-day-main"><span class="fb-day-eyebrow">✦ لوحة التحكم · ${E(label)}</span><h1>نظرة سريعة على يومك 🚀</h1><p>${sessionsToday.length} حصص اليوم، ${paidToday.length} دفعة محصّلة بقيمة ${money(paidToday.reduce((n, t) => n + t.amount, 0))}، و${waiting} دفعات بانتظار التحقق.</p>
+      return `${FU.operatingAlerts(a)}<section class="fb-day"><div class="fb-day-main"><span class="fb-day-eyebrow">✦ لوحة التحكم · ${E(label)}</span><h1>نظرة سريعة على يومك 🚀</h1><p>${sessionsToday.length} حصص اليوم، ${paidToday.length} دفعة محصّلة بقيمة ${money(paidToday.reduce((n, t) => n + t.amount, 0))}، و${waiting} دفعات بانتظار التحقق.</p>
         <div class="fb-day-actions"><button type="button" class="fb-day-btn dark" onclick="Registration.addPlayers()">＋ تسجيل لاعب جديد</button><button type="button" class="fb-day-btn" onclick="${next ? `AcademyUI.sessionDetail('${next.id}')` : "toast('مفيش حصص النهارده')"}">📅 ${next && new Date(next.start) <= now ? 'الحصة الجارية' : 'بدء حصة اليوم'}</button><button type="button" class="fb-day-link" onclick="go('reports')">عرض التقارير ‹</button></div></div>
         <div class="fb-day-rings">${[['النشطون', active, '#2d604c', 'اشتراك ساري من كل اللاعبين'], ['التحصيل', billed ? got / billed * 100 : 0, '#2f6f8f', 'المدفوع من فواتير الشهر'], ['البقاء', stay, '#b8954f', 'اللاعبين اللي كمّلوا آخر 90 يوم']].map(([l, v, c, t]) => `<div class="fb-ring" title="${t}">${ringSvg(v, c)}<small>${l}</small></div>`).join('')}</div></section>`;
     };
