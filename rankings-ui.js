@@ -87,14 +87,15 @@
   RK.home = () => {
     const cats = R.leaders(scoped(), 3); if (!cats.length) return '';
     const c = cats.find(x => x.key === RK.homeCat) || cats[0];
-    const card = r => `<button type="button" class="rk-hp rk-p${r.catRank}" onclick="Refine.profile('${r.id}')">${medal(r.catRank)}${av(r.name, r.catRank === 1 ? 64 : 52)}<b>${E(r.name)}</b><small>${E(r.groupName)}</small><span class="rk-hp-score">${r.score}<i>من 100</i></span></button>`;
-    return `<section class="rk-home"><header><div><h2>الأفضل في كل فئة</h2><p>أعلى 3 في الفئة حسب الأداء والحضور.</p></div><button type="button" class="sb-btn quiet small" onclick="RankingsUI.cat='${E(c.key)}';RankingsUI.group='all';go('rankings')">ترتيب ${E(c.name)} كامل</button></header>
+    const portrait = r => { const m = db.state.members.find(m => m.id === r.id), photo = m?.photo; return photo && /^(data:image\/(png|jpe?g|webp);base64,|https?:\/\/|\/?assets\/)/i.test(photo) ? `<img class="rk-home-photo" src="${E(photo)}" alt="صورة ${E(r.name)}">` : `<span class="rk-home-initials" aria-label="${E(r.name)}">${E(r.name.trim().split(/\s+/).slice(0,2).map(n=>n[0]).join(' '))}</span>`; };
+    const card = r => `<button type="button" class="rk-hp rk-p${r.catRank}" onclick="Refine.profile('${r.id}')" title="${E(why(r))}"><div class="rk-player-head">${portrait(r)}<span class="rk-player-name"><b>${E(r.name)}</b><small>${E(r.groupName)}</small></span>${medal(r.catRank)}</div><div class="rk-player-metrics"><span><small>الأداء</small><b>${r.perf ?? '—'}<i> / 100</i></b></span><span><small>الحضور المسجّل</small><b>${r.attendance == null ? '—' : r.attendance+'%'}</b></span><span class="rk-player-total"><small>النتيجة</small><b>${r.score}<i> / 100</i></b></span></div></button>`;
+    return `<section class="rk-home"><header><div><h2>المتميزون في كل فئة</h2><p>آخر التقييمات المتاحة وسجل الحضور الحالي · النتيجة: 70% أداء و30% حضور.</p></div><button type="button" class="sb-btn quiet small" onclick="RankingsUI.cat='${E(c.key)}';RankingsUI.group='all';go('rankings')">عرض الترتيب كاملًا ‹</button></header>
       <nav class="rk-tabs" aria-label="الفئات">${cats.map(x => `<button type="button" class="${x.key === c.key ? 'on' : ''}" aria-pressed="${x.key === c.key}" onclick="RankingsUI.homeTab('${E(x.key)}')">${E(x.name)}${x.track ? `<small>${x.track === 'pathway' ? 'مسار' : 'مدرسة'}</small>` : ''}</button>`).join('')}</nav>
-      <div class="rk-hpodium">${c.top.map(card).join('')}</div><p class="rk-hfoot">${c.size} لاعب متقيّم في ${E(c.name)} · ${c.groups} ${c.groups === 1 ? 'مجموعة' : 'مجموعات'}</p></section>`;
+      <div class="rk-hpodium">${c.top.map(card).join('')}</div><p class="rk-hfoot">أعلى ${c.top.length} من ${c.size} لاعبًا مقيّمًا في ${E(c.name)} · ${c.groups} ${c.groups === 1 ? 'مجموعة' : 'مجموعات'}</p></section>`;
   };
   RK.homeTab = key => { RK.homeCat = key; const el = document.querySelector('.rk-home'); if (el) el.outerHTML = RK.home(); };
   const home = PAGES.dash;
-  PAGES.dash = function () { const html = home.apply(this, arguments), card = RK.home(); if (!card) return html; const at = html.lastIndexOf('</div>'); return at < 0 ? html + card : html.slice(0, at) + card + html.slice(at); };
+  PAGES.dash = function () { const html = home.apply(this, arguments), card = RK.home(); if (!card) return html; let at = html.indexOf('<div class="sport-bottom-grid">');if(at<0)at=html.indexOf('<section class="ws-home-tools">');if(at<0)at=html.lastIndexOf('</div>');return at < 0 ? html + card : html.slice(0,at)+card+html.slice(at); };
 
   /* ---------- group file ---------- */
   const groupDetail = U.groupDetail;
