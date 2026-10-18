@@ -42,7 +42,7 @@
  const alertSummary=()=>{const list=AW.events().filter(e=>e.tone==='warn').slice(0,3);return list.length?`<section class="aw-attention"><header><b>يحتاج انتباهك</b><button onclick="go('notifications')">كل التنبيهات</button></header>${list.map(e=>row(e.title,e.detail,`AppsWorkspace.openEvent('${e.id}')`)).join('')}</section>`:'';};
  for(const role of ['member','coach','manager']){APPS[role].F.notifications=AW.notifications;APPS[role].sub.notifications='home';}
  // One inbox for old deep links as well as the new navigation.
- const goBase=window.go;window.go=function(route){if(['msgs','gchats','cmsgs'].includes(route))route='chats';return goBase(route);};
+ const goBase=window.go;window.go=function(route){if(['msgs','gchats','cmsgs'].includes(route))route='chats';const result=goBase(route);document.getElementById('view').scrollTop=0;document.scrollingElement.scrollTop=0;return result;};
  AW.context=()=>`${SE.get(group(m().group)?.sport)?.name||''} · ${m().name}`;
  APPS.member.F.myrequests=()=>page('طلباتي',AW.context(),row('طلب تجميد','إيقاف الاشتراك مؤقتًا وفق الرصيد المتاح','V.open(V.freezeForm())')+row('طلب حصة تعويضية','اعرض الحصص المناسبة للرياضة والفرع','V.open(V.makeupForm())')+V.requests(false));
  APPS.member.F.feedback=()=>{const who=m(),notes=who.notes||[],assessment=window.FootballCore?.latest(db.state,who.id);return page('ملاحظات المدرب',AW.context(),notes.map(n=>`<article class="ax-card aw-note"><b>${E(n.by||group(who.group)?.coach||'المدرب')}</b><p>${E(n.text)}</p>${n.at?`<small>${E(date(n.at))}</small>`:''}</article>`).join('')+(assessment?row('آخر تقييم تطوير',assessment.note||'راجع التقييم والأهداف المسجلة',"go('progress')"):'')||empty('لا توجد ملاحظات بعد','تظهر ملاحظات المدرب هنا بعد تسجيلها.'));};

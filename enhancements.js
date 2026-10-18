@@ -32,7 +32,7 @@
   const setHTML=(element,html)=>{if(element._vHTML!==html){element.innerHTML=html;element._vHTML=html;}};
   V.run=fn=>{try{const out=fn();V.saveStatus();return out;}catch(e){const box=$v('v-error');if(box){box.textContent=e.message;box.setAttribute('role','alert');box.scrollIntoView({block:'nearest'});}else toast(e.message);V.saveStatus();return false;}};
   V.open=html=>{V.returnFocus=document.activeElement;const body=(mobile?'<button type="button" class="v-modal-close" onclick="V.close()">إغلاق ×</button>':'')+html+'<div id="v-error" class="v-error" role="alert"></div>';mobile?sheet(body):modal(body);const box=$v(mobile?'sheet':'modal');box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label','تفاصيل الإجراء');box.querySelector('input,select,textarea,button')?.focus();};
-  V.close=()=>{mobile?closeSheet():closeAll();V.returnFocus?.focus?.();};
+  V.close=()=>{mobile?closeSheet():closeAll();V.returnFocus?.focus?.({preventScroll:true});};
   V.go=route=>{V.close();go(route);};
   V.saveStatus=()=>{const el=$v('v-save');if(!el)return;el.className='v-save'+(db.error?' error':'');setHTML(el,db.error?esc(db.error)+(db.conflict?button('تحميل أحدث نسخة','V.reload()','sm ghost'):button('إعادة الحفظ','V.retry()','sm ghost')):'✓ اتحفظ');};
   V.reload=()=>V.run(()=>{db.reload();V.sync();render();});
