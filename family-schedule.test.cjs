@@ -397,3 +397,33 @@ test('football lab: categories, skill ratings, performance card, templates and b
   L.saveBoard(st, { id: b.id, title: 'الضغط العالي ٢', field: 'half', items: [] });
   assert.equal(st.fbBoards.length, 1, 'saving again updates the same board');
 });
+
+test('rankings: score mix, shared ranks, group and category ranks, filters', () => {
+  const R = require('./rankings.js');
+  const st = {
+    groups: [{ id: 'A', sport: 'football', name: 'أشبال صبح', ageMin: 9, ageMax: 12 }, { id: 'B', sport: 'football', name: 'أشبال ليل', ageMin: 9, ageMax: 12 }, { id: 'C', sport: 'football', name: 'ناشئين', ageMin: 13, ageMax: 17 }],
+    members: [
+      { id: 'a1', name: 'أحمد', group: 'A', skill: [5, 5, 5], attendance: 100 },
+      { id: 'a2', name: 'بلال', group: 'A', skill: [3, 3, 3], attendance: 50 },
+      { id: 'b1', name: 'تامر', group: 'B', skill: [4, 4, 4], attendance: 90 },
+      { id: 'b2', name: 'ثروت', group: 'B', skill: [4, 4, 4], attendance: 90 },
+      { id: 'c1', name: 'جمال', group: 'C', attendance: 100 },
+      { id: 'x', name: 'خارج', group: 'A', skill: [5], attendance: 100, left: true }
+    ],
+    sessions: []
+  };
+  const s = R.score(st, st.members[1]);
+  assert.equal(s.perf, 50); assert.equal(s.score, 50, '70% of 50 + 30% of 50');
+  assert.equal(R.score(st, st.members[4]).score, null, 'no performance record, no score');
+  const sports = [{ id: 'football', programs: [{ name: 'أشبال', ageMin: 9, ageMax: 12 }, { name: 'ناشئين', ageMin: 13, ageMax: 17 }] }];
+  const rows = R.all(st, { sports }), get = id => rows.find(r => r.id === id);
+  assert.equal(rows.length, 5, 'players who left are out');
+  assert.equal(get('a1').cat.name, 'أشبال'); assert.equal(get('a1').catRank, 1); assert.equal(get('a1').catSize, 4);
+  assert.equal(get('b1').catRank, 2); assert.equal(get('b2').catRank, 2, 'equal scores share a rank');
+  assert.equal(get('a2').catRank, 4); assert.equal(get('a2').groupRank, 2);
+  assert.equal(get('c1').catRank, null);
+  const L = R.leaders(rows, 3);
+  assert.deepEqual(L.map(c => c.name), ['أشبال'], 'a category with nobody rated is left out');
+  assert.deepEqual(L[0].top.map(r => r.id), ['a1', 'b1', 'b2']);
+  assert.equal(R.keep(get('a2'), 'cat3'), false); assert.equal(R.keep(get('a2'), 'group3'), true); assert.equal(R.keep(get('c1'), 'unrated'), true);
+});
