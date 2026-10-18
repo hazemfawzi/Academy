@@ -1,0 +1,39 @@
+/* Quiet dashboard surfaces: petrol accents, readable neutral text and compact actions. */
+.ws-shell{--ac-bg:#f5f5f3;--ac-ink:#252b32;--ac-muted:#737b85;--ac-line:#e3e5e5;background:#f5f5f3}
+.ws-shell .content{background:#f5f5f3}
+.ws-shell .ny-kpis{gap:14px;margin:20px 0}
+.ws-shell .ny-kpi{background:#fff;color:#252b32;border:1px solid #e3e5e5;border-radius:12px;min-height:142px;padding:18px 20px;box-shadow:0 2px 4px #252b3203;transition:border-color .15s,box-shadow .15s}
+.ws-shell .ny-kpi:hover{border-color:#9badb4;box-shadow:0 4px 14px #365d6c0a;transform:none}
+.ws-shell .ny-kpi-top{margin-bottom:12px;color:#9aa3a9}
+.ws-shell .ny-kpi-top i{width:32px;height:32px;border-radius:9px;background:#f1f5f6;color:#365d6c}
+.ws-shell .ny-kpi-top svg{width:18px;height:18px}
+.ws-shell .ny-kpi>small{font-size:13px;font-weight:500;color:#59636e}
+.ws-shell .ny-kpi>b{font-size:29px;font-weight:700;line-height:1.4;color:#252b32;margin:6px 0}
+.ws-shell .ny-kpi p{font-size:12px;color:#737b85;margin-top:5px;line-height:1.7}
+.ws-shell .ny-panel{border-color:#e3e5e5;border-radius:12px;background:#fff;padding:22px}
+.ws-shell .ny-panel h2{font-size:17px;font-weight:700;color:#252b32}
+.ws-shell .ny-panel header p{font-size:12px;color:#737b85;line-height:1.8}
+.ws-shell .ny-panel>header{margin-bottom:18px}
+.ws-shell .fb-home-top{gap:16px;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+.ws-shell .fb-quick-panel .fb-quick{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ws-shell .fb-quick-panel .fb-quick-btn,.ws-shell .ny-quick-grid button{display:flex;flex-direction:row;justify-content:flex-start;align-items:center;text-align:right;gap:10px;min-height:54px;padding:10px 12px;border:1px solid #e8ebec;border-radius:9px;background:#fff;color:#3e4852}
+.ws-shell .fb-quick-panel .fb-quick-btn:hover,.ws-shell .ny-quick-grid button:hover{background:#f7f9f9;border-color:#aebfc5}
+.ws-shell .fb-quick-btn span,.ws-shell .ny-quick-grid button>span{width:30px;height:30px;flex-shrink:0;border-radius:7px;background:#f1f5f6;color:#365d6c}
+.ws-shell .fb-quick-btn span svg{width:17px;height:17px}
+.ws-shell .fb-quick-panel .fb-quick-btn b{font-size:12px;font-weight:500}
+.ws-shell .fb-journey{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px;counter-reset:calm-step}
+.ws-shell .fb-journey li{counter-increment:calm-step;border-bottom:1px solid #ecefef}
+.ws-shell .fb-journey li::after{display:none}
+.ws-shell .fb-journey button{border:0;border-radius:6px;background:transparent;grid-template-columns:28px minmax(0,1fr);grid-template-rows:auto auto;justify-items:start;align-content:center;column-gap:10px;row-gap:3px;min-height:65px;padding:10px 3px;text-align:right}
+.ws-shell .fb-journey button::before{content:counter(calm-step,decimal-leading-zero);grid-row:1/3;align-self:center;background:#f1f5f6;color:#365d6c;width:27px;height:27px;border-radius:7px;display:grid;place-items:center;font-size:11px;font-weight:700}
+.ws-shell .fb-journey .fb-j-ico{display:none}
+.ws-shell .fb-journey b{font-size:13px;font-weight:500;color:#35434d;grid-column:2}
+.ws-shell .fb-journey small{font-size:11px;color:#737b85;grid-column:2;line-height:1.8}
+.ws-shell .fb-journey button:hover{background:#f5f8f9}
+.ws-shell .ny-kpi:focus-visible,.ws-shell .fb-journey button:focus-visible,.ws-shell .fb-quick-btn:focus-visible{outline:2px solid #365d6c;outline-offset:3px}
+@media(max-width:1100px){.ws-shell .fb-home-top{grid-template-columns:1fr}}
+@media(max-width:600px){.ws-shell .ny-kpis{gap:10px}.ws-shell .ny-kpi{padding:14px;min-height:140px}.ws-shell .ny-kpi>b{font-size:25px}.ws-shell .ny-panel{padding:16px}.ws-shell .fb-journey{column-gap:12px}.ws-shell .fb-journey b{font-size:12px}.ws-shell .fb-quick-panel .fb-quick-btn{padding:9px 8px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){.ws-shell .ny-kpi{transition:none}}
+.ws-shell .fb-kpis .ny-kpi .ny-kpi-top i{color:#365d6c;width:30px;height:30px;border-radius:8px;background:#f1f5f6}
+.ws-shell .fb-kpis .ny-kpi .ny-kpi-top i svg{width:17px;height:17px}
+.ws-shell .ny-kpi p{opacity:1}
