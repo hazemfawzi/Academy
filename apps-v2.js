@@ -44,7 +44,7 @@
     const h = Math.round(mins / 60);
     if (h < 24) return h === 1 ? 'بعد ساعة' : h === 2 ? 'بعد ساعتين' : `بعد ${h} ساعات`;
     const d = Math.round(h / 24);
-    return d === 1 ? 'بكرة' : d === 2 ? 'بعد يومين' : `بعد ${d} أيام`;
+    return d === 1 ? 'غدًا' : d === 2 ? 'بعد يومين' : `بعد ${d} أيام`;
   };
 
   /* Week strip of the next seven days with dots on days that have sessions. */
@@ -56,8 +56,7 @@
 
   /* Compact sport switch + filters for staff. */
   const sportChips = () => `<div class="ax-sports">${SE.list().filter(d => d.on !== false && db.state.groups.some(g => g.sport === d.id)).map(d => `<button type="button" class="${d.id === AA.sport ? 'on' : ''}" style="--c:${E(d.color)}" onclick="AcademyApps.pick('${d.id}')">${E(d.ico)} ${E(d.name)}</button>`).join('')}</div>`;
-  K.filters = () => V.open(`<div class="ma-form"><h3>تصفية</h3><label>الفرع<select onchange="AcademyApps.branch=this.value;AcademyApps.groupId='all'"><option value="all">كل الفروع</option>${[...new Set(db.state.groups.filter(g => g.sport === AA.sport).map(g => g.branch))].map(b => `<option ${AA.branch === b ? 'selected' : ''}>${E(b)}</option>`).join('')}</select></label>
-    <label>الجروب<select onchange="AcademyApps.groupId=this.value"><option value="all">كل الجروبات</option>${db.state.groups.filter(g => g.sport === AA.sport && (AA.branch === 'all' || g.branch === AA.branch)).map(g => `<option value="${g.id}" ${AA.groupId === g.id ? 'selected' : ''}>${E(g.name)}</option>`).join('')}</select></label><button type="button" class="ma-button primary" onclick="V.close();draw()">تطبيق</button></div>`);
+  K.filters = () => AppsWorkspace.filters();
   const staffTop = (title, sub) => { const filtered = AA.branch !== 'all' || AA.groupId !== 'all';
     return `<header class="ax-top"><div class="ax-top-row"><div><small>${E(sub)}</small><h2>${E(title)}</h2></div><button type="button" class="ax-icon-btn ${filtered ? 'on' : ''}" aria-label="تصفية الفرع والجروب" onclick="AppKit.filters()">${icon('list', 20)}</button></div>${sportChips()}</header>`; };
   const page = (top, body) => `<div class="ax">${top}<div class="ax-body">${body}</div></div>`;
@@ -89,7 +88,7 @@
     const hour = new Date().getHours(), hello = hour < 12 ? 'صباح الخير' : 'مساء الخير';
     return page(`<header class="ax-top ax-top-family"><div class="ax-top-row"><div><small>${hello}</small><h2>${E(first(db.member('m0').name))}</h2></div><span class="ax-top-actions"><button type="button" class="ax-icon-btn" aria-label="كود الحضور" onclick="go('mycode')">${icon('qr', 20)}</button><button type="button" class="ax-icon-btn" aria-label="الرسائل" onclick="go('msgs')">${icon('bell', 20)}</button></span></div>${familyChips()}</header>`,
       `<section class="ax-hero" ${sportTone(d)}><div class="ax-hero-head"><span class="ax-av big">${avatar(m.name, 56)}</span><div><small>${E(d?.ico || '')} ${E(d?.name || '')} · ${E(g?.branch || '')}</small><h3>${isSelf ? 'اشتراكي' : E(m.name)}</h3><span class="ax-hero-chips">${K.chip(window.FootballCore?.isSquad(g) ? (window.FootballCore.POSITIONS[m.fb?.position]?.name || 'مسار الاحتراف') : (lvl?.name || 'المستوى يحدد بعد التقييم'), 'light')}${K.chip(g?.name || '', 'light')}</span></div></div>
-        ${next ? `<div class="ax-next"><div><small>الحصة القادمة · ${E(K.until(next.start))}</small><b>${E(fmt(next.start, { weekday: 'long', day: 'numeric', month: 'short' }))}</b><span>${E(fmt(next.start, { hour: 'numeric', minute: '2-digit' }))} · ${E(next.coach || g?.coach || '')} · ${E(next.resource || g?.resource || '')}</span></div>${next.rsvp[m.id] === 'confirmed' ? `<span class="ax-confirmed">${icon('check', 16)} مؤكد</span>` : `<button type="button" class="ax-btn light" onclick="AcademyApps.confirmFor('${next.id}','${m.id}')">تأكيد الحضور</button>`}</div>` : '<div class="ax-next"><span>لا توجد حصص قادمة</span></div>'}</section>
+        ${next ? `<div class="ax-next"><div><small>الحصة القادمة · ${E(K.until(next.start))}</small><b>${E(fmt(next.start, { weekday: 'long', day: 'numeric', month: 'short' }))}</b><span>${E(fmt(next.start, { hour: 'numeric', minute: '2-digit' }))} · ${E(next.coach || g?.coach || '')} · ${E(next.resource || g?.resource || '')}</span></div>${new Date(next.start).getTime()-Date.now()<=1800000 ? `<button type="button" class="ax-btn light" onclick="go('mycode')">كود الحضور</button>` : next.rsvp[m.id] === 'confirmed' ? `<span class="ax-confirmed">${icon('check', 16)} مؤكد</span>` : `<button type="button" class="ax-btn light" onclick="AcademyApps.confirmFor('${next.id}','${m.id}')">تأكيد الحضور</button>`}</div>` : '<div class="ax-next"><span>لا توجد حصص قادمة</span></div>'}</section>
       <div class="ax-tiles three">
         <div class="ax-stat">${K.ring(m.remaining, total, String(m.remaining), 64, st === 'active' ? 'var(--ax-brand)' : 'var(--ax-bad)')}<small>حصص متبقية</small><em>${st === 'active' ? 'حتى ' + E(fmt(m.end, { day: 'numeric', month: 'short' })) : st === 'frozen' ? 'مجمد' : 'يحتاج تجديد'}</em></div>
         <div class="ax-stat">${K.ring(att.rate, 100, att.rate + '%', 64, 'var(--ax-gold)')}<small>نسبة الحضور</small><em>${att.attended} من ${att.held} حصة</em></div>
@@ -113,7 +112,7 @@
     const att = P.attendance(db.state, m);
     const card = s => { const st = statusOf(s, m.id), cancelled = s.status === 'cancelled';
       return `<article class="ax-session ${cancelled ? 'cancelled' : ''}"><div class="ax-date"><small>${E(fmt(s.start, { weekday: 'short' }))}</small><b>${new Date(s.start).getDate()}</b><small>${E(fmt(s.start, { month: 'short' }))}</small></div><div class="ax-session-main"><b>${E(fmt(s.start, { hour: 'numeric', minute: '2-digit' }))} · ${s.duration} دقيقة</b><small>${E(s.coach || g?.coach || '')} · ${E(s.resource || g?.resource || '')}</small>${cancelled ? `<small class="bad">${E(s.scheduleReason || 'الحصة ملغاة')}</small>` : ''}</div>
-        <div class="ax-session-end">${st ? K.chip(st[0], st[1]) : cancelled ? K.chip('ملغاة', 'bad') : s.rsvp[m.id] === 'confirmed' ? K.chip('مؤكد', 'ok') : `<button type="button" class="ax-btn small" onclick="AcademyApps.confirmFor('${s.id}','${m.id}')">تأكيد</button>`}</div></article>`; };
+        <div class="ax-session-end">${st ? K.chip(st[0], st[1]) : cancelled ? K.chip('ملغاة', 'bad') : s.rsvp[m.id] === 'confirmed' ? K.chip('مؤكد', 'ok') : `<button type="button" class="ax-btn small" onclick="AcademyApps.confirmFor('${s.id}','${m.id}')">تأكيد</button>`}</div><button type="button" class="ax-btn ghost small" onclick="AcademyApps.session('${s.id}')">تفاصيل الحصة</button></article>`; };
     return page(`<header class="ax-top ax-top-family"><div class="ax-top-row"><div><small>${E(d?.name || '')} · ${E(g?.name || '')}</small><h2>الحصص</h2></div></div>${familyChips()}</header>`,
       `<div class="ax-card ax-summary">${K.ring(att.rate, 100, att.rate + '%', 70, 'var(--ax-gold)')}<div><b>نسبة الالتزام</b><small>حضر ${att.attended} من ${att.held} حصة منتهية</small><small>${E(SC ? SC.describe(g) : '')}</small></div></div>
       ${K.section('القادمة')}${upcoming.slice(0, 8).map(card).join('') || K.empty('لا توجد حصص قادمة', 'تظهر مواعيد الجروب هنا.')}
@@ -148,7 +147,7 @@
     const live = a.sessions.find(s => s.status === 'scheduled' && new Date(s.start).getTime() - 30 * 60000 <= now && new Date(s.start).getTime() + s.duration * 60000 >= now);
     const next = live || a.sessions.filter(s => s.status === 'scheduled' && new Date(s.start).getTime() > now).sort((x, y) => new Date(x.start) - new Date(y.start))[0];
     const g = next && group(next.group), roster = next ? db.state.members.filter(m => m.group === next.group) : [];
-    const coach = g?.coach || a.groups[0]?.coach || d?.terms.coach || 'المدرب';
+    const coach = AA.coachName || g?.coach || a.groups[0]?.coach || d?.terms.coach || 'المدرب';
     const today = a.sessions.filter(s => dayKey(s.start) === todayKey && s.status !== 'cancelled').sort((x, y) => new Date(x.start) - new Date(y.start));
     const health = roster.filter(m => m.medical), unpaid = roster.filter(m => !(m.remaining > 0 && new Date(m.end) >= new Date()));
     const eligible = a.members.filter(m => m.sportLevel && P.eligibility(m)?.eligible).length;

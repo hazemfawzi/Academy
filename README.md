@@ -2,7 +2,7 @@
 
 راجع [خطة المنتج](docs/PRODUCT-PLAN.md) و[لوحة العمل](docs/WORKBOARD.md) لمعرفة ما يعمل وحدود النسخة والمراحل التالية.
 
-التحقق الحالي: `node --test tests.cjs academy-model.test.cjs sport-engine.test.cjs family-schedule.test.cjs`.
+التحقق الحالي: `node --test tests.cjs academy-model.test.cjs sport-engine.test.cjs family-schedule.test.cjs apps-context.test.cjs`.
 مركز التشغيل الجديد من `dashboard.html`؛ ملفات `academy-model.js` و`academy-ui.js` و`academy-ui.css` تشارك سجلات النموذج الحالي.
 المشروع ما زال نموذجًا محليًا؛ لا يمثل خدمة متعددة المستخدمين أو دفعًا حقيقيًا.
 
@@ -197,3 +197,9 @@ node --test kora-gym/tests.cjs
 - صفحة عامة جديدة `community.html` (مع `site-community.js` و`community-page.css`): فلترة حسب النوع، بحث، ترتيب بالأحدث أو الأكثر تشجيعًا، تشجيع وتعليقات للزوار. بتعرض المنشورات المعتمدة للنشر العام بس.
 - اتشال بلوك الكوميونيتي من الموقع، واللينك في القائمة بيروح لصفحة المجتمع.
 - تصليحات بعد المراجعة: مسافة في عنوان الصفحة على الموبايل، حماية التخزين لو المتصفح مانعه، صياغة عامية لرسايل التعليق، وشيل جملة «نسخة العرض».
+
+### فحص تطبيقات الموبايل
+
+بعد توفير Playwright وChromium: `node scripts/check-mobile-workspace.cjs`. يفحص تبديل أفراد الأسرة والطلبات والتنبيهات ونطاق المدرب والفلاتر والتنقل في 38 شاشة. يحفظ الصور في `/tmp/academy-mobile-review`؛ يمكن تغيير المجلد عبر `APP_REVIEW_DIR` ومسار المتصفح عبر `ACADEMY_BROWSER_PATH`. الفحص يعمل على نسخة معزولة داخل المتصفح ولا يغيّر بيانات الاستضافة.
+
+حدود النسخة ومتطلبات الحسابات والمزامنة موثقة في [خطة التشغيل](docs/academy-runtime.md).

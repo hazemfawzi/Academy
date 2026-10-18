@@ -1,0 +1,40 @@
+name: Check hosting capabilities
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Inspect runtime without changing hosting files
+        env:
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST || 'server1.view-mind.com' }}
+          DEPLOY_USER: ${{ vars.DEPLOY_USER || 'viewmind' }}
+          DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$DEPLOY_HOST" =~ ^[a-zA-Z0-9.-]+$ ]]
+          [[ "$DEPLOY_USER" =~ ^[a-zA-Z0-9_-]+$ ]]
+          [[ "$DEPLOY_PORT" =~ ^[0-9]+$ ]]
+          key_dir=$(mktemp -d)
+          trap 'rm -rf "$key_dir"' EXIT
+          chmod 700 "$key_dir"
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$key_dir/key"
+          ssh-keyscan -T 15 -p "$DEPLOY_PORT" -t ed25519 "$DEPLOY_HOST" > "$key_dir/known_hosts"
+          fingerprints=$(ssh-keygen -lf "$key_dir/known_hosts" -E sha256 | awk '{print $2}' | sort -u)
+          [[ "$fingerprints" == 'SHA256:qHouKFK2hEu62cJ3zpVzoga5JMkeW5UhHnxeC6gtrD0' ]]
+          chmod 600 "$key_dir/key" "$key_dir/known_hosts"
+          ssh -p "$DEPLOY_PORT" -i "$key_dir/key" -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$key_dir/known_hosts" "$DEPLOY_USER@$DEPLOY_HOST" bash -s <<'REMOTE'
+          set -eu
+          if command -v php >/dev/null 2>&1; then
+            php -r 'echo "PHP_VERSION=".PHP_VERSION.PHP_EOL; foreach (["pdo_sqlite","pdo_mysql","sqlite3","openssl","sodium","mbstring"] as $ext) echo $ext."=".(extension_loaded($ext)?"yes":"no").PHP_EOL; echo "ARGON2ID=".(defined("PASSWORD_ARGON2ID")?"yes":"no").PHP_EOL;'
+          else
+            echo 'PHP_VERSION=unavailable'
+          fi
+          if command -v node >/dev/null 2>&1; then node --version; else echo 'NODE=unavailable'; fi
+          REMOTE

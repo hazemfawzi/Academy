@@ -680,7 +680,7 @@
 
   /* Coach: development of the squads the coach runs. */
   APPS.coach.F.fbdev = () => {
-    const AA = window.AcademyApps, me = AA.scope().groups[0]?.coach, mine = FC.squads(db.state).filter(g => !me || g.coach === me), list = mine.length ? mine : FC.squads(db.state);
+    const AA = window.AcademyApps, me = AA.coachName, assigned = new Set(AA.scope().groups.map(g => g.id)), list = FC.squads(db.state).filter(g => assigned.has(g.id));
     if (!list.some(g => g.id === FU.squadId)) FU.squadId = list[0]?.id || '';
     const s = list.length ? FC.squadSummary(db.state, group(FU.squadId)) : null;
     return `<div class="ax fb-app"><header class="ax-top"><div class="ax-top-row">${back('home')}<div style="flex:1"><small>مسار الكورة</small><h2>تطوير اللاعيبة</h2></div></div>
@@ -706,7 +706,7 @@
   };
   /* Coach: nominate talented football school players for a pathway trial. */
   APPS.coach.F.fbnom = () => {
-    const AA = window.AcademyApps, me = AA.scope().groups[0]?.coach, mine = db.state.groups.filter(g => g.sport === 'football' && !FC.isSquad(g) && (!me || g.coach === me)), gids = new Set((mine.length ? mine : db.state.groups.filter(g => g.sport === 'football' && !FC.isSquad(g))).map(g => g.id));
+    const AA = window.AcademyApps, me = AA.coachName, mine = AA.scope().groups.filter(g => g.sport === 'football' && !FC.isSquad(g)), gids = new Set(mine.map(g => g.id));
     const players = db.state.members.filter(m => gids.has(m.group)), noms = (db.state.fbScouting || []).filter(c => c.source === 'ترشيح من مدرسة الكرة' && (!me || c.by === me || gids.has(db.state.members.find(m => m.id === c.memberId)?.group)));
     const open = id => (db.state.fbScouting || []).find(c => c.memberId === id && !['joined', 'rejected'].includes(c.stage));
     return `<div class="ax fb-app"><header class="ax-top"><div class="ax-top-row">${back('home')}<div style="flex:1"><small>مدرسة الكرة ← مسار الاحتراف</small><h2>ترشيح للمسار</h2></div></div></header>

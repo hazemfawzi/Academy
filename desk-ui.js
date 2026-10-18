@@ -157,7 +157,7 @@
   /* =========================================================== apps */
   if (typeof APPS !== 'undefined' && window.AcademyApps) {
     const AA = window.AcademyApps;
-    const meOf = role => role === 'member' ? 'member:' + (AA.viewer ? AA.viewer().id : 'm0') : role === 'coach' ? 'coach:' + (AA.scope().groups[0]?.coach || '') : 'admin';
+    const meOf = role => role === 'member' ? 'member:' + (AA.viewer ? AA.viewer().id : 'm0') : role === 'coach' ? 'coach:' + (AA.coachName || AA.scope().groups[0]?.coach || '') : 'admin';
     const top = (title, sub, back = 'home') => `<header class="ax-top"><div class="ax-top-row"><button type="button" class="ax-icon-btn" aria-label="رجوع" onclick="go('${back}')">→</button><div style="flex:1"><small>${E(sub)}</small><h2>${E(title)}</h2></div></div></header>`;
     const list = role => () => {
       const me = meOf(role), ts = DC.sorted(visible(DC.threadsFor(db.state, me))), mine = (db.state.tickets || []).filter(t => t.from === me && t.status !== 'closed').length;

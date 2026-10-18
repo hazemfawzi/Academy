@@ -162,7 +162,7 @@
   /* ---------- coach app: my earnings ---------- */
   if (typeof APPS === 'undefined' || !APPS.coach) return;
   const icon = (n, s = 20) => typeof ic === 'function' ? ic(n, s) : '';
-  PR.me = () => { const AA = window.AcademyApps, a = AA.scope(); return a.groups[0]?.coach || db.state.groups.find(g => g.sport === AA.sport)?.coach || ''; };
+  PR.me = () => { const AA = window.AcademyApps, a = AA.scope(); return AA.coachName || a.groups[0]?.coach || db.state.groups.find(g => g.sport === AA.sport)?.coach || ''; };
   APPS.coach.F.earnings = () => {
     const coach = PR.me(), cur = statement(db.state, coach, PR.current), prev = statement(db.state, coach, shift(PR.current, -1)), K = window.AppKit;
     return `<div class="ax py-app"><header class="ax-top"><div class="ax-top-row"><button type="button" class="ax-icon-btn" aria-label="رجوع" onclick="go('home')">${icon('back', 20)}</button><div style="flex:1"><small>${E(coach)}</small><h2>مستحقاتي</h2></div></div></header>

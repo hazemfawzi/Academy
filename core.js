@@ -65,7 +65,7 @@
       } else if(type==='makeup'){
         assert(m.makeupCredits>0&&new Date(m.makeupExpiry)>=now(),'رصيد التعويض غير متاح أو منتهي');
         assert(state.sessions.some(s=>s.id===payload.sessionId&&s.status==='scheduled'&&new Date(s.start)>now()),'اختار حصة قادمة متاحة');
-        assert(session(payload.sessionId).rsvp[mid]!=='confirmed','الحصة محجوزة بالفعل');
+        const targetGroup=state.groups.find(g=>g.id===session(payload.sessionId).group),ownGroup=state.groups.find(g=>g.id===m.group);assert(!ownGroup?.sport||!targetGroup?.sport||ownGroup.sport===targetGroup.sport,'حصة التعويض يجب أن تكون في نفس الرياضة');assert(!ownGroup?.branch||!targetGroup?.branch||ownGroup.branch===targetGroup.branch,'حصة التعويض يجب أن تكون في نفس الفرع');assert(session(payload.sessionId).rsvp[mid]!=='confirmed','الحصة محجوزة بالفعل');
       } else throw Error('نوع الطلب غير مدعوم');
       const r={id:id('req'),memberId:mid,type,payload:clone(payload),status:'pending',created:now().toISOString()}; state.requests.unshift(r);audit('طلب جديد',r.id);return r;
     });}
