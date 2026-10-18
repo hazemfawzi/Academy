@@ -176,7 +176,7 @@
     /* Card sheet shared by the apps and the dashboard. */
     open(mid) {
       const m = db.member(mid), c = cardOf(m), last = c.last, certs = PC.certificates(mid);
-      V.open(`<div class="pc-sheet"><div class="pc-card">${svg(m)}</div>
+      V.open(`<div class="pc-sheet"><div class="pc-card"><img src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg(m))}" width="300" height="420" alt="بطاقة ${E(m.name)}"></div>
         ${c.empty ? '<p class="pc-note">البطاقة تكتمل بعد أول تقييم من المدرب.</p>' : `<p class="pc-note">${c.count} تقييمات${c.trend ? ` · ${c.trend > 0 ? '▲ +' + c.trend : '▼ ' + c.trend} منذ التقييم السابق` : ''}${last?.note ? `<br>«${E(last.note)}» — ${E(last.by)}` : ''}</p>`}
         <div class="pc-actions"><button type="button" class="pc-btn primary" onclick="PlayerCard.download('${mid}').then(r=>toast(r==='shared'?'اتشاركت البطاقة':r==='downloaded'?'اتحملت البطاقة':'تعذر إنشاء الصورة'))">مشاركة البطاقة</button>${typeof S !== 'undefined' && S.app === 'coach' || document.getElementById('content') ? `<button type="button" class="pc-btn" onclick="PlayerCard.awardForm('${mid}')">منح شهادة تميز</button>` : ''}</div>
         ${certs.map(x => `<button type="button" class="pc-cert" onclick="PlayerCard.downloadCertificate('${x.id}')"><b>🏅 شهادة تميز · ${E(x.month)}</b><small>${E(x.reason)} · تحميل</small></button>`).join('')}</div>`);
