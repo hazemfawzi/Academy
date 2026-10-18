@@ -17,7 +17,7 @@
   /* The group the coach is working with: the selected one, or the first of the sport. */
   const workingGroup = () => {
     const groups = AA.scope().groups;
-    return groups.find(g => g.id === AA.groupId) || groups[0] || null;
+    return groups.find(g => g.id === (S.app==='coach'&&AA.toolGroupId?AA.toolGroupId:AA.groupId)) || groups[0] || null;
   };
   const roster = g => g ? db.state.members.filter(m => m.group === g.id) : [];
   const groupPicker = g => {
@@ -25,7 +25,7 @@
     if (groups.length < 2) return '';
     return `<label class="sa-label">الجروب<select class="ma-select" onchange="AcademyApps.groupId=this.value;draw()">${groups.map(x => `<option value="${x.id}" ${x.id === g?.id ? 'selected' : ''}>${E(x.name)}</option>`).join('')}</select></label>`;
   };
-  const latestSession = g => db.state.sessions.filter(s => s.group === g.id && s.status !== 'cancelled' && new Date(s.start) <= new Date(Date.now() + 3600000)).sort((a, b) => new Date(b.start) - new Date(a.start))[0] || null;
+  const latestSession = g => db.state.sessions.find(s=>s.id===AA.sessionId&&s.group===g.id&&s.status!=='cancelled') || db.state.sessions.filter(s => s.group === g.id && s.status !== 'cancelled' && new Date(s.start) <= new Date(Date.now() + 3600000)).sort((a, b) => new Date(b.start) - new Date(a.start))[0] || null;
 
   /* ---------- group assessment (ratings, times, exam scores, personal records) ---------- */
   AA.assess = kind => {

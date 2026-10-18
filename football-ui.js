@@ -622,7 +622,7 @@
   };
   FU.saveScout = () => V.run(() => { const v = x => document.getElementById(x)?.value || ''; db.update(st => FC.addCandidate(st, { name: v('sc-name'), dob: v('sc-dob'), position: v('sc-pos'), foot: v('sc-foot'), source: v('sc-src'), club: v('sc-club'), branch: v('sc-branch'), guardian: v('sc-guardian'), phone: v('sc-phone'), note: v('sc-note') }, { by: 'الكشاف' })); after(); toast('اتضاف المرشح'); });
   FU.nominateForm = (mid = '') => {
-    const list = schoolPlayers().filter(m => m.dob), pick = mid ? db.member(mid) : null;
+    const list = schoolPlayers().filter(m => m.dob && (typeof S==='undefined'||S.app!=='coach'||AcademyApps.scope().members.some(x=>x.id===m.id))), pick = mid ? list.find(m=>m.id===mid) : null;
     V.open(`<div class="ma-form fb-form"><h3>ترشيح من مدرسة الكرة للمسار</h3><p class="py-help">لاعب موهوب في مجموعات المدرسة؟ رشّحه، وهيدخل اختبار مع فريق سنه زي أي مرشح. لو اتقبل بينتقل للفريق بملفه وتاريخه.</p>
       ${pick ? `<input type="hidden" id="nm-mid" value="${pick.id}"><p><b>${E(pick.name)}</b> · ${E(group(pick.group)?.name || '')}</p>` : `<label>اللاعب<select id="nm-mid">${list.map(m => `<option value="${m.id}">${E(m.name)} · ${E(group(m.group)?.name || '')} · مواليد ${E(m.dob.slice(0, 4))}</option>`).join('')}</select></label>`}
       <label>المركز اللي بيلعب فيه<select id="nm-pos">${Object.entries(FC.POSITIONS).map(([k, p]) => `<option value="${k}">${E(p.name)}</option>`).join('')}</select></label>
@@ -630,7 +630,7 @@
       <label>سبب الترشيح<textarea id="nm-note" rows="2" placeholder="مثلًا: أعلى مستوى في مجموعته وبيتطور بسرعة"></textarea></label>
       <button type="button" class="sb-btn primary ax-btn" onclick="FootballUI.saveNominate()">ترشيح</button></div>`);
   };
-  FU.saveNominate = () => V.run(() => { const v = x => document.getElementById(x)?.value || ''; if (!v('nm-mid')) throw Error('مفيش لاعبين مدرسة متاحين للترشيح'); const mid = v('nm-mid'); db.update(st => FC.nominate(st, mid, { position: v('nm-pos'), foot: v('nm-foot'), note: v('nm-note') }, { by: group(db.member(mid).group)?.coach || 'المدرب' })); after(); toast('اترشح للاختبار'); });
+  FU.saveNominate = () => V.run(() => { const v = x => document.getElementById(x)?.value || ''; if (!v('nm-mid')) throw Error('مفيش لاعبين مدرسة متاحين للترشيح'); const mid = v('nm-mid'); if(typeof S!=='undefined'&&S.app==='coach'&&!AcademyApps.scope().members.some(m=>m.id===mid))throw Error('اللاعب خارج مجموعاتك'); db.update(st => FC.nominate(st, mid, { position: v('nm-pos'), foot: v('nm-foot'), note: v('nm-note') }, { by: group(db.member(mid).group)?.coach || 'المدرب' })); after(); toast('اترشح للاختبار'); });
   FU.moveForm = (cid, stage) => {
     const c = FC.candidate(db.state, cid); if (!c) return;
     if (stage === 'joined' && !c.memberId && window.Registration?.scout) return Registration.scout(cid);
