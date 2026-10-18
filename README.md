@@ -200,6 +200,6 @@ node --test kora-gym/tests.cjs
 
 ### فحص تطبيقات الموبايل
 
-بعد توفير Playwright وChromium: `node scripts/check-mobile-workspace.cjs`. يفحص تبديل أفراد الأسرة والطلبات والتنبيهات ونطاق المدرب والفلاتر والتنقل في 38 شاشة. يحفظ الصور في `/tmp/academy-mobile-review`؛ يمكن تغيير المجلد عبر `APP_REVIEW_DIR` ومسار المتصفح عبر `ACADEMY_BROWSER_PATH`. الفحص يعمل على نسخة معزولة داخل المتصفح ولا يغيّر بيانات الاستضافة.
+بعد توفير Playwright وChromium: `node scripts/check-mobile-workspace.cjs`. يفحص تبديل أفراد الأسرة والطلبات والتنبيهات ونطاق المدرب والفلاتر والتنقل في 39 شاشة. يحفظ الصور في `/tmp/academy-mobile-review`؛ يمكن تغيير المجلد عبر `APP_REVIEW_DIR` ومسار المتصفح عبر `ACADEMY_BROWSER_PATH`. الفحص يعمل على نسخة معزولة داخل المتصفح ولا يغيّر بيانات الاستضافة.
 
 حدود النسخة ومتطلبات الحسابات والمزامنة موثقة في [خطة التشغيل](docs/academy-runtime.md).
