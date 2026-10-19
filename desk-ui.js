@@ -16,7 +16,10 @@
   const groupName = g => g ? (FC()?.isSquad(g) ? FC().squadName(g.fb.birthYear) : g.name) : 'مجموعة';
   const DK = window.Desk = { tid: '', ticket: '', tfilter: 'open' };
   const edition = () => window.Edition?.sport || null;
-  const inEdition = g => !edition() || g?.sport === edition();
+  const branchManager=()=>typeof S!=='undefined'&&S.app==='manager'&&!!window.ManagerWorkspace;
+  const inEdition = g => (!edition() || g?.sport === edition())&&(!branchManager()||AcademyApps.scope().groups.some(x=>x.id===g?.id));
+  const actorInBranch=who=>!branchManager()||who.startsWith('member:')&&AcademyApps.scope().members.some(m=>'member:'+m.id===who)||who.startsWith('coach:')&&AcademyApps.scope().groups.some(g=>'coach:'+g.coach===who);
+  const ticketInBranch=t=>!branchManager()||(t.branch?t.branch===ManagerWorkspace.branch&&(!t.sport||t.sport===AcademyApps.sport):t.from!=='admin'&&actorInBranch(t.from));
 
   /* Who is who. */
   DK.name = who => {
@@ -31,7 +34,7 @@
   DK.title = t => t.kind === 'group' ? groupName(group(t.groupId)) : null;
   const titleFor = (t, me) => t.kind === 'group' ? groupName(group(t.groupId)) : DK.name(t.members.find(x => x !== me) || me);
   const subFor = (t, me) => t.kind === 'group' ? `${DC.participants(db.state, t).length} عضو · ${E(group(t.groupId)?.coach || '')}` : DK.role(t.members.find(x => x !== me) || me);
-  const visible = (list) => list.filter(t => t.kind !== 'group' || inEdition(group(t.groupId)));
+  const visible = list => list.filter(t=>t.kind==='group'?inEdition(group(t.groupId)):!branchManager()||t.members.filter(w=>w!=='admin').length>0&&t.members.filter(w=>w!=='admin').every(actorInBranch));
 
   /* ---------- conversation pieces shared by both pages ---------- */
   const bubbles = (t, me) => {
@@ -41,8 +44,8 @@
   };
   const composer = (tid, me) => `<form class="dk-compose" onsubmit="Desk.send(event,'${tid}','${me}')"><textarea id="dk-text" rows="1" maxlength="${DC.MAX}" placeholder="اكتب رسالة…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();this.form.requestSubmit()}"></textarea><button type="submit" class="dk-send" aria-label="إرسال">➤</button></form>`;
   const redraw = () => { if (typeof PAGES !== 'undefined' && typeof render === 'function' && document.getElementById('content')) render(); if (typeof APPS !== 'undefined' && typeof draw === 'function') draw(); setTimeout(() => { const box = document.querySelector('.dk-thread-body'); if (box) box.scrollTop = box.scrollHeight; document.getElementById('dk-text')?.focus(); }, 20); };
-  DK.send = (e, tid, me) => { e.preventDefault(); const text = document.getElementById('dk-text')?.value || ''; V.run(() => db.update(st => { DC.send(st, tid, me, text); DC.markRead(st, tid, me); })); redraw(); };
-  DK.open = (tid, me) => { DK.tid = tid; V.run(() => db.update(st => { const t = (st.chats || []).find(x => x.id === tid); if (!t && tid.startsWith('g:')) DC.groupThread(st, tid.slice(2)); DC.markRead(st, tid, me); })); };
+  DK.send = (e, tid, me) => { e.preventDefault();if(branchManager()&&!visible((db.state.chats||[]).filter(t=>t.id===tid)).length)return toast('المحادثة خارج نطاق الفرع'); const text = document.getElementById('dk-text')?.value || ''; V.run(() => db.update(st => { DC.send(st, tid, me, text); DC.markRead(st, tid, me); })); redraw(); };
+  DK.open = (tid, me) => {if(branchManager()&&!(tid.startsWith('g:')?inEdition(group(tid.slice(2))):visible((db.state.chats||[]).filter(t=>t.id===tid)).length))return toast('المحادثة خارج نطاق الفرع'); DK.tid = tid; V.run(() => db.update(st => { const t = (st.chats || []).find(x => x.id === tid); if (!t && tid.startsWith('g:')) DC.groupThread(st, tid.slice(2)); DC.markRead(st, tid, me); })); };
   DK.direct = (me, other) => { let tid = ''; V.run(() => db.update(st => { tid = DC.directThread(st, me, other).id; })); DK.tid = tid; V.close && V.close(); if (typeof go === 'function') go(typeof PAGES !== 'undefined' && PAGES.chat ? 'chat' : 'chat1'); redraw(); };
   DK.unreadFor = me => visible(DC.threadsFor(db.state, me)).reduce((n, t) => n + DC.unread(db.state, t, me), 0);
 
@@ -51,7 +54,7 @@
   const prChip = p => p === 'high' ? `<span class="dk-st high">${E(DC.PRIORITY[p])}</span>` : '';
   const ticketBody = (t, me) => `<div class="dk-ticket"><div class="dk-ticket-head"><b>#${t.no} · ${E(t.subject)}</b><span>${statusChip(t.status)}${prChip(t.priority)}<span class="dk-st cat">${E(DC.CATEGORIES[t.category])}</span></span><small>${E(DK.name(t.from))} · ${E(DK.role(t.from))} · ${E(fmt(t.at, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }))}${t.assignee ? ' · مسؤول: ' + E(t.assignee) : ''}</small></div>
     <div class="dk-replies">${t.replies.map(r => `<div class="dk-msg ${r.from === me ? 'mine' : ''}">${r.from === me ? '' : av(r.from, 28)}<div class="dk-bubble"><b>${E(DK.name(r.from))}</b><p>${E(r.text)}</p><time>${E(when(r.at))}</time></div></div>`).join('')}</div></div>`;
-  DK.reply = (tid, me) => { const text = document.getElementById('dk-reply')?.value || ''; V.run(() => db.update(st => DC.replyTicket(st, tid, me, text))); me === 'admin' ? DK.ticketView(tid) : redraw(); toast('اتبعت الرد'); };
+  DK.reply = (tid, me) => {if(branchManager()&&!(db.state.tickets||[]).some(t=>t.id===tid&&ticketInBranch(t)))return toast('طلب الدعم خارج نطاق الفرع'); const text = document.getElementById('dk-reply')?.value || ''; V.run(() => db.update(st => DC.replyTicket(st, tid, me, text))); me === 'admin' ? DK.ticketView(tid) : redraw(); toast('اتبعت الرد'); };
   DK.setTicket = (tid, field, value) => { V.run(() => db.update(st => DC.setTicket(st, tid, { [field]: value }))); DK.ticketView(tid); toast(field === 'status' ? 'اتغيرت الحالة' : 'اتحفظ'); };
   const ticketForm = (from, fromPicker) => `<div class="ma-form fb-form"><h3>طلب دعم جديد</h3>${fromPicker || ''}
     <label>نوع الطلب<select id="dk-cat">${Object.entries(DC.CATEGORIES).map(([k, l]) => `<option value="${k}">${E(l)}</option>`).join('')}</select></label>
@@ -60,7 +63,7 @@
     <label>الأولوية<select id="dk-pr">${Object.entries(DC.PRIORITY).map(([k, l]) => `<option value="${k}" ${k === 'normal' ? 'selected' : ''}>${E(l)}</option>`).join('')}</select></label>
     <button type="button" class="sb-btn primary ax-btn" onclick="Desk.saveTicket('${from}')">إرسال الطلب</button></div>`;
   DK.newTicket = from => V.open(ticketForm(from));
-  DK.saveTicket = from => V.run(() => { const v = id => document.getElementById(id)?.value || ''; const who = v('dk-from') || from; let t; db.update(st => { t = DC.openTicket(st, { from: who, subject: v('dk-subj'), body: v('dk-body'), category: v('dk-cat'), priority: v('dk-pr') }); }); V.close(); redraw(); toast(`اتسجل الطلب رقم ${t.no}`); });
+  DK.saveTicket = from => V.run(() => { const v = id => document.getElementById(id)?.value || ''; const who = v('dk-from') || from; let t; db.update(st => { t = DC.openTicket(st, { from: who, subject: v('dk-subj'), body: v('dk-body'), category: v('dk-cat'), priority: v('dk-pr') });if(branchManager()){t.branch=ManagerWorkspace.branch;t.sport=AcademyApps.sport;} }); V.close(); redraw(); toast(`اتسجل الطلب رقم ${t.no}`); });
 
   /* =========================================================== dashboard */
   if (typeof PAGES !== 'undefined') {
@@ -160,20 +163,20 @@
     const meOf = role => role === 'member' ? 'member:' + (AA.viewer ? AA.viewer().id : 'm0') : role === 'coach' ? 'coach:' + (AA.coachName || AA.scope().groups[0]?.coach || '') : 'admin';
     const top = (title, sub, back = 'home') => `<header class="ax-top"><div class="ax-top-row"><button type="button" class="ax-icon-btn" aria-label="رجوع" onclick="go('${back}')">→</button><div style="flex:1"><small>${E(sub)}</small><h2>${E(title)}</h2></div></div></header>`;
     const list = role => () => {
-      const me = meOf(role), ts = DC.sorted(visible(DC.threadsFor(db.state, me))), mine = (db.state.tickets || []).filter(t => t.from === me && t.status !== 'closed').length;
+      const me = meOf(role), ts = DC.sorted(visible(DC.threadsFor(db.state, me))), mine = (db.state.tickets || []).filter(t => t.from === me && t.status !== 'closed' && ticketInBranch(t)).length;
       const row = x => { const last = x.messages.at(-1), n = DC.unread(db.state, x, me); return `<button type="button" class="ax-card dk-row" onclick="Desk.open('${x.id}','${me}');go('chat1')">${x.kind === 'group' ? '<span class="dk-av grp">👥</span>' : av(x.members.find(y => y !== me), 40)}<span class="dk-row-main"><b>${E(titleFor(x, me))}</b><small>${last ? E((last.from === me ? 'أنت: ' : '') + last.text.slice(0, 40)) : x.kind === 'group' ? 'شات المجموعة' : ''}</small></span><span class="dk-row-side">${last ? `<time>${E(when(last.at))}</time>` : ''}${n ? `<em>${n}</em>` : ''}</span></button>`; };
       const office = me !== 'admin' ? `<button type="button" class="ax-card dk-row" onclick="Desk.direct('${me}','admin')"><span class="dk-av office">🏢</span><span class="dk-row-main"><b>كلّم الإدارة</b><small>استفسار أو طلب</small></span></button>` : '';
       const coachBtn = role === 'member' ? (() => { const g = group(AA.viewer?.()?.group); return g?.coach ? `<button type="button" class="ax-card dk-row" onclick="Desk.direct('${me}','coach:${E(g.coach)}')">${av('coach:' + g.coach, 40)}<span class="dk-row-main"><b>كلّم ${E(g.coach)}</b><small>المدرب</small></span></button>` : ''; })() : '';
-      return `<div class="ax dk-app">${top('المحادثات', role === 'coach' ? 'الفرق والمجموعات واللاعبين' : 'المدرب والإدارة وزمايلك')}<div class="ax-body">${ts.map(row).join('')}${coachBtn}${office}
+      return `<div class="ax dk-app">${top('المحادثات', role === 'coach' ? 'الفرق والمجموعات واللاعبين' : role==='manager'?'لاعبو الفرع ومدربوه':'المدرب والإدارة وزمايلك')}<div class="ax-body">${ts.map(row).join('')}${coachBtn}${office}
         <button type="button" class="ax-card dk-row dk-support-link" onclick="go('support')"><span class="dk-av office">🎧</span><span class="dk-row-main"><b>الدعم</b><small>${mine ? mine + ' طلب مفتوح' : 'عندك مشكلة؟ ابعت طلب'}</small></span></button></div></div>`;
     };
     const thread = role => () => {
       const me = meOf(role), t = (db.state.chats || []).find(x => x.id === DK.tid);
-      if (!t) return list(role)();
+      if (!t||!visible([t]).length) return list(role)();
       return `<div class="ax dk-app dk-app-thread">${top(titleFor(t, me), t.kind === 'group' ? `${DC.participants(db.state, t).length} عضو` : DK.role(t.members.find(y => y !== me) || me), 'chats')}<div class="dk-thread-body">${bubbles(t, me)}</div>${composer(t.id, me)}</div>`;
     };
     const support = role => () => {
-      const me = meOf(role), mine = DC.ticketsFor(db.state, me), open = mine.find(t => t.id === DK.ticket);
+      const me = meOf(role), mine = DC.ticketsFor(db.state, me).filter(ticketInBranch), open = mine.find(t => t.id === DK.ticket);
       if (open) return `<div class="ax dk-app">${top('#' + open.no, 'طلب دعم', 'support')}<div class="ax-body">${ticketBody(open, me)}${open.status === 'closed' ? '<p class="ck-hint">الطلب اتقفل. لو المشكلة رجعت ابعت طلب جديد.</p>' : `<div class="ax-card dk-reply-box"><textarea id="dk-reply" rows="3" placeholder="اكتب ردك"></textarea><button type="button" class="ax-btn" onclick="Desk.reply('${open.id}','${me}')">إرسال</button></div>`}</div></div>`;
       return `<div class="ax dk-app">${top('الدعم', 'طلباتك والردود عليها', 'chats')}<div class="ax-body"><button type="button" class="ax-btn dk-new" onclick="Desk.newTicket('${me}')">+ طلب دعم جديد</button>
         ${mine.map(t => `<button type="button" class="ax-card dk-row" onclick="Desk.ticket='${t.id}';draw()"><span class="dk-av office">#</span><span class="dk-row-main"><b>${E(t.subject)}</b><small>#${t.no} · ${E(DC.CATEGORIES[t.category])} · ${t.replies.length} رسائل</small></span><span class="dk-row-side">${statusChip(t.status)}</span></button>`).join('') || '<p class="ck-hint">مفيش طلبات. لو عندك أي مشكلة ابعتلنا.</p>'}</div></div>`;

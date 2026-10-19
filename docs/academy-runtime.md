@@ -27,3 +27,7 @@ The legacy `members.group`, `remaining`, `end`, and `programId` fields represent
 4. Replace browser-local persistence with authenticated APIs, transactional writes, conflict handling and device synchronization.
 5. Run two-device acceptance tests: guardian request -> office approval -> guardian receipt; coach attendance -> one credit deduction; simultaneous edits -> explicit conflict handling.
 6. Configure recovery and notification delivery through secure hosting settings. Never put credentials or a database file in the static public upload.
+
+## Branch manager preview
+
+The manager workspace uses one branch context, defaulting to the primary player branch. An explicit `branch` query can select another existing branch for preview/testing. This is a UI scope, not an authenticated staff assignment; production branch authorization remains a server release gate. Program-based renewals, grant invoices, approvals and schedule changes still use the browser-local shared ledger. New leads record branch and sport; legacy leads without branch metadata are not assigned to an arbitrary branch.

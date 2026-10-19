@@ -14,6 +14,7 @@
   const STEPS = ['ولي الأمر', 'اللاعب', 'البرنامج', 'المراجعة'];
   const FC = () => window.FootballCore;
   const edition = () => window.Edition?.sport || '';
+  const managerGroup = g => typeof S==='undefined'||S.app!=='manager'||!window.ManagerWorkspace||g.branch===ManagerWorkspace.branch;
   const describe = g => window.ScheduleCore ? ScheduleCore.describe(g) : '';
 
   let R = null;
@@ -46,8 +47,8 @@
   /* Groups the player can join: the squad of their birth year on the pathway, otherwise
      the groups of this sport (football school groups only, for football) that fit their age. */
   const groupsFor = () => {
-    const a = age(), all = db.state.groups.filter(g => g.sport === R.sport);
-    if (pathway()) return FC().squads(db.state).filter(g => g.fb.birthYear === birthYear());
+    const a = age(), all = db.state.groups.filter(g => g.sport === R.sport && managerGroup(g));
+    if (pathway()) return FC().squads(db.state).filter(g => g.fb.birthYear === birthYear() && managerGroup(g));
     return all.filter(g => !(football() && FC().isSquad(g)) && ageFits(g, a));
   };
 
@@ -78,11 +79,11 @@
   }
 
   function stepProgram() {
-    const sports = SE.list().filter(d => d.on !== false && db.state.groups.some(g => g.sport === d.id) && (!edition() || d.id === edition()));
+    const sports = SE.list().filter(d => d.on !== false && db.state.groups.some(g => g.sport === d.id && managerGroup(g)) && (!edition() || d.id === edition()));
     if (sports.length === 1 && !R.sport) R.sport = sports[0].id;
     const d = def(), a = age();
     const fits = p => a == null || (a >= p.ageMin && a <= p.ageMax);
-    const hasPathway = football() && FC().squads(db.state).length > 0;
+    const hasPathway = football() && FC().squads(db.state).some(managerGroup);
     if (football() && !R.fb.track) R.fb.track = hasPathway ? '' : 'school';
     const programs = d ? d.programs.filter(p => p.active !== false && fits(p)) : [];
     if (d && (!R.programId || !programs.some(p => p.id === R.programId))) R.programId = programs[0]?.id || '';
@@ -156,7 +157,7 @@
     if (R.step === 2) {
       if (!def()) fail('اختر الرياضة');
       if (football() && !R.fb.track) fail('اختار المسار: مسار الاحتراف أو مدرسة الكرة');
-      const g = groupRow(); if (!g) fail(pathway() ? 'مفيش فريق لسنة ميلاد اللاعب في المسار' : 'اختر ' + (football() ? 'المجموعة' : 'الجروب'));
+      const g = groupRow(); if(g&&!managerGroup(g))fail('المجموعة خارج نطاق فرعك'); if (!g) fail(pathway() ? 'مفيش فريق لسنة ميلاد اللاعب في المسار' : 'اختر ' + (football() ? 'المجموعة' : 'الجروب'));
       if (seatsLeft(g) <= 0) fail('مكتمل؛ اختر غيره أو سجّل في قائمة الانتظار');
       if (pathway() && !R.fb.position) fail('اختار مركز اللاعب');
       if (pathway() && R.fb.funding === 'منحة جزئية') { const v = Number(R.fb.partial); if (!Number.isInteger(v) || v < 1 || v > 99) fail('نسبة المنحة الجزئية من 1 لـ 99%'); }
@@ -169,6 +170,7 @@
 
   function commit() {
     const d = def(), p = program(), g = groupRow();
+    if(!g||!managerGroup(g))throw Error('المجموعة خارج نطاق فرعك');
     let familyId = '', fam = familyFound();
     db.update(st => {
       const meta = { at: new Date().toISOString(), newId: db.id };
