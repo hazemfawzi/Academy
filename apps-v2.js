@@ -55,7 +55,7 @@
   };
 
   /* Compact sport switch + filters for staff. */
-  const sportChips = () => window.Edition?.single ? '' : `<div class="ax-sports">${SE.list().filter(d => d.on !== false && db.state.groups.some(g => g.sport === d.id && (S.app!=='coach'||g.coach===AA.coachName))).filter(()=>S.app!=='coach'||(AA.assignedSports?.().length||0)>1).map(d => `<button type="button" class="${d.id === AA.sport ? 'on' : ''}" style="--c:${E(d.color)}" onclick="AcademyApps.pick('${d.id}')">${E(d.ico)} ${E(d.name)}</button>`).join('')}</div>`;
+  const sportChips = () => (S.app==='manager'||window.Edition?.single) ? '' : `<div class="ax-sports">${SE.list().filter(d => d.on !== false && db.state.groups.some(g => g.sport === d.id && (S.app!=='coach'||g.coach===AA.coachName))).filter(()=>S.app!=='coach'||(AA.assignedSports?.().length||0)>1).map(d => `<button type="button" class="${d.id === AA.sport ? 'on' : ''}" style="--c:${E(d.color)}" onclick="AcademyApps.pick('${d.id}')">${E(d.ico)} ${E(d.name)}</button>`).join('')}</div>`;
   K.filters = () => AppsWorkspace.filters();
   const staffTop = (title, sub) => { const filtered = AA.branch !== 'all' || AA.groupId !== 'all';
     return `<header class="ax-top"><div class="ax-top-row"><div><small>${E(sub)}</small><h2>${E(title)}</h2></div><button type="button" class="ax-icon-btn ${filtered ? 'on' : ''}" aria-label="تصفية الفرع والجروب" onclick="AppKit.filters()">${icon('list', 20)}</button></div>${sportChips()}</header>`; };

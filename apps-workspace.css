@@ -31,3 +31,31 @@ body.apps-workspace .tab button.on{color:#365d6c}body.apps-workspace .tab button
 .mw-calendar-bar{display:flex;align-items:flex-end;gap:10px;justify-content:space-between;padding:12px;border:1px solid #d7e5ef;background:#eaf2f7;border-radius:12px}.mw-calendar-bar label{display:grid;gap:6px;font-size:10px;color:#819aaa;min-width:0;flex:1}.mw-calendar-bar input{padding:9px 7px;border:1px solid #d3e2ed;border-radius:8px;background:#f9fbfd;color:#5f8098;font:inherit;width:100%;min-width:0}.mw-calendar-bar .ax-btn{font-size:11px;padding:11px 9px;white-space:nowrap}
 
 .mw-sport-picker{display:flex;align-items:center;gap:10px;margin-top:12px;color:#8ba1b1;font-size:11px}.mw-sport-picker select{font:inherit;color:#5f8098;background:#edf4f8;padding:8px;border:1px solid #d6e4ed;border-radius:8px;flex:1;min-width:0}
+
+/* Branch operations: clear hierarchy and visible actions on every service page. */
+body.apps-workspace.manager-workspace{--ax-brand:#174f60;--ax-brand-2:#103b49;--ax-ink:#183545;--ax-muted:#536c7a;--red:#174f60;--red2:#103b49;--redbg:#d9e9ed}
+.manager-workspace .ax-btn,.manager-workspace .ma-button.primary,.manager-workspace .btn.primary{background:#174f60;color:#fff;border:1px solid #174f60;font-weight:600}
+.manager-workspace .ax-btn.ghost,.manager-workspace .ma-button.ghost,.manager-workspace .btn.ghost{background:#d9e9ed;color:#164657;border:1px solid #86abb7;font-weight:600}
+.manager-workspace .ax-btn.light{background:#fff;color:#164657;border:1px solid #86abb7}
+.manager-workspace .ax-icon-btn{background:#d9e9ed;color:#174f60;border-color:#86abb7}
+.manager-workspace button:focus-visible{outline:3px solid #b38532;outline-offset:3px}
+.manager-workspace button:disabled{opacity:.5;cursor:not-allowed}
+.manager-workspace .mw-day{background:linear-gradient(115deg,#123e50,#246b75);border-color:#174f60;color:#fff;box-shadow:0 5px 15px #163f501a}
+.manager-workspace .mw-kpis>button{background:#c9dfe9;border-color:#94b9c9;color:#163e54}
+.manager-workspace .mw-kpis>button:nth-child(2){background:#c9e3d9;border-color:#8ebba8;color:#194e3d}
+.manager-workspace .mw-kpis>button:nth-child(3){background:#f0dfb8;border-color:#d2b777;color:#634714}
+.manager-workspace .mw-kpis>button:nth-child(4){background:#d4ddeb;border-color:#a0b2cd;color:#293f62}
+.manager-workspace .mw-kpis i{background:#ffffffa8;color:inherit}
+.manager-workspace .mw-section h3{color:#193e50;font-weight:700}
+.manager-workspace .mw-section header button{color:#174f60;font-weight:600;text-decoration:underline;text-underline-offset:4px}
+.manager-workspace .mw-session,.manager-workspace .mw-group,.manager-workspace .mw-coach{background:#e6eff3;border-color:#b3cbd5;color:#214c60}
+.manager-workspace .mw-session small,.manager-workspace .mw-link small,.manager-workspace .mw-group p,.manager-workspace .mw-group>small,.manager-workspace .mw-coach p,.manager-workspace .mw-coach small{color:#506b7a}
+.manager-workspace .mw-link{background:#dcebf0;border-color:#a6c5d1;color:#214c60}
+.manager-workspace .mw-link>i{background:#174f60;color:#fff}.manager-workspace .mw-link>em{color:#315c70}
+.manager-workspace .mw-group header span{background:#bfd8e2;color:#214c60}
+.manager-workspace .mw-calendar-bar{background:#d4e5ec;border-color:#9fbfcd;color:#214c60}
+.manager-workspace .mw-calendar-bar label,.manager-workspace .mw-sport-picker{color:#365b6b}
+.manager-workspace .aw-request-filters button{background:#d9e5eb;color:#284d61;border:1px solid #a4bdc9}
+.manager-workspace .aw-request-filters button.on,.manager-workspace .ax-week button.on,.manager-workspace .ax-icon-btn.on{background:#174f60;color:#fff;border-color:#174f60}
+.manager-workspace .aw-row{background:#e0ecf1;border-color:#adc7d3;color:#214c60}.manager-workspace .aw-row small{color:#506b7a}
+@media(hover:hover){.manager-workspace .ax-btn:hover{filter:brightness(.94)}.manager-workspace .mw-kpis>button:hover,.manager-workspace .mw-link:hover{filter:brightness(.97)}}
