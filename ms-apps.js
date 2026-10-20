@@ -22,8 +22,8 @@
     return hd('عيلتي', 'home') + `<div class="pad"><div class="card msx-hero"><small>حساب عائلي واحد</small><b>${f.kids.length} أفراد · ${[...new Set(f.kids.map(k => M.sport(k.sport).ico))].join(' ')}</b>
       <p>بتتابع حضور ومستوى كل واحد، وبتدفع لهم مرة واحدة.</p></div>
       <div class="card lst">${famRows()}</div>
-      <div class="card"><div class="msx-row"><span>الاشتراكات الشهرية</span><s class="msx-mut">${full.toLocaleString('en')} ج</s></div><div class="msx-row"><span>خصم الإخوات ${f.discount}%</span><b class="msx-green">-${(full - f.monthly).toLocaleString('en')} ج</b></div>
-      <div class="msx-row big"><span>الإجمالي</span><b>${f.monthly.toLocaleString('en')} ج</b></div>${btn('ادفع للكل مرة واحدة', 'MSA.payAll()', 'full')}</div>
+      <div class="card"><div class="msx-row"><span>الاشتراكات الشهرية</span><s class="msx-mut">${full.toLocaleString('en')} EGP</s></div><div class="msx-row"><span>خصم الإخوات ${f.discount}%</span><b class="msx-green">-${(full - f.monthly).toLocaleString('en')} EGP</b></div>
+      <div class="msx-row big"><span>الإجمالي</span><b>${f.monthly.toLocaleString('en')} EGP</b></div>${btn('ادفع للكل مرة واحدة', 'MSA.payAll()', 'full')}</div>
       <div class="card"><b>تضيف فرد جديد؟</b><p class="msx-mut" style="margin:6px 0 12px">ابنك أو بنتك يقدروا يجرّبوا أي رياضة حصة مجانية.</p>${btn('احجز حصة تجربة', 'MSA.trial()', 'ghost full')}</div></div>`;
   };
   APPS.member.F.kid = function () {
@@ -80,7 +80,7 @@
     const cell = (c, t) => { const b = M.BOOKINGS.find(x => x[0] === c && x[1] === t);
       return b ? `<div class="msx-slot ${b[3]}">${esc(b[2])}</div>` : `<button class="msx-slot free" onclick="MSA.book(${c},${t})">+ فاضي</button>`; };
     const n = M.BOOKINGS.filter(b => b[3] === 'booking').length;
-    return hd('ملاعب البادل', 'gmore') + `<div class="pad"><div class="g2 msx-g2"><div class="st"><b>${M.BOOKINGS.length}/${M.COURTS.length * M.SLOTS.length}</b><small>فترات محجوزة</small></div><div class="st"><b>${(n * 600).toLocaleString('en')} ج</b><small>إيراد الحجوزات</small></div></div>
+    return hd('ملاعب البادل', 'gmore') + `<div class="pad"><div class="g2 msx-g2"><div class="st"><b>${M.BOOKINGS.length}/${M.COURTS.length * M.SLOTS.length}</b><small>فترات محجوزة</small></div><div class="st"><b>${(n * 600).toLocaleString('en')} EGP</b><small>إيراد الحجوزات</small></div></div>
       <div class="card"><div class="msx-courts" style="grid-template-columns:56px repeat(${M.COURTS.length},1fr)"><div></div>${M.COURTS.map(c => `<div class="h">${c}</div>`).join('')}
       ${M.SLOTS.map((t, ti) => `<div class="t">${t}</div>${M.COURTS.map((_, ci) => cell(ci, ti)).join('')}`).join('')}</div>
       <div class="msx-legend"><span class="group">جروب</span><span class="booking">حجز</span><span class="event">بطولة</span></div></div></div>`;
@@ -97,7 +97,7 @@
   /* ================= actions ================= */
   window.MSA = {
     kid(i) { const k = fam().kids[i]; if (k.sport === 'football') return go('football'); M.state.kid = i; go('kid'); },
-    payAll() { sheet(`<h3>دفع اشتراكات العيلة</h3><p class="msx-mut">${fam().kids.length} اشتراكات · ${fam().monthly.toLocaleString('en')} ج بعد خصم الإخوات</p>
+    payAll() { sheet(`<h3>دفع اشتراكات العيلة</h3><p class="msx-mut">${fam().kids.length} اشتراكات · ${fam().monthly.toLocaleString('en')} EGP بعد خصم الإخوات</p>
       <div class="g2 msx-g2">${btn('إنستاباي', "closeSheet();toast('اتبعت طلب الدفع على إنستاباي')", 'dark')}${btn('كاش في الفرع', "closeSheet();toast('اتسجل إنك هتدفع كاش في الفرع')", 'ghost')}</div>`); },
     trial() { sheet(`<h3>حصة تجربة مجانية</h3><p class="msx-mut">اختار الرياضة:</p><div class="chips">${M.SPORTS.filter(s => s.on).map(s => `<button class="chip" onclick="closeSheet();toast('اتحجزت تجربة ${s.name} وهنكلمك نأكد الميعاد')">${s.ico} ${s.name}</button>`).join('')}</div>`); },
     coach(k) { M.state.coachSport = k; draw(); },
@@ -105,7 +105,7 @@
     sendNoms() { const n = M.KARATE.filter(a => a.nom).length; toast(n ? `اتبعت ${n} ترشيحات للإدارة وأولياء الأمور` : 'رشّح لاعب الأول'); },
     saveTimes() { let n = 0; M.SWIM.forEach((w, i) => { const el = document.getElementById('msT' + i), v = parseFloat((el && el.value || '').replace(',', '.')); if (v > 5 && v < 120) { n++; if (v < w.free25) { w.prev = w.free25; w.free25 = v; } } }); toast(n ? `اتسجل ${n} زمن` : 'اكتب زمن واحد على الأقل'); if (n) draw(); },
     skill(i, j) { const a = M.GYM[i]; a.done[j] = a.done[j] ? 0 : 1; draw(); },
-    book(c, t) { sheet(`<h3>حجز ${M.COURTS[c]} · ${M.SLOTS[t]}</h3><p class="msx-mut">ساعة ونص · 600 ج</p><input id="msBk" class="msx-in wide" placeholder="اسم اللي حاجز"><div style="margin-top:12px">${btn('تأكيد الحجز', `MSA.saveBook(${c},${t})`, 'full')}</div>`); },
+    book(c, t) { sheet(`<h3>حجز ${M.COURTS[c]} · ${M.SLOTS[t]}</h3><p class="msx-mut">ساعة ونص · 600 EGP</p><input id="msBk" class="msx-in wide" placeholder="اسم اللي حاجز"><div style="margin-top:12px">${btn('تأكيد الحجز', `MSA.saveBook(${c},${t})`, 'full')}</div>`); },
     saveBook(c, t) { const v = (document.getElementById('msBk').value || '').trim() || 'حجز جديد'; M.BOOKINGS.push([c, t, v, 'booking']); closeSheet(); toast('الحجز اتأكد'); draw(); }
   };
 

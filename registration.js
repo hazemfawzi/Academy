@@ -10,7 +10,7 @@
   if (!window.V || !window.Family || !window.SportEngine) return;
   const db = V.db, SE = window.SportEngine, F = window.Family;
   const E = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const money = n => new Intl.NumberFormat('en-US').format(Math.round(n)) + ' ج';
+  const money = n => new Intl.NumberFormat('en-US').format(Math.round(n)) + ' EGP';
   const STEPS = ['ولي الأمر', 'اللاعب', 'البرنامج', 'المراجعة'];
   const FC = () => window.FootballCore;
   const edition = () => window.Edition?.sport || '';

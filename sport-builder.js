@@ -7,7 +7,7 @@
   const SE = window.SportEngine, SC = window.SportCore, db = V.db;
   const E = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const btn = (label, action, cls = '') => `<button type="button" class="sb-btn ${cls}" onclick="${E(action)}">${E(label)}</button>`;
-  const money = n => new Intl.NumberFormat('en-US').format(n) + ' ج';
+  const money = n => new Intl.NumberFormat('en-US').format(n) + ' EGP';
   const clone = v => JSON.parse(JSON.stringify(v));
   const plural = (n, one, two, few, many) => n === 0 ? 'لا ' + many : n === 1 ? one : n === 2 ? two : n <= 10 ? n + ' ' + few : n + ' ' + many;
   window.PAGE_TITLES = Object.assign(window.PAGE_TITLES || {}, { sportedit: 'بناء الرياضة' });
@@ -160,7 +160,7 @@
       <td><input type="number" value="${p.sessions}" min="1" max="60" aria-label="حصص في الشهر" oninput="SportBuilder.programField(${i},'sessions',this.value)"></td>
       <td><input type="number" value="${p.price}" min="0" aria-label="السعر الشهري" oninput="SportBuilder.programField(${i},'price',this.value)"></td>
       <td><label class="sb-check"><input type="checkbox" ${p.active !== false ? 'checked' : ''} onchange="SportBuilder.programField(${i},'active',this.checked)"> متاح</label></td><td>${btn('حذف', `SportBuilder.removeProgram(${i})`, 'quiet small')}</td></tr>`).join('');
-    return section('البرامج والأسعار', 'كل برنامج فئة عمرية بسعر شهري وعدد حصص. التسجيل يقترح البرنامج المناسب لسن اللاعب.', `<div class="sb-table-wrap"><table class="sb-table"><thead><tr><th>البرنامج</th><th>من سن</th><th>إلى سن</th><th>حصص/شهر</th><th>السعر الشهري (ج)</th><th></th><th></th></tr></thead><tbody>${rows}</tbody></table></div>${btn('+ إضافة برنامج', 'SportBuilder.addProgram()')}`);
+    return section('البرامج والأسعار', 'كل برنامج فئة عمرية بسعر شهري وعدد حصص. التسجيل يقترح البرنامج المناسب لسن اللاعب.', `<div class="sb-table-wrap"><table class="sb-table"><thead><tr><th>البرنامج</th><th>من سن</th><th>إلى سن</th><th>حصص/شهر</th><th>السعر الشهري (EGP)</th><th></th><th></th></tr></thead><tbody>${rows}</tbody></table></div>${btn('+ إضافة برنامج', 'SportBuilder.addProgram()')}`);
   }
   B.programField = (i, key, value) => { B.draft.programs[i][key] = key === 'name' || key === 'active' ? value : Number(value); touch(); };
   B.addProgram = () => { B.draft.programs.push({ id: B.draft.id + '-program-' + db.id('x').slice(2), name: '', ageMin: 6, ageMax: 12, price: 900, sessions: 8, active: true }); touch(); render(); };

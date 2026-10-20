@@ -10,7 +10,7 @@
   /* Assistant icon: a small robot face. */
   if (typeof IC !== 'undefined' && !IC.bot) IC.bot = '<rect x="4" y="8" width="16" height="12" rx="4"/><path d="M12 8V4.5"/><circle cx="12" cy="3.8" r="1.2"/><circle cx="9" cy="13.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="13.5" r="1.3" fill="currentColor" stroke="none"/><path d="M9.5 17h5M2 12.5v3.5M22 12.5v3.5"/>';
   const avatar = (name, s = 40) => typeof av === 'function' ? av(name, s) : `<span class="ax-ini" style="width:${s}px;height:${s}px">${E(String(name)[0])}</span>`;
-  const money = n => new Intl.NumberFormat('en-US').format(Math.round(n)) + ' ج';
+  const money = n => new Intl.NumberFormat('en-US').format(Math.round(n)) + ' EGP';
   const fmt = (v, o) => new Intl.DateTimeFormat('ar-EG-u-nu-latn', o).format(new Date(v));
   const dayKey = v => db.day(v);
   const group = id => db.state.groups.find(g => g.id === id);

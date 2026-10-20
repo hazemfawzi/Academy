@@ -4,7 +4,7 @@
  if(typeof PAGES==='undefined'||!window.V||!window.AcademyModel)return;
  const db=V.db,M=AcademyModel;
  const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const money=n=>new Intl.NumberFormat('en-US').format(n)+' ج';
+ const money=n=>new Intl.NumberFormat('en-US').format(n)+' EGP';
  const date=s=>new Intl.DateTimeFormat('ar-EG-u-nu-latn',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}).format(new Date(s));
  const group=id=>db.state.groups.find(g=>g.id===id);
  const sport=id=>MS.sport(id)?.name||'رياضة غير محددة';

@@ -70,7 +70,7 @@
       review(rid);
       const r = db.state.requests.find(x => x.id === rid), box = document.getElementById('modal'), c = r?.payload?.charge;
       /* Renewals at a program price show that price after the sibling discount, not the old plan price. */
-      if (r?.type === 'payment' && c && box?.querySelector('.v-note')) box.querySelector('.v-note').textContent = `${c.label} · ${c.sessions} حصة · ${new Intl.NumberFormat('en-US').format(Math.round(c.price * (1 - (r.payload.discount || 0) / 100)))} ج${r.payload.discount ? ` بعد خصم ${r.payload.discount}%` : ''} · ${r.payload.method}${r.payload.reference ? ' · رقم ' + r.payload.reference : ''}`;
+      if (r?.type === 'payment' && c && box?.querySelector('.v-note')) box.querySelector('.v-note').textContent = `${c.label} · ${c.sessions} حصة · ${new Intl.NumberFormat('en-US').format(Math.round(c.price * (1 - (r.payload.discount || 0) / 100)))} EGP${r.payload.discount ? ` بعد خصم ${r.payload.discount}%` : ''} · ${r.payload.method}${r.payload.reference ? ' · رقم ' + r.payload.reference : ''}`;
       if (!r?.payload?.receipt || !box) return;
       box.querySelector('.v-note')?.insertAdjacentHTML('afterend', `<figure class="ck-receipt"><button type="button" onclick="this.parentElement.classList.toggle('big')" aria-label="تكبير صورة الإيصال"><img src="${E(r.payload.receipt)}" alt="صورة إيصال التحويل"></button><figcaption>صورة الإيصال اللي رفعها ولي الأمر${r.payload.reference ? ' · رقم العملية ' + E(r.payload.reference) : ''}. قارن المبلغ والتاريخ ورقم العملية بكشف حساب الأكاديمية قبل التأكيد.</figcaption></figure>`);
     };

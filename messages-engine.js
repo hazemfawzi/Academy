@@ -114,7 +114,7 @@
       const fam = state.families?.find(f => f.id === m.familyId);
       const ids = fam ? state.members.filter(x => x.familyId === fam.id).map(x => x.id) : [m.id];
       const owe = (state.invoices || []).filter(i => ids.includes(i.memberId)).reduce((n, i) => n + Math.max(0, (i.total || 0) - (i.paid || 0)), 0);
-      return { intent, text: `${opts.self ? 'اشتراكك' : 'اشتراك ' + first(m.name)} ${left >= 0 ? `ساري لحد ${fmt(m.end, { day: 'numeric', month: 'long' })} وفاضل ${m.remaining} حصة` : `انتهى من ${-left} يوم`}.${owe ? ` وعلى ${fam ? 'العيلة' : 'الحساب'} متبقي ${new Intl.NumberFormat('en-US').format(owe)} ج.` : ' ومفيش مبالغ متأخرة.'}${left <= 5 ? ' تقدر تجدد من صفحة الاشتراك.' : ''}`, action: left <= 5 || owe ? 'account' : '' };
+      return { intent, text: `${opts.self ? 'اشتراكك' : 'اشتراك ' + first(m.name)} ${left >= 0 ? `ساري لحد ${fmt(m.end, { day: 'numeric', month: 'long' })} وفاضل ${m.remaining} حصة` : `انتهى من ${-left} يوم`}.${owe ? ` وعلى ${fam ? 'العيلة' : 'الحساب'} متبقي ${new Intl.NumberFormat('en-US').format(owe)} EGP.` : ' ومفيش مبالغ متأخرة.'}${left <= 5 ? ' تقدر تجدد من صفحة الاشتراك.' : ''}`, action: left <= 5 || owe ? 'account' : '' };
     }
     if (intent === 'level') {
       const h = (state.levelHistory || []).filter(x => x.memberId === m.id).sort((a, b) => new Date(b.at) - new Date(a.at))[0];

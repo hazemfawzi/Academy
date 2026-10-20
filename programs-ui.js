@@ -7,7 +7,7 @@
   const db = V.db, U = window.AcademyUI, SE = window.SportEngine, S = window.Schedule, F = window.Family;
   const E = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const btn = (label, action, cls = '') => `<button type="button" class="sb-btn ${cls}" onclick="${E(action)}">${E(label)}</button>`;
-  const money = n => new Intl.NumberFormat('en-US').format(Math.round(n)) + ' ج';
+  const money = n => new Intl.NumberFormat('en-US').format(Math.round(n)) + ' EGP';
   const date = v => new Intl.DateTimeFormat('ar-EG-u-nu-latn', { weekday: 'long', day: 'numeric', month: 'short' }).format(new Date(v));
   const val = id => document.getElementById(id)?.value ?? '';
   const empty = (t, d) => `<div class="ac-empty"><b>${E(t)}</b><p>${E(d)}</p></div>`;

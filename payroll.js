@@ -50,7 +50,7 @@
     const lines = t ? [
       t.base && { label: 'الراتب الثابت', amount: t.base },
       t.perSession && { label: `${sessions.length} حصة × ${t.perSession}`, amount: sessions.length * t.perSession },
-      t.percent && { label: `${t.percent}% من ${Math.round(revenue)} ج اشتراكات`, amount: Math.round(Math.max(0, revenue) * t.percent / 100) }
+      t.percent && { label: `${t.percent}% من ${Math.round(revenue)} EGP اشتراكات`, amount: Math.round(Math.max(0, revenue) * t.percent / 100) }
     ].filter(Boolean) : [];
     const gross = lines.reduce((n, l) => n + l.amount, 0);
     const run = (state.payrollRuns || []).find(r => r.coach === coach && r.month === month);
@@ -73,7 +73,7 @@
 
   const db = V.db;
   const E = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const money = n => new Intl.NumberFormat('en-US').format(Math.round(n)) + ' ج';
+  const money = n => new Intl.NumberFormat('en-US').format(Math.round(n)) + ' EGP';
   const fmt = (v, o) => new Intl.DateTimeFormat('ar-EG-u-nu-latn', o).format(new Date(v));
   const monthName = m => fmt(m + '-15T12:00:00', { month: 'long', year: 'numeric' });
   const groupName = id => db.state.groups.find(g => g.id === id)?.name || '';
@@ -123,8 +123,8 @@
     PR.termsForm = coach => {
       const t = terms(db.state, coach) || { mode: 'session', base: 0, perSession: 250, percent: 0 };
       V.open(`<div class="ma-form py-form"><h3>طريقة حساب أجر ${E(coach)}</h3><div class="py-modes">${Object.entries(MODES).map(([k, l]) => `<label><input type="radio" name="py-mode" value="${k}" ${t.mode === k ? 'checked' : ''} onchange="Payroll.modeChanged()"><span>${E(l)}</span></label>`).join('')}</div>
-        <label data-py="base">الراتب الثابت في الشهر (ج)<input id="py-base" type="number" min="0" step="50" value="${t.base || ''}"></label>
-        <label data-py="perSession">أجر الحصة الواحدة (ج)<input id="py-ps" type="number" min="0" step="10" value="${t.perSession || ''}"></label>
+        <label data-py="base">الراتب الثابت في الشهر (EGP)<input id="py-base" type="number" min="0" step="50" value="${t.base || ''}"></label>
+        <label data-py="perSession">أجر الحصة الواحدة (EGP)<input id="py-ps" type="number" min="0" step="10" value="${t.perSession || ''}"></label>
         <label data-py="percent">النسبة من اشتراكات جروباته (%)<input id="py-pc" type="number" min="0" max="60" step="1" value="${t.percent || ''}"></label>
         <p class="py-help">الحصة بتتحسب لما تتقفل بعد ما تخلص. النسبة بتتحسب على المدفوع فعلًا في الشهر بعد المرتجعات.</p>
         <button type="button" class="sb-btn primary" onclick="Payroll.saveForm(${E(q(coach))})">حفظ</button></div>`);

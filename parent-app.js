@@ -10,7 +10,7 @@
   const AA = window.AcademyApps, F = window.Family, SE = window.SportEngine, db = V.db;
   const E = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const btn = (label, action, cls = '') => `<button type="button" class="ma-button ${cls}" onclick="${E(action)}">${E(label)}</button>`;
-  const money = n => new Intl.NumberFormat('en-US').format(Math.round(n)) + ' ج';
+  const money = n => new Intl.NumberFormat('en-US').format(Math.round(n)) + ' EGP';
   const date = v => new Intl.DateTimeFormat('ar-EG-u-nu-latn', { day: 'numeric', month: 'short' }).format(new Date(v));
   const time = v => new Intl.DateTimeFormat('ar-EG-u-nu-latn', { weekday: 'long', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(v));
   const empty = (t, d) => `<div class="ma-empty"><b>${E(t)}</b><p>${E(d)}</p></div>`;

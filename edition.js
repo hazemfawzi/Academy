@@ -19,12 +19,17 @@
     /* Same page, same edition: used for links between the dashboard and the apps. */
     link(href) { if (!this.single || !/(dashboard|apps)\.html/.test(href) || /edition=/.test(href)) return href; const [path, hash = ''] = href.split('#'); return path + (path.includes('?') ? '&' : '?') + 'edition=' + this.sport + (hash ? '#' + hash : ''); }
   };
-  /* The state as one sport sees it: its groups, their players, sessions and money. */
-  ED.scope = s => {
-    if (!ED.sport) return s;
-    const groups = s.groups.filter(g => g.sport === ED.sport), gid = new Set(groups.map(g => g.id)), members = s.members.filter(m => gid.has(m.group)), mid = new Set(members.map(m => m.id)), mine = r => mid.has(r.memberId);
-    return { ...s, groups, members, sessions: s.sessions.filter(x => gid.has(x.group)), transactions: s.transactions.filter(mine), invoices: s.invoices.filter(mine), requests: s.requests.filter(mine), followups: s.followups.filter(mine), waitlist: (s.waitlist || []).filter(w => !w.group || gid.has(w.group)), leads: s.leads.filter(l => (!l.group || gid.has(l.group)) && (!l.sport || l.sport === ED.sport)) };
+  /* The state as one sport sees it: its groups, their players, sessions and money, and
+     the families, conversations, tickets and coaches that belong to them. */
+  ED.scopeTo = (s, sport) => {
+    const groups = s.groups.filter(g => g.sport === sport), gid = new Set(groups.map(g => g.id)), members = s.members.filter(m => gid.has(m.group)), mid = new Set(members.map(m => m.id)), mine = r => mid.has(r.memberId);
+    const coaches = new Set(groups.map(g => g.coach).filter(Boolean)), fams = new Set(members.map(m => m.familyId).filter(Boolean));
+    const party = p => p === 'admin' || (p.startsWith('member:') && mid.has(p.slice(7))) || (p.startsWith('coach:') && coaches.has(p.slice(6)));
+    const settings = s.settings && s.settings.payroll ? { ...s.settings, payroll: Object.fromEntries(Object.entries(s.settings.payroll).filter(([c]) => coaches.has(c))) } : s.settings;
+    return { ...s, groups, members, settings, sessions: s.sessions.filter(x => gid.has(x.group)), transactions: s.transactions.filter(mine), invoices: s.invoices.filter(mine), requests: s.requests.filter(mine), followups: s.followups.filter(mine), waitlist: (s.waitlist || []).filter(w => !w.group || gid.has(w.group)), leads: s.leads.filter(l => (!l.group || gid.has(l.group)) && (!l.sport || l.sport === sport)),
+      families: (s.families || []).filter(f => fams.has(f.id)), chats: (s.chats || []).filter(t => t.kind === 'group' ? gid.has(t.groupId) : (t.members || []).every(party)), tickets: (s.tickets || []).filter(t => party(t.from || '')), payrollRuns: (s.payrollRuns || []).filter(r => coaches.has(r.coach)), payrollAdjust: (s.payrollAdjust || []).filter(r => coaches.has(r.coach)) };
   };
+  ED.scope = s => ED.sport ? ED.scopeTo(s, ED.sport) : s;
   /* Football academies speak of squads and groups, not casual "جروبات". */
   const TERMS = ED.sport === 'football' ? [[/كل الجروبات/g, 'كل الفرق والمجموعات'], [/الجروبات/g, 'الفرق والمجموعات'], [/جروبات/g, 'فرق ومجموعات'], [/جروبًا/g, 'فريقًا أو مجموعة'], [/الجروب/g, 'الفريق'], [/جروب/g, 'مجموعة'], [/الأعضاء/g, 'اللاعبين'], [/أعضاء/g, 'لاعبين'], [/العضو(?!ي)/g, 'اللاعب'], [/عضو(?!ي)/g, 'لاعب']] : [];
   ED.terms = root => {
@@ -47,6 +52,42 @@
       const cal = S.findIndex(x => x[0] === 'calendar');
       S.splice(cal >= 0 ? cal + 1 : S.length - 1, 0, fb);
     }
+  }
+  /* Multi-sport academy: the sport chosen in the header (or the sport bar on each page)
+     scopes every page, not only the ones that read it; the page keeps its scroll place. */
+  if (!ED.single && window.AcademyUI && typeof window.render === 'function') {
+    const U = window.AcademyUI, OWN = new Set(['dash', 'sports', 'pathway', 'scouting', 'tactics', 'skills', 'matches', 'squad', 'fbplayer']);
+    const desc = Object.getOwnPropertyDescriptor(db, 'state');
+    const draw = window.render;
+    window.render = function () {
+      const sport = U.sport;
+      if (!sport || sport === 'all' || OWN.has(state.page) || !desc || !desc.configurable) return draw.apply(this, arguments);
+      const view = ED.scopeTo(desc.get.call(db), sport);
+      Object.defineProperty(db, 'state', { get: () => view, configurable: true, enumerable: desc.enumerable });
+      try { return draw.apply(this, arguments); } finally { Object.defineProperty(db, 'state', desc); }
+    };
+    /* A sport bar at the top of every shared page. */
+    const sportBar = () => {
+      const content = document.getElementById('content');
+      if (!content || OWN.has(state.page) || content.querySelector('.ws-sportbar')) return;
+      const sports = SE.list().filter(d => d.on !== false && db.state.groups.some(g => g.sport === d.id));
+      if (sports.length < 2) return;
+      const chip = (id, label) => `<button type="button" class="${U.sport === id ? 'on' : ''}" aria-pressed="${U.sport === id}" onclick="AcademyUI.setSport('${id}')">${label}</button>`;
+      content.insertAdjacentHTML('afterbegin', `<nav class="ws-sportbar" aria-label="الرياضة">${chip('all', 'كل الرياضات')}${sports.map(d => chip(d.id, `<span aria-hidden="true">${d.ico || ''}</span>${d.name}`)).join('')}</nav>`);
+    };
+    const scoped = window.render;
+    /* The staff page lists coaches from the settings; keep the selected sport's coaches. */
+    const staffRows = () => {
+      if (state.page !== 'users' || U.sport === 'all') return;
+      const names = SE.list().map(d => d.name), mine = SE.get(U.sport)?.name;
+      document.querySelectorAll('#content tr').forEach(tr => { const t = tr.textContent, other = names.find(n => n !== mine && t.includes('مدرب ' + n)); if (other && !t.includes('مدرب ' + mine)) tr.hidden = true; });
+    };
+    window.render = function () { const out = scoped.apply(this, arguments); try { sportBar(); staffRows(); } catch (e) { console.error(e); } return out; };
+    /* Changing the sport or branch redraws the same page where the reader is. */
+    const keep = fn => function () { const y = window.scrollY, page = state.page; const out = fn.apply(this, arguments); if (state.page === page) window.scrollTo(0, y); return out; };
+    U.setSport = keep(U.setSport); U.setBranch = keep(U.setBranch);
+    const open = U.openSport;
+    U.openSport = function (id) { if (state.page !== 'dash') return open.apply(this, arguments); const y = window.scrollY; U.sport = id; U.memberStatus = 'all'; U.query = ''; history.replaceState(null, '', '#sport=' + encodeURIComponent(id)); render(); window.scrollTo(0, y); };
   }
   if (!ED.single) return;
   document.body.classList.add('edition-single');
