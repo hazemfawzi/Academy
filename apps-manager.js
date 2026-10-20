@@ -1,7 +1,7 @@
 /* Branch office workspace. Branch is a preview assignment until authenticated server accounts exist. */
 (function(){
  'use strict';if(typeof APPS==='undefined'||!window.AcademyApps)return;
- const AA=AcademyApps,db=V.db,E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),group=id=>db.state.groups.find(g=>g.id===id),money=v=>new Intl.NumberFormat('en-US').format(v)+' ج',date=v=>new Intl.DateTimeFormat('ar-EG-u-nu-latn',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}).format(new Date(v));
+ const AA=AcademyApps,db=V.db,E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),group=id=>db.state.groups.find(g=>g.id===id),money=v=>new Intl.NumberFormat('en-US').format(v)+' EGP',date=v=>new Intl.DateTimeFormat('ar-EG-u-nu-latn',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}).format(new Date(v));
  const branches=[...new Set(db.state.groups.map(g=>g.branch).filter(Boolean))],query=new URLSearchParams(location.search).get('branch');
  const MW=window.ManagerWorkspace={branch:branches.includes(query)?query:group(db.member('m0').group)?.branch||branches[0],requestFilter:'pending',coachFilter:'',collectQuery:''};
  const availableSports=()=>SportEngine.list().filter(d=>d.on!==false&&db.state.groups.some(g=>g.branch===MW.branch&&g.sport===d.id));

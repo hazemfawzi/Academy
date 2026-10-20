@@ -3,7 +3,7 @@
  'use strict';
  if(!window.V)return;
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const money=n=>new Intl.NumberFormat('en-US').format(n)+' ج';
+ const money=n=>new Intl.NumberFormat('en-US').format(n)+' EGP';
  const steps=active=>`<ol class="journey-steps" aria-label="مراحل التسجيل">${['ملف اللاعب','الباقة والتحصيل','المراجعة والإيصال'].map((label,i)=>`<li ${i===active?'aria-current="step"':''} class="${i===active?'current':i<active?'done':''}"><span>${i<active?'✓':i+1}</span><b>${label}</b></li>`).join('')}</ol>`;
  const originalForm=V.newMemberForm;
  V.newMemberForm=lead=>`<section class="journey">${steps(0)}<header class="journey-heading"><small>تسجيل لاعب · الخطوة الأولى</small><h2>ابدأ بملف واضح للاعب</h2><p>سجّل بيانات التواصل والجروب، ثم اختر الباقة وسجّل المبلغ المستلم.</p></header><div class="journey-fields">${originalForm(lead).replace('<h3>عضو جديد</h3>','').replace('حفظ العضو والانتقال للتحصيل','حفظ الملف واختيار الباقة ←')}</div><p class="journey-footnote">حفظ الملف لا يفعّل الاشتراك. يمكنك استكمال التحصيل لاحقًا من ملف اللاعب.</p></section>`;

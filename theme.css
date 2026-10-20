@@ -66,3 +66,9 @@ body{font-family:var(--t-font)!important}
 .ws-shell .side .nav .ws-sub a{font-size:13px;font-weight:500;padding:8px 14px 8px 10px;margin:0;border-radius:8px;opacity:.82;box-shadow:none;background:none;padding-inline-start:18px}
 .ws-shell .side .nav .ws-sub a:hover{opacity:1;background:rgba(255,255,255,.06)}
 .ws-shell .side .nav .ws-sub a.on{opacity:1;font-weight:700;background:rgba(255,255,255,.08);color:var(--brand2,#dcc386);box-shadow:inset -2px 0 currentColor}
+
+/* Multi-sport: the sport bar on top of every shared page. */
+.ws-sportbar{display:flex;gap:6px;overflow-x:auto;padding:2px 0 14px;margin-bottom:6px;scrollbar-width:thin}
+.ws-sportbar button{flex:none;display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:13.5px;font-weight:600;border:1px solid #dfe5e2;background:#fff;color:#475569;border-radius:999px;padding:7px 14px;cursor:pointer}
+.ws-sportbar button:hover{border-color:#b9cbbf}
+.ws-sportbar button.on{background:#173b31;border-color:#173b31;color:#fff}

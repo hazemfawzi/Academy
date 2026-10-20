@@ -215,7 +215,7 @@
     const plan = () => { const p = db.state.platformPlan || { name: 'نمو' }; const row = PLANS.find(x => x[0] === p.name) || PLANS[2]; return { name: row[0], price: row[1], players: row[2], branches: row[3] }; };
     FU.planBanner = () => '';
     FU.operatingAlerts = a => {
-      const now = new Date(), today = now.toDateString(), money = v => new Intl.NumberFormat('en-US').format(Math.round(v)) + ' ج';
+      const now = new Date(), today = now.toDateString(), money = v => new Intl.NumberFormat('en-US').format(Math.round(v)) + ' EGP';
       const ids = new Set(a.members.map(m => m.id)), gids = new Set(a.groups.map(g => g.id));
       const requests = (a.pending || []).length, invoices = (a.openInvoices || []).length;
       const sessions = (a.sessions || db.state.sessions.filter(s => gids.has(s.group))).filter(s => s.status === 'scheduled' && new Date(s.start) <= now && new Date(s.start).getTime() + (s.duration || 60) * 60000 < now.getTime());
@@ -233,7 +233,7 @@
       return `<section class="cb-alerts" aria-label="تنبيهات تحتاج انتباهك"><header><h2>${svg('activity',18)} تنبيهات ومتابعة اليوم</h2><small>حسب الفرع والرياضة المختارين</small></header><div>${rows.map(([n,title,detail,action,color,label])=>`<button class="cb-alert ${color}" onclick="${E(action)}"><span><b>${n} ${E(title)}</b><small>${E(detail)}</small></span><strong>${E(label)} ‹</strong></button>`).join('')}</div></section>`;
     };
     FU.plans = () => { const p = plan(), players = db.state.members.filter(m => m.group).length, branches = new Set(db.state.groups.map(g => g.branch).filter(Boolean)).size;
-      V.open(`<div class="ma-form fb-form"><h3>باقات المنصة</h3><p class="py-help">باقتك الحالية «${E(p.name)}» · الاستخدام: ${players} لاعب و${branches} فروع.</p><div class="fb-plans">${PLANS.map(([n, price, pl, br]) => `<div class="fb-plan ${n === p.name ? 'on' : ''}"><b>${E(n)}</b><strong>${price ? price.toLocaleString('en') + ' ج' : 'مجانًا'}<small>/شهريًا</small></strong><small>${isFinite(pl) ? 'حتى ' + pl + ' لاعب' : 'لاعبين بلا حد'} · ${isFinite(br) ? br + (br > 1 ? ' فروع' : ' فرع') : 'فروع بلا حد'}</small>${n === p.name ? '<em>باقتك الحالية</em>' : `<button type="button" class="sb-btn ${PLANS.findIndex(x => x[0] === n) > PLANS.findIndex(x => x[0] === p.name) ? 'primary' : ''} small" onclick="FootballUI.choosePlan('${n}')">${PLANS.findIndex(x => x[0] === n) > PLANS.findIndex(x => x[0] === p.name) ? 'ترقية' : 'تغيير'}</button>`}</div>`).join('')}</div></div>`); };
+      V.open(`<div class="ma-form fb-form"><h3>باقات المنصة</h3><p class="py-help">باقتك الحالية «${E(p.name)}» · الاستخدام: ${players} لاعب و${branches} فروع.</p><div class="fb-plans">${PLANS.map(([n, price, pl, br]) => `<div class="fb-plan ${n === p.name ? 'on' : ''}"><b>${E(n)}</b><strong>${price ? price.toLocaleString('en') + ' EGP' : 'مجانًا'}<small>/شهريًا</small></strong><small>${isFinite(pl) ? 'حتى ' + pl + ' لاعب' : 'لاعبين بلا حد'} · ${isFinite(br) ? br + (br > 1 ? ' فروع' : ' فرع') : 'فروع بلا حد'}</small>${n === p.name ? '<em>باقتك الحالية</em>' : `<button type="button" class="sb-btn ${PLANS.findIndex(x => x[0] === n) > PLANS.findIndex(x => x[0] === p.name) ? 'primary' : ''} small" onclick="FootballUI.choosePlan('${n}')">${PLANS.findIndex(x => x[0] === n) > PLANS.findIndex(x => x[0] === p.name) ? 'ترقية' : 'تغيير'}</button>`}</div>`).join('')}</div></div>`); };
     FU.choosePlan = n => V.run(() => { db.update(st => { st.platformPlan = { name: n, at: new Date().toISOString() }; }); try { sessionStorage.removeItem('plan-banner-hidden'); } catch (e) { /* storage off */ } V.close(); render(); toast('اتغيرت الباقة لـ ' + n); });
     const ringSvg = (pct, color) => { const r = 34, c = 2 * Math.PI * r, v = Math.max(0, Math.min(100, Math.round(pct || 0))); return `<svg viewBox="0 0 84 84" width="84" height="84"><circle cx="42" cy="42" r="${r}" fill="none" stroke="#e8eeea" stroke-width="9"/><circle cx="42" cy="42" r="${r}" fill="none" stroke="${color}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${c * v / 100} ${c}" transform="rotate(-90 42 42)"/><text x="42" y="48" text-anchor="middle" font-size="18" font-weight="800" fill="#13261d">${v}%</text></svg>`; };
     FU.dayHero = (a, label) => {
@@ -246,7 +246,7 @@
       const inv = db.state.invoices.filter(i => ids.has(i.memberId) && new Date(i.created || i.at || i.date || now) >= month), billed = inv.reduce((n, i) => n + i.total, 0), got = inv.reduce((n, i) => n + i.paid, 0);
       const left = db.state.members.filter(m => m.left && gids.has(m.left.from) && (now - new Date(m.left.at)) / 864e5 <= 90).length, stay = a.members.length + left ? a.members.length / (a.members.length + left) * 100 : 100;
       const next = sessionsToday.find(x => x.status !== 'ended' && new Date(x.start).getTime() + (x.duration || 60) * 6e4 >= now.getTime()) || sessionsToday[0];
-      const money = v => new Intl.NumberFormat('en-US').format(Math.round(v)) + ' ج';
+      const money = v => new Intl.NumberFormat('en-US').format(Math.round(v)) + ' EGP';
       return `${FU.operatingAlerts(a)}<section class="fb-day"><div class="fb-day-main"><span class="fb-day-eyebrow">✦ لوحة التحكم · ${E(label)}</span><h1>نظرة سريعة على يومك 🚀</h1><p>${sessionsToday.length} حصص اليوم، ${paidToday.length} دفعة محصّلة بقيمة ${money(paidToday.reduce((n, t) => n + t.amount, 0))}، و${waiting} دفعات بانتظار التحقق.</p>
         <div class="fb-day-actions"><button type="button" class="fb-day-btn dark" onclick="Registration.addPlayers()">＋ تسجيل لاعب جديد</button><button type="button" class="fb-day-btn" onclick="${next ? `AcademyUI.sessionDetail('${next.id}')` : "toast('مفيش حصص النهارده')"}">📅 ${next && new Date(next.start) <= now ? 'الحصة الجارية' : 'بدء حصة اليوم'}</button><button type="button" class="fb-day-link" onclick="go('reports')">عرض التقارير ‹</button></div></div>
         <div class="fb-day-rings">${[['النشطون', active, '#2d604c', 'اشتراك ساري من كل اللاعبين'], ['التحصيل', billed ? got / billed * 100 : 0, '#2f6f8f', 'المدفوع من فواتير الشهر'], ['البقاء', stay, '#b8954f', 'اللاعبين اللي كمّلوا آخر 90 يوم']].map(([l, v, c, t]) => `<div class="fb-ring" title="${t}">${ringSvg(v, c)}<small>${l}</small></div>`).join('')}</div></section>`;
@@ -259,7 +259,7 @@
         const html = baseHome(); if (AU.sport !== 'football') return html.replace(/<header class="sport-workspace-heading">[\s\S]*?<\/header>/, FU.dayHero(AU.scope(), window.SportEngine?.get(AU.sport)?.name || ''));
         const k = html.indexOf('<div class="ny-kpis">'), t = html.indexOf('<section class="ny-panel">', k), bg = html.indexOf('<div class="sport-bottom-grid">');
         if (k < 0 || t < 0 || bg < 0) return html;
-        const money = v => new Intl.NumberFormat('en-US').format(v) + ' ج', a = AU.scope(), now = new Date(), inScope = new Set(a.groups.map(g => g.id));
+        const money = v => new Intl.NumberFormat('en-US').format(v) + ' EGP', a = AU.scope(), now = new Date(), inScope = new Set(a.groups.map(g => g.id));
         const squadsList = a.groups.filter(FC.isSquad).sort((x, y) => y.fb.birthYear - x.fb.birthYear).map(g => FC.squadSummary(db.state, g, now)), school = a.groups.filter(g => !FC.isSquad(g));
         const pathPlayers = squadsList.flatMap(x => x.players), schoolPlayers = a.members.filter(m => school.some(g => g.id === m.group));
         const due = squadsList.reduce((n, x) => n + x.due, 0), hurt = pathPlayers.filter(p => FC.injured(db.state, p.id)).length, high = pathPlayers.filter(p => FC.workload(db.state, p.id, now).zone === 'high').length;
@@ -287,7 +287,7 @@
     const fbGroups = () => db.state.groups.filter(g => g.sport === 'football' && (U().branch === 'all' || g.branch === U().branch));
     const playersIn = gs => { const ids = new Set(gs.map(g => g.id)); return db.state.members.filter(m => ids.has(m.group)); };
     const nameOf = g => FC.isSquad(g) ? FC.squadName(g.fb.birthYear) : g.name;
-    const cash = v => new Intl.NumberFormat('en-US').format(Math.round(v)) + ' ج';
+    const cash = v => new Intl.NumberFormat('en-US').format(Math.round(v)) + ' EGP';
     const wrap = (key, fn) => { const base = PAGES[key]; if (!base) return; PAGES[key] = function () { return isFb() ? fn.apply(this, arguments) : base.apply(this, arguments); }; };
     const MANAGERS = { 'الشيخ زايد': 'أ. رامي', 'أكتوبر': 'أ. هاني', 'المهندسين': 'أ. وائل' };
 

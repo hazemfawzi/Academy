@@ -149,10 +149,10 @@
   PAGES.resources = function () {
     const paid = M.BOOKINGS.filter(b => b[3] === 'booking').length, total = M.COURTS.length * M.SLOTS.length, used = M.BOOKINGS.length;
     return `<div class="grid g4"><div class="card kpi"><div class="l">إشغال الملاعب النهارده</div><div class="v">${Math.round(used / total * 100)}%</div><div class="d muted">${used} من ${total} فترة محجوزة</div></div>
-      <div class="card kpi"><div class="l">حجوزات خارجية</div><div class="v">${paid}</div><div class="d muted">إيراد ${(paid * 600).toLocaleString('en')} ج</div></div>
+      <div class="card kpi"><div class="l">حجوزات خارجية</div><div class="v">${paid}</div><div class="d muted">إيراد ${(paid * 600).toLocaleString('en')} EGP</div></div>
       <div class="card kpi"><div class="l">حصص الجروبات</div><div class="v">${M.BOOKINGS.filter(b => b[3] === 'group').length}</div><div class="d muted">محجوزة أوتوماتيك من الجدول</div></div>
       <div class="card kpi"><div class="l">بطولات</div><div class="v">${new Set(M.BOOKINGS.filter(b => b[3] === 'event').map(b => b[2])).size}</div><div class="d muted">أمريكانو الخميس</div></div></div>
-      <div class="card" style="margin-top:16px"><h3>🎾 ملاعب البادل · النهارده<span class="sp"></span><span class="muted">الساعة ونص بـ 600 ج</span></h3>${courtsGrid(false)}
+      <div class="card" style="margin-top:16px"><h3>🎾 ملاعب البادل · النهارده<span class="sp"></span><span class="muted">الساعة ونص بـ 600 EGP</span></h3>${courtsGrid(false)}
       <div class="ms-legend"><span class="group">جروب</span><span class="booking">حجز</span><span class="event">بطولة</span><span class="free">فاضي</span></div></div>
       <div class="card" style="margin-top:16px"><h3>موارد تانية بتتحجز بنفس الطريقة</h3><div class="muted">حارات حمام السباحة، صالة الجمباز، ملاعب الكورة الخماسي، وأي حصان في الإسطبل لو الأكاديمية فيها فروسية.</div></div>`;
   };
@@ -163,11 +163,11 @@
     return `<div class="grid g4"><div class="card kpi"><div class="l">حسابات عائلية</div><div class="v">${M.FAMILIES.length}</div></div>
       <div class="card kpi"><div class="l">أفراد تحت الحسابات</div><div class="v">${kids}</div></div>
       <div class="card kpi"><div class="l">خصم الإخوات</div><div class="v">10%</div><div class="d muted">من تاني فرد في العيلة</div></div>
-      <div class="card kpi"><div class="l">مستحق على العائلات</div><div class="v" style="color:var(--red)">${due.toLocaleString('en')} ج</div></div></div>
+      <div class="card kpi"><div class="l">مستحق على العائلات</div><div class="v" style="color:var(--red)">${due.toLocaleString('en')} EGP</div></div></div>
       <div class="ms-fam">${M.FAMILIES.map((f, i) => `<div class="card"><h3>${esc(f.parent)}<span class="sp"></span><span class="muted v-mono">${f.phone}</span></h3>
         <div class="list">${f.kids.map(k => { const s = M.sport(k.sport); return `<div class="it"><span class="ms-ico sm">${s.ico}</span><div class="f1"><b>${esc(k.n)}</b><div class="muted">${k.age ? k.age + ' سنين · ' : ''}${esc(k.group)}</div></div><span class="badge ${stB(k.status)}">${k.status}</span></div>`; }).join('')}</div>
-        <div class="ms-famfoot"><div><div class="muted">الاشتراك الشهري للعيلة</div><b>${f.monthly.toLocaleString('en')} ج</b>${f.discount ? ` <span class="badge b-green">خصم ${f.discount}%</span>` : ''}</div>
-        ${f.due ? `<button class="btn sm" onclick="MSD.collect(${i})">تحصيل ${f.due} ج</button>` : '<span class="badge b-green">مدفوع</span>'}<button class="btn sm wa" onclick="toast('اتبعتت رسالة لـ ${esc(f.parent)} على الواتساب')">واتساب</button></div></div>`).join('')}</div>`;
+        <div class="ms-famfoot"><div><div class="muted">الاشتراك الشهري للعيلة</div><b>${f.monthly.toLocaleString('en')} EGP</b>${f.discount ? ` <span class="badge b-green">خصم ${f.discount}%</span>` : ''}</div>
+        ${f.due ? `<button class="btn sm" onclick="MSD.collect(${i})">تحصيل ${f.due} EGP</button>` : '<span class="badge b-green">مدفوع</span>'}<button class="btn sm wa" onclick="toast('اتبعتت رسالة لـ ${esc(f.parent)} على الواتساب')">واتساب</button></div></div>`).join('')}</div>`;
   };
 
   /* ---------- actions ---------- */
@@ -190,10 +190,10 @@
     notifyExam() { toast(`اتبعت ميعاد الاختبار (${M.KARATE_EXAM.date}) لأولياء الأمور`); },
     book(c, t) {
       modal(`<h2>حجز ${M.COURTS[c]} · ${M.SLOTS[t]}</h2><label class="muted">اسم اللي حاجز</label><input id="msBk" class="sel" style="width:100%;margin:6px 0 12px" placeholder="مثلاً: عمرو نبيل + 3">
-        <div class="muted" style="margin-bottom:12px">السعر 600 ج للساعة ونص · الدفع كاش أو إنستاباي</div><button class="btn" onclick="MSD.saveBook(${c},${t})">تأكيد الحجز</button>`);
+        <div class="muted" style="margin-bottom:12px">السعر 600 EGP للساعة ونص · الدفع كاش أو إنستاباي</div><button class="btn" onclick="MSD.saveBook(${c},${t})">تأكيد الحجز</button>`);
     },
     saveBook(c, t) { const v = (document.getElementById('msBk').value || '').trim() || 'حجز جديد'; M.BOOKINGS.push([c, t, v, 'booking']); closeAll(); toast('الحجز اتأكد واتبعت للعميل'); render(); },
-    collect(i) { const f = M.FAMILIES[i]; toast(`اتحصّل ${f.due} ج من ${f.parent}`); f.due = 0; f.kids.forEach(k => { if (k.status === 'متأخر') k.status = 'نشط'; }); render(); }
+    collect(i) { const f = M.FAMILIES[i]; toast(`اتحصّل ${f.due} EGP من ${f.parent}`); f.due = 0; f.kids.forEach(k => { if (k.status === 'متأخر') k.status = 'نشط'; }); render(); }
   };
 
   const h = (location.hash || '').slice(1);

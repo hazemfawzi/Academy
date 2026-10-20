@@ -51,7 +51,7 @@
         {id:'demo-lead-2',name:'أدهم مجدي',phone:'01000000992',stage:'booked',source:'ترشيح عضو',owner:'كابتن محمود',due:db.day(later(1)),note:'حصة تجربة بكرة؛ يحضر بدري 15 دقيقة'},
         {id:'demo-lead-3',name:'يوسف مؤمن',phone:'01000000993',stage:'attended',source:'زيارة الفرع',owner:'سارة — الاستقبال',due:db.day(now),note:'حضر التجربة ومستواه متوسط؛ محتاج اختيار باقة'},
         {id:'demo-lead-4',name:'عمرو نبيل',phone:'01000000994',stage:'followup',source:'مدرب',owner:'أ. رامي',due:db.day(ago(1)),note:'مناسب له مرتين أسبوعيًا؛ اتفقوا على الجروب'},
-        {id:'demo-lead-5',name:'عمر منصور',phone:'01000000881',stage:'won',source:'ترشيح عضو',owner:'سارة — الاستقبال',due:db.day(ago(1)),note:'اشترك 3 شهور بعد التجربة؛ إيصال 2400 ج'},
+        {id:'demo-lead-5',name:'عمر منصور',phone:'01000000881',stage:'won',source:'ترشيح عضو',owner:'سارة — الاستقبال',due:db.day(ago(1)),note:'اشترك 3 شهور بعد التجربة؛ إيصال 2400 EGP'},
         {id:'demo-lead-6',name:'خالد سامح',phone:'01000000996',stage:'lost',source:'فيسبوك',owner:'سارة — الاستقبال',due:db.day(ago(2)),note:'مواعيد الشغل متعارضة مع الحصص'}
       ].map(l=>({...l,created:ago(7),history:[{stage:l.stage,note:l.note,at:ago(1)}]})));
       add('followups',[
@@ -66,9 +66,9 @@
       ]);
       add('shifts',[{id:'demo-shift-1',at:ago(1),expected:2400,actual:2400,difference:0,note:'الوردية اتسلمت لأ. رامي من غير فروق',transactionIds:['demo-tx-1','demo-tx-2']}]);
       add('audit',[
-        {id:'demo-audit-1',at:at(-60),action:'تحصيل جزئي',details:'مصطفى شادي · 300 من 900 ج'},
-        {id:'demo-audit-2',at:at(-30),action:'استرداد',details:'عمر منصور · 100 ج'},
-        {id:'demo-audit-3',at:ago(1),action:'إقفال وردية',details:'الكاش مطابق — 2400 ج'},
+        {id:'demo-audit-1',at:at(-60),action:'تحصيل جزئي',details:'مصطفى شادي · 300 من 900 EGP'},
+        {id:'demo-audit-2',at:at(-30),action:'استرداد',details:'عمر منصور · 100 EGP'},
+        {id:'demo-audit-3',at:ago(1),action:'إقفال وردية',details:'الكاش مطابق — 2400 EGP'},
         {id:'demo-audit-4',at:ago(5),action:'قبول تجديد',details:'أحمد سامي · شهري · إنستاباي'}
       ]);
       s.transactions.sort((a,b)=>new Date(b.at)-new Date(a.at));

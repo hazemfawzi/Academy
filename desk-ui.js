@@ -108,7 +108,7 @@
     /* ---------- the office assistant ---------- */
     const norm = s => String(s || '').replace(/[ً-ْ]/g, '').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').toLowerCase();
     const has = (q, ...words) => words.some(w => q.includes(norm(w)));
-    const money = v => new Intl.NumberFormat('en-US').format(Math.round(v)) + ' ج';
+    const money = v => new Intl.NumberFormat('en-US').format(Math.round(v)) + ' EGP';
     const scope = () => { const gs = db.state.groups.filter(inEdition), ids = new Set(gs.map(g => g.id)); return { gs, ms: db.state.members.filter(m => ids.has(m.group)) }; };
     const HOW = [
       [['سجل', 'تسجيل', 'اضيف لاعب', 'اضافه لاعب', 'لاعب جديد'], () => ({ text: 'تسجيل لاعب بيتم على خطوات: ولي الأمر ← بيانات اللاعب (الجنسية والصورة) ← المسار والفريق ← المراجعة. اللاعب بيدخل فريق سنه أو مجموعة المدرسة على طول، والفاتورة بتتعمل لوحدها. ولو عندك لاعبين كتير استوردهم من ملف Excel.', actions: [['إضافة لاعبين', 'Registration.addPlayers()']] })],

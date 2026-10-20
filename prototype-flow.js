@@ -1,5 +1,5 @@
 (function(){
- const db=V.db,mobile=typeof APPS!=='undefined',el=id=>document.getElementById(id),val=id=>el(id)?.value?.trim()||'',E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),fmt=new Intl.NumberFormat('en-US',{maximumFractionDigits:2}),money=n=>fmt.format(n)+' ج',box=()=>el(mobile?'sheet':'modal'),render=()=>mobile?draw():window.render();
+ const db=V.db,mobile=typeof APPS!=='undefined',el=id=>document.getElementById(id),val=id=>el(id)?.value?.trim()||'',E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),fmt=new Intl.NumberFormat('en-US',{maximumFractionDigits:2}),money=n=>fmt.format(n)+' EGP',box=()=>el(mobile?'sheet':'modal'),render=()=>mobile?draw():window.render();
  const F=window.PrototypeFlow={pending:null};
  F.snapshot=(ids=[])=>({html:box().innerHTML,fields:[...new Set([...Array.from(box().querySelectorAll('input[id],select[id],textarea[id]')).map(x=>x.id),...ids])].map(id=>({id,value:el(id)?.value,checked:el(id)?.checked,readOnly:el(id)?.readOnly}))});
  F.restore=s=>{box().innerHTML=s.html;s.fields.forEach(f=>{const x=el(f.id);if(x){x.value=f.value;x.checked=f.checked;x.readOnly=f.readOnly;}});};

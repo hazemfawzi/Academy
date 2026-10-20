@@ -7,7 +7,7 @@
   if (typeof APPS === 'undefined' || !window.AcademyApps || !window.AcademyModel) return;
   const AA = window.AcademyApps, M = window.AcademyModel, SE = window.SportEngine, db = V.db;
   const E = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const money = n => new Intl.NumberFormat('en-US').format(Math.round(n)) + ' ج';
+  const money = n => new Intl.NumberFormat('en-US').format(Math.round(n)) + ' EGP';
   const when = v => new Intl.DateTimeFormat('ar-EG-u-nu-latn', { weekday: 'long', hour: 'numeric', minute: '2-digit' }).format(new Date(v));
   const short = v => new Intl.DateTimeFormat('ar-EG-u-nu-latn', { day: 'numeric', month: 'short' }).format(new Date(v));
   const empty = (t, d) => `<div class="ma-empty"><b>${E(t)}</b><p>${E(d)}</p></div>`;
