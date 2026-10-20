@@ -35,6 +35,19 @@
     root.querySelectorAll('[placeholder],[aria-label],[title]').forEach(el => ['placeholder', 'aria-label', 'title'].forEach(a => { const v = el.getAttribute(a); if (v && /جروب|عضو|أعضاء/.test(v)) el.setAttribute(a, fix(v)); }));
   };
   document.documentElement.dataset.edition = ED.sport || 'all';
+  /* The full multi-sport academy: football's own tools sit together in one «كرة القدم»
+     section after the programs, so the shared menu stays the same for every sport. */
+  if (!ED.single && window.WS_SECTIONS) {
+    const S = window.WS_SECTIONS, at = S.findIndex(x => x[0] === 'pathway');
+    if (at >= 0) {
+      const [fb] = S.splice(at, 1), OWN = { skills: 'المهارات والقوالب', tactics: 'اللوحة التكتيكية', matches: 'الماتشات والتقسيمة' };
+      fb[1] = 'كرة القدم';
+      fb[2] = fb[2].map(([r, t]) => [r, r === 'pathway' ? 'مسار الاحتراف' : t]);
+      S.forEach(sec => { for (let i = sec[2].length - 1; i >= 0; i--) { const r = sec[2][i][0]; if (OWN[r]) { sec[2].splice(i, 1); fb[2].push([r, OWN[r]]); } } });
+      const cal = S.findIndex(x => x[0] === 'calendar');
+      S.splice(cal >= 0 ? cal + 1 : S.length - 1, 0, fb);
+    }
+  }
   if (!ED.single) return;
   document.body.classList.add('edition-single');
   document.title = ED.title;

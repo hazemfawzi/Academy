@@ -5,7 +5,7 @@
 (function () {
   'use strict';
   if (!window.V || !window.SportEngine) return;
-  const db = V.db, VERSION = 15;
+  const db = V.db, VERSION = 16;
   if ((db.state.sportDemoVersion || 0) >= VERSION) return;
   const firstRun = (db.state.sportDemoVersion || 0) < 1;
 
@@ -503,7 +503,7 @@
      saved tactical boards. */
   if ((db.state.sportDemoVersion || 0) < 15 && window.FootballLab) V.run(() => db.update(s => {
     const L = window.FootballLab, FC = window.FootballCore, S = L.setup(s);
-    if ((s.fbBoards || []).length) { s.sportDemoVersion = VERSION; return; }
+    if ((s.fbBoards || []).length) { s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 15); return; }
     const g = s.groups.find(x => x.sport === 'football' && !(FC && FC.isSquad(x)) && s.members.some(m => m.group === x.id));
     if (g) s.members.filter(m => m.group === g.id).slice(0, 14).forEach(m => [40, 6].forEach((d, round) => { const values = {}; S.skills.forEach((k, j) => { if ((hash(m.id + k.id) + j) % 3) values[k.id] = Math.max(1, Math.min(5, 2 + (hash(m.id + k.id) % 3) + round - (j % 2))); }); if (Object.keys(values).length) L.rate(s, m.id, values, { now: daysFrom(-d), by: g.coach }); }));
     const sq = FC && FC.squads(s)[2];
@@ -511,6 +511,90 @@
     L.saveBoard(s, { id: 'board-press', title: 'الضغط العالي بعد فقد الكورة', field: 'full', squad: sq ? sq.id : '', category: 'دفاعي', tags: 'ضغط عالي، تحولات', notes: 'الثلاثي الأمامي يقفل خطوط التمرير للقلبين. لاعب الوسط يغطي الطرف.', items: press }, { now: daysFrom(-3), by: 'الإدارة الفنية' });
     const corner = [{ t: 'player', team: 'a', n: 9, x: .5, y: .45 }, { t: 'player', team: 'a', n: 5, x: .42, y: .55 }, { t: 'player', team: 'a', n: 4, x: .38, y: .35 }, { t: 'player', team: 'a', n: 11, x: .97, y: .05 }, { t: 'player', team: 'b', n: 1, x: .96, y: .5 }, { t: 'ball', x: .97, y: .04 }, { t: 'line', kind: 'pass', a: [.95, .06], b: [.86, .45], color: '#ffffff', w: 4 }, { t: 'line', kind: 'run', a: [.5, .45], b: [.86, .45], color: '#eab308', w: 4 }, { t: 'line', kind: 'run', a: [.42, .55], b: [.84, .6], color: '#eab308', w: 4 }];
     L.saveBoard(s, { id: 'board-corner', title: 'ركنية قصيرة على القائم القريب', field: 'half', squad: sq ? sq.id : '', category: 'كرات ثابتة', tags: 'ركنية، رأسيات', notes: 'الإشارة: رفع اليد اليمين.', items: corner }, { now: daysFrom(-1), by: 'الإدارة الفنية' });
+    s.sportDemoVersion = Math.max(s.sportDemoVersion || 0, 15);
+  }));
+  /* Version 16: a real multi-sport academy — a second group for every sport in another
+     branch with its own coach, players, sessions, levels, measurements and payments, and
+     skill ratings that differ from player to player so rankings mean something everywhere. */
+  if ((db.state.sportDemoVersion || 0) < 16 && window.SportEngine) V.run(() => db.update(s => {
+    const def = id => SportEngine.get(id);
+    /* id, name, branch, sport, coach, place, days, time, ages, capacity, players (name, age, guardian, phone, level, gender) */
+    const NEW = [
+      ['ms-swim-2', 'سباحة ناشئين · مستوى 4', 'أكتوبر', 'swimming', 'كابتن مي', 'حارة 1 · أكتوبر', [0, 2, 4], '18:00', [8, 14], 12,
+        [['جنا وليد', 10, 'وليد سامح', '01310001111', 3, 'f'], ['آسر محمود', 11, 'محمود الشريف', '01310002222', 3, 'm'], ['ملك حسين', 9, 'حسين جاد', '01310003333', 2, 'f'], ['يحيى عماد', 12, 'عماد فوزي', '01310004444', 4, 'm'], ['رقية سامي', 10, 'سامي رشدي', '01310005555', 3, 'f'], ['تميم أشرف', 13, 'أشرف لطفي', '01310006666', 4, 'm'], ['لوجين علاء', 8, 'علاء صبحي', '01310007777', 2, 'f']]],
+      ['ms-swim-3', 'سباحة كبار · تحسين أداء', 'المهندسين', 'swimming', 'كابتن مي', 'حارة 3 · المهندسين', [5, 1], '20:00', [15, 60], 10,
+        [['هالة منصور', 34, '', '01320001111', 4, 'f'], ['كريم زهران', 29, '', '01320002222', 5, 'm'], ['سلمى عادل', 26, '', '01320003333', 3, 'f'], ['باسم نعيم', 41, '', '01320004444', 3, 'm'], ['رنا فكري', 31, '', '01320005555', 4, 'f'], ['حازم أنور', 38, '', '01320006666', 5, 'm']]],
+      ['ms-karate-2', 'كاراتيه ناشئين · أحزمة متقدمة', 'المهندسين', 'karate', 'سنسي حازم', 'صالة المهندسين', [1, 3], '18:30', [10, 15], 14,
+        [['مهند ياسر', 13, 'ياسر عبد العزيز', '01330001111', 4, 'm'], ['فارس هاني', 12, 'هاني رمزي', '01330002222', 3, 'm'], ['جميلة عمر', 11, 'عمر الشناوي', '01330003333', 3, 'f'], ['معاذ رأفت', 14, 'رأفت حمدي', '01330004444', 5, 'm'], ['حلا مصطفى', 10, 'مصطفى بدر', '01330005555', 2, 'f'], ['أنس طلعت', 15, 'طلعت سعد', '01330006666', 5, 'm'], ['ريم فتحي', 12, 'فتحي يونس', '01330007777', 3, 'f']]],
+      ['ms-gym-2', 'جمباز أولاد · 6 لـ 10 سنين', 'أكتوبر', 'gymnastics', 'كابتن رنا', 'صالة الجمباز · أكتوبر', [6, 2], '17:00', [6, 10], 12,
+        [['سيف مدحت', 7, 'مدحت سالم', '01340001111', 1, 'm'], ['مروان رشاد', 8, 'رشاد عطية', '01340002222', 2, 'm'], ['حمزة إيهاب', 6, 'إيهاب الدسوقي', '01340003333', 0, 'm'], ['نوح أيمن', 9, 'أيمن الصاوي', '01340004444', 3, 'm'], ['زياد كمال', 7, 'كمال حبيب', '01340005555', 1, 'm'], ['عبد الله رامز', 10, 'رامز عزت', '01340006666', 3, 'm']]],
+      ['ms-padel-2', 'بادل · مستوى B', 'الشيخ زايد', 'padel', 'كابتن كريم', 'ملعب بادل 2', [0, 3], '21:00', [16, 60], 8,
+        [['شريف الألفي', 36, '', '01350001111', 2, 'm'], ['داليا نصار', 32, '', '01350002222', 2, 'f'], ['عمرو الجندي', 44, '', '01350003333', 3, 'm'], ['ناهد سليم', 39, '', '01350004444', 1, 'f'], ['هشام رضوان', 27, '', '01350005555', 3, 'm'], ['ميار حسني', 24, '', '01350006666', 2, 'f']]],
+      ['ms-fit-2', 'لياقة · تخسيس وقوة', 'المهندسين', 'fitness', 'كوتش دينا', 'صالة اللياقة · المهندسين', [0, 2, 4], '19:00', [18, 60], 16,
+        [['إسراء حمدي', 33, '', '01360001111', 1, 'f'], ['محمود السيد', 42, '', '01360002222', 0, 'm'], ['نرمين جلال', 29, '', '01360003333', 2, 'f'], ['طارق شوقي', 37, '', '01360004444', 1, 'm'], ['هبة الله فريد', 31, '', '01360005555', 2, 'f'], ['أيمن فاروق', 46, '', '01360006666', 0, 'm'], ['رحاب سعيد', 28, '', '01360007777', 1, 'f']]]
+    ];
+    s.sportProgress = s.sportProgress || []; s.skillMarks = s.skillMarks || {}; s.levelHistory = s.levelHistory || [];
+    const ids = new Set(s.members.map(m => m.id));
+    const skillOf = (id, lvl) => Array.from({ length: 5 }, (_, k) => Math.max(1, Math.min(5, 2 + Math.round(lvl / 2) + ((hash(id + k) % 3) - 1))));
+    NEW.forEach(([gid, name, branch, sport, coach, resource, days, time, [ageMin, ageMax], capacity, rows]) => {
+      const d = def(sport);
+      if (!d || s.groups.some(g => g.id === gid)) return;
+      const program = (d.programs || []).find(p => ageMin >= p.ageMin && ageMin <= p.ageMax) || (d.programs || [])[0];
+      s.groups.push({ id: gid, name, branch, sport, capacity, coach, resource, days, time, ageMin, ageMax, programId: program?.id, demo: true });
+      const cfg = { days, time };
+      rows.forEach(([pname, age, guardian, phone, lvl, gender], i) => {
+        const id = `demo-${gid}-${i}`;
+        if (ids.has(id)) return;
+        const level = d.levels[Math.min(lvl, d.levels.length - 1)], created = iso(daysFrom(-130 + i * 9));
+        const overdue = i === rows.length - 1, skill = skillOf(id, lvl);
+        s.members.push({
+          id, name: pname, phone: guardian ? '' : phone, group: gid, plan: 'monthly', end: overdue ? iso(daysFrom(-3)) : iso(daysFrom(5 + (i * 7) % 25)), remaining: overdue ? 0 : 2 + (i * 5) % 9,
+          freezeBalance: 10, freezes: [], makeupCredits: 1, makeupExpiry: iso(daysFrom(30)), attendance: 0, skill, previousSkill: skill.map(v => Math.max(1, v - (hash(id) % 2))),
+          created, dob: birth(age), gender, sportLevel: level.id, programId: program?.id, medical: '', branch, sport,
+          guardian: guardian ? { name: guardian, phone, relation: 'والد' } : null, emergency: guardian ? { name: guardian, phone } : { name: '', phone: '' }, demo: true
+        });
+        ids.add(id);
+        s.levelHistory.push({ id: `demo-lh-${id}-0`, memberId: id, sport, levelId: d.levels[0].id, levelName: d.levels[0].name, reason: 'تقييم البداية', at: created, by: coach });
+        if (lvl > 0) s.levelHistory.push({ id: `demo-lh-${id}-1`, memberId: id, sport, levelId: level.id, levelName: level.name, reason: 'اجتاز متطلبات المستوى السابق', at: iso(daysFrom(-40 + i * 2)), by: coach });
+        const marks = s.skillMarks[id] = s.skillMarks[id] || {};
+        (level.skills || []).forEach((sk, j) => { if ((hash(id) + j) % 3) marks[sk.id] = { at: iso(daysFrom(-18 + j)), by: coach, sessionId: '' }; });
+        d.metrics.slice(0, 2).forEach((mt, k) => [-42, -28, -14, -3].forEach((offset, step) => {
+          const seed = hash(id + mt.id);
+          let value;
+          if (mt.kind === 'time') value = Math.round(((mt.name.includes('50') ? 60 : 32) - lvl * 2 - step * 0.8 + (seed % 20) / 10) * 10) / 10;
+          else if (mt.kind === 'score') value = Math.min(100, 52 + lvl * 6 + step * 5 + seed % 10);
+          else if (mt.kind === 'number') value = 25 + lvl * 12 + step * 6 + seed % 10;
+          else value = Math.min(5, 2 + Math.floor((lvl + step + seed % 2) / 2));
+          s.sportProgress.push({ id: `demo-pr-${id}-${k}-${step}`, memberId: id, sport, metricId: mt.id, kind: mt.kind, label: mt.name, value, unit: mt.unit, note: step === 3 ? 'تحسن ملحوظ' : '', sessionId: '', at: iso(daysFrom(offset)), by: coach, demo: true });
+        }));
+      });
+      const roster = s.members.filter(m => m.group === gid);
+      weeklyStarts(cfg, -42, -1).forEach((start, k) => {
+        const present = Object.fromEntries(roster.filter((m, i) => (hash(m.id + k) % 10) < 6 + (i % 4)).map(m => [m.id, true]));
+        s.sessions.push({ id: `demo-${gid}-past-${k}`, group: gid, start: iso(start), duration: d.duration, status: 'ended', rsvp: {}, arrived: {}, present, teams: null, record: null, history: [], coach, resource, demo: true });
+      });
+      weeklyStarts(cfg, 0, 14).forEach((start, k) => {
+        s.sessions.push({ id: `demo-${gid}-next-${k}`, group: gid, start: iso(start), duration: d.duration, status: 'scheduled', rsvp: k === 0 ? Object.fromEntries(roster.slice(0, 4).map(m => [m.id, 'confirmed'])) : {}, arrived: {}, present: {}, teams: null, record: null, history: [], coach, resource, demo: true });
+      });
+      roster.forEach(m => { const held = s.sessions.filter(x => x.group === gid && x.status === 'ended'); m.attendance = held.length ? Math.round(held.filter(x => x.present[m.id]).length / held.length * 100) : 0; });
+      /* Two paid subscriptions and one partly paid in every new group. */
+      const price = program?.price || 900;
+      roster.slice(0, 3).forEach((m, i) => {
+        if (s.invoices.some(x => x.id === 'demo-ms-inv-' + m.id)) return;
+        const paid = i === 2 ? Math.round(price / 2) : price, at = iso(now.getTime() - (40 + i * 170) * 60000);
+        s.invoices.unshift({ id: 'demo-ms-inv-' + m.id, memberId: m.id, plan: 'monthly', planLabel: 'شهري', subtotal: price, discount: 0, total: price, paid, activated: paid >= price, created: at, demo: true });
+        s.transactions.unshift({ id: 'demo-ms-tx-' + m.id, memberId: m.id, plan: 'monthly', method: ['إنستاباي', 'كاش', 'فودافون كاش'][i], reference: i === 1 ? '' : String(50000000 + hash(m.id) % 9999999), amount: paid, kind: 'payment', at, invoiceId: 'demo-ms-inv-' + m.id, demo: true });
+      });
+    });
+    /* The first sports' players also get ratings that differ from one player to the next. */
+    s.members.filter(m => m.demo && m.sportLevel && /^demo-(swimming|karate|gymnastics|padel|fitness)-\d+$/.test(m.id)).forEach(m => {
+      const d = def(s.groups.find(g => g.id === m.group)?.sport); if (!d) return;
+      const lvl = Math.max(0, d.levels.findIndex(l => l.id === m.sportLevel));
+      m.skill = skillOf(m.id, lvl); m.previousSkill = m.skill.map(v => Math.max(1, v - (hash(m.id) % 2)));
+    });
+    s.settings = s.settings || {};
+    s.settings.payroll = s.settings.payroll || {};
+    [['كابتن مي', { mode: 'session', perSession: 260 }], ['سنسي حازم', { mode: 'percent', percent: 35 }], ['كابتن رنا', { mode: 'session', perSession: 240 }]].forEach(([c, t]) => { if (!s.settings.payroll[c]) s.settings.payroll[c] = { base: 0, perSession: 0, percent: 0, ...t }; });
     s.sportDemoVersion = VERSION;
   }));
 })();

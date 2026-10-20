@@ -56,6 +56,8 @@
   navHTML = () => {
     const b = badges(), cur = sectionOf(state.page);
     return SECTIONS.map(([k, label, pages]) => {
+      /* Football's own tools leave the menu while another sport is in scope. */
+      if (k === 'pathway' && U.sport && U.sport !== 'all' && U.sport !== 'football') return '';
       const here = cur && cur[0] === k, subs = pages.length > 1, open = (here || peek === k) && subs && !folded.has(k);
       const head = `<a href="#${pages[0][0]}" class="ws-head ${here ? 'on' : ''} ${subs ? 'has-sub' : ''}" ${subs ? `aria-expanded="${open}"` : ''} onclick="WSNav.head('${k}','${pages[0][0]}');return false"><span class="ac-nav-icon">${icon(k)}</span><span class="ws-head-label">${E(label)}</span>${b[k] ? `<em class="ws-badge">${b[k]}</em>` : ''}${subs ? '<i class="ws-chev" aria-hidden="true"></i>' : ''}</a>`;
       if (!open) return head;

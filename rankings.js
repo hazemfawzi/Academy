@@ -20,7 +20,8 @@
     if (!g) return { key: 'none', name: 'بدون مجموعة' };
     const fc = FC();
     if (g.fb?.birthYear && g.fb.tier === 'pathway' && fc) { const u = fc.uOf(g.fb.birthYear); return { key: `${g.sport}:u${u}`, name: `تحت ${u}`, track: 'pathway', order: u }; }
-    const band = (bands?.[g.sport] || []).find(b => g.ageMin != null && g.ageMin >= b.ageMin && g.ageMin <= b.ageMax), track = g.sport === 'football' ? 'school' : '';
+    const list = bands?.[g.sport] || [], inside = b => g.ageMin != null && g.ageMin >= b.ageMin && g.ageMin <= b.ageMax;
+    const band = list.find(b => inside(b) && (g.ageMax == null || g.ageMax <= b.ageMax)) || list.find(inside), track = g.sport === 'football' ? 'school' : '';
     if (band) return { key: `${g.sport}:${band.name}`, name: band.name, track, order: 100 + band.ageMin };
     if (g.ageMin != null) return { key: `${g.sport}:${g.ageMin}-${g.ageMax}`, name: `سن ${g.ageMin}–${g.ageMax}`, track, order: 100 + g.ageMin };
     return { key: `${g.sport}:${g.level || 'all'}`, name: g.level || 'كل الأعمار', track, order: 999 };
@@ -59,6 +60,9 @@
       const g = groups.get(m.group), s = score(state, m);
       return { id: m.id, name: m.name, group: g.id, groupName: g.name, sport: g.sport, branch: g.branch || '', cat: category(state, g, bands), ...s };
     });
+    /* With more than one sport, a category carries its sport's name (سباحة · ناشئين). */
+    const names = Object.fromEntries((opts.sports || []).map(d => [d.id, d.name]));
+    if (new Set(rows.map(r => r.sport)).size > 1) rows.forEach(r => { if (names[r.sport] && !r.cat.sportName) r.cat = { ...r.cat, sport: r.sport, sportName: names[r.sport], name: `${names[r.sport]} · ${r.cat.name}` }; });
     const by = (key, field, sizeField) => {
       const sets = {};
       rows.forEach(r => { (sets[key(r)] = sets[key(r)] || []).push(r); });
@@ -74,7 +78,7 @@
     const cats = new Map();
     rows.forEach(r => { if (!cats.has(r.cat.key)) cats.set(r.cat.key, { ...r.cat, players: [], groups: new Set() }); const c = cats.get(r.cat.key); c.players.push(r); c.groups.add(r.group); });
     return [...cats.values()].map(c => ({ ...c, groups: c.groups.size, size: c.players.filter(r => r.catRank != null).length, top: c.players.filter(r => r.catRank != null).sort((a, b) => a.catRank - b.catRank).slice(0, n) }))
-      .filter(c => c.top.length).sort((a, b) => (a.order ?? 999) - (b.order ?? 999) || a.name.localeCompare(b.name, 'ar'));
+      .filter(c => c.top.length).sort((a, b) => (a.sportName || '').localeCompare(b.sportName || '', 'ar') || (a.order ?? 999) - (b.order ?? 999) || a.name.localeCompare(b.name, 'ar'));
   }
 
   /* The rank filters every players list offers. */
