@@ -38,3 +38,8 @@
 The club foundation is additive at `club.html`; 20 October multi-sport academy changes remain the baseline. Implemented: separate people/membership snapshots/enrollments; independent credits; guarded demo registration and attendance; overview, person profiles, sports, resources directory and implementation roadmap. Required club-domain tests are included in deployment CI.
 
 Pending: production API/database/authentication, real membership integration, transactional resource reservations, financial ledger migration, squads/seasons/registration, and external message delivery. Browser-only checks do not close those gates. Detailed scope corrections and validation commands: [club-foundation.md](club-foundation.md).
+
+
+### Club resource package — 21 October 2026
+
+Added daily resource reservations, whole/part conflicts, maintenance closures, cancellation history, Cairo/DST-aware hours, and additive preservation of saved v1 club data. Domain checks are in `club-booking.test.cjs`; browser acceptance is `scripts/check-club-booking.cjs`. Live API, authenticated roles and database concurrency remain pending; the preview explicitly labels reservations as browser-local.

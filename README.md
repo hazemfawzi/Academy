@@ -214,3 +214,5 @@ node --test kora-gym/tests.cjs
 `club.html` is the separate, browser-local club preview. It keeps membership snapshots read-only and separates people from their sports enrollments; it does not enable production accounts or overwrite academy data. See [club foundation scope and release gates](docs/club-foundation.md).
 
 Run its domain checks with `node --test club-model.test.cjs` and browser acceptance with `node scripts/check-club-workspace.cjs` (Playwright and Chromium required).
+
+The club resource preview now combines training, free bookings and maintenance. Whole-resource/unit conflicts and cancellation history are checked with `node --test club-booking.test.cjs` and `node scripts/check-club-booking.cjs`. Booking remains local until transactional server storage is implemented.
