@@ -32,3 +32,9 @@
 - جميع روابط القائمة تصل لصفحة تعمل.
 - لا تجاوز أفقي في الصفحات الأساسية بعرض 390 بكسل.
 - حفظ نسخة إعدادات الاستضافة قبل تعديلها، ومراجعة الروابط القديمة عند النشر.
+
+## Club sports package — 21 October 2026
+
+The club foundation is additive at `club.html`; 20 October multi-sport academy changes remain the baseline. Implemented: separate people/membership snapshots/enrollments; independent credits; guarded demo registration and attendance; overview, person profiles, sports, resources directory and implementation roadmap. Required club-domain tests are included in deployment CI.
+
+Pending: production API/database/authentication, real membership integration, transactional resource reservations, financial ledger migration, squads/seasons/registration, and external message delivery. Browser-only checks do not close those gates. Detailed scope corrections and validation commands: [club-foundation.md](club-foundation.md).

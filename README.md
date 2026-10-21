@@ -207,3 +207,10 @@ node --test kora-gym/tests.cjs
 فحص المدرب التفصيلي: `node scripts/check-coach-tabs.cjs` باستخدام نفس متطلبات Playwright وChromium. يشغّل التبويبات الخمسة وأدوات التدريب وروابط المزيد، ويفحص نطاق الترتيب وحفظ التقييمات للحصة والمجموعة المختارتين في بيانات متصفح معزولة.
 
 فحص مدير الفرع التفصيلي: `node scripts/check-manager-workspace.cjs`. يفحص التبويبات وخدمات الفرع، نطاق الفرع والمجموعات، التحصيل حسب البرنامج والدفع الجزئي والمنح، قرارات الطلبات، الاستفسارات والتسجيل، وجدولة الحصص ومنع التعارض، باستخدام بيانات متصفح معزولة.
+
+
+## Club sports foundation
+
+`club.html` is the separate, browser-local club preview. It keeps membership snapshots read-only and separates people from their sports enrollments; it does not enable production accounts or overwrite academy data. See [club foundation scope and release gates](docs/club-foundation.md).
+
+Run its domain checks with `node --test club-model.test.cjs` and browser acceptance with `node scripts/check-club-workspace.cjs` (Playwright and Chromium required).

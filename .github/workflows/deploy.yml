@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: '24'
       - name: Verify application
-        run: node --test tests.cjs academy-model.test.cjs sport-engine.test.cjs family-schedule.test.cjs apps-context.test.cjs
+        run: node --test tests.cjs academy-model.test.cjs sport-engine.test.cjs family-schedule.test.cjs apps-context.test.cjs club-model.test.cjs
       - name: Prepare static files
         run: |
           python3 scripts/prepare-static.py
@@ -107,3 +107,10 @@ jobs:
           curl --fail --silent --show-error --location https://store.view-mind.com/kora-gym-dashboard.html -o /tmp/academy-legacy-dashboard.html
           grep -q 'journey.js?v=' /tmp/academy-legacy-dashboard.html
           grep -q 'كل الرياضات في مكان واحد' /tmp/academy-root.html
+          curl --fail --silent --show-error https://store.view-mind.com/club.html -o /tmp/published-club.html
+          grep -q 'club-model.js?v=' /tmp/published-club.html
+          for club_asset in club-model.js club-ui.js club.css; do
+            club_hash=$(sha256sum "$club_asset" | cut -c1-12)
+            curl --fail --silent --show-error "https://store.view-mind.com/$club_asset?v=$club_hash" -o "/tmp/published-$club_asset"
+            cmp "$club_asset" "/tmp/published-$club_asset"
+          done
