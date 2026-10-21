@@ -1,0 +1,6 @@
+<IfModule mod_headers.c>
+  <Files "club-study.pdf">
+    Header set Content-Disposition "attachment; filename=club-study.pdf"
+    Header set X-Content-Type-Options "nosniff"
+  </Files>
+</IfModule>
