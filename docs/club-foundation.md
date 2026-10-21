@@ -60,7 +60,7 @@ The browser script checks responsive navigation, multi-enrollment persistence, b
 
 Implemented in the club preview:
 
-- A daily, branch-scoped resource calendar combines the fixed demonstration training sessions with free reservations and maintenance blocks. Selecting a different day does not change the underlying session dates.
+- A daily resource calendar, filtered by branch, a single selected resource and booking type, combines the fixed demonstration training sessions with free reservations and maintenance blocks. Selecting a different day does not change the underlying session dates.
 - Resources have stable unit IDs, whole-resource capacities, unit capacities, operating hours, and an optional setup buffer. Reserving a whole resource conflicts with any unit; two independent units remain bookable. The example pool uses separate lanes and the pitch two halves.
 - Free reservations validate beneficiary eligibility, unit ownership, participant capacity, future start, duration, Cairo operating hours and existing allocations. Time conversion uses `Africa/Cairo` and handles summer/winter offsets rather than a fixed +03 offset.
 - Maintenance cannot silently overwrite a training session or reservation. The conflicting request is rejected and existing records remain intact.
@@ -77,3 +77,8 @@ node scripts/check-club-booking.cjs
 ```
 
 Checks old saved v1 data, shared training visibility, whole/half conflicts, independent halves, maintenance rejection, cancellation and reuse, branch changes, reload persistence, mobile overflow, and unchanged enrollment/academy data.
+
+
+### Resource display refinement
+
+The bookings page displays one selected facility instead of stacking every facility on the same page. Filters select branch, facility, type (all/training/free/maintenance) and day. Active bookings and cancellation history use the same scope. Changing branches selects a valid facility or shows an empty state; creating a booking selects its facility/day and resets type to all so the new record is visible. Toolbar booking actions default to the selected facility. Browser acceptance exercises filter isolation and keeps the booking conflict tests intact.
